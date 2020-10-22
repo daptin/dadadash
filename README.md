@@ -1,6 +1,15 @@
-# DadaDash (dadadash)
+# Daptin Office Suite
 
-A Daptin Dashboard
+An Office suite with following capabilities:
+
+- File/folder manager
+- Upload files/folders, drag and drop files
+- Document editor
+- Spreadsheet editor
+
+# Preview
+
+
 
 ## Install the dependencies
 ```bash

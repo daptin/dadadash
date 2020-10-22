@@ -624,6 +624,10 @@ export default {
       screenWidth: (window.screen.width < 1200 ? window.screen.width : 1200) + "px",
     }
   },
+  unmounted() {
+    document.onpaste = null;
+    document.ondrop = null;
+  },
   mounted() {
     const that = this;
     this.containerId = "id-" + new Date().getMilliseconds();
