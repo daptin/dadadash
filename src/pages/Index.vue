@@ -553,6 +553,9 @@
     },
     mounted() {
       const that = this;
+
+      this.$router.push('/apps/files')
+      return
       this.$q.loadingBar.start();
       that.loadTables().then(function () {
         that.$q.loadingBar.stop()

@@ -3,7 +3,7 @@
     <div class="flex flex-center">
       <div style="min-width: 30%">
         <div class="q-pa-md">
-          <h3>Register</h3>
+          <h3>Sign up</h3>
 
           <q-form
             @submit="onSubmit"
@@ -34,7 +34,7 @@
 
 
             <div>
-              <q-btn class="float-left" label="Register" type="submit" color="primary"/>
+              <q-btn class="float-left" label="Sign up" type="submit" color="primary"/>
               <q-btn class="float-right" label="Login" @click="$router.push('/login')" type="reset" color="secondary"
                      flat/>
             </div>
