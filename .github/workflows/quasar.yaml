@@ -28,6 +28,7 @@ jobs:
 
       - name: Build
         run: |
+          npm install
           quasar build -m spa
 
       - uses: actions/upload-artifact@v2
