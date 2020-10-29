@@ -38,7 +38,7 @@ jobs:
         run: |
           quasar build -m spa
 
-  - uses: actions/upload-artifact@v2
-    with:
-      name: web-spa
-      path: disp/spa
+      - uses: actions/upload-artifact@v2
+        with:
+          name: web-spa
+          path: disp/spa
