@@ -1,19 +1,5 @@
 <template xmlns:v-slot="http://www.w3.org/1999/XSL/Transform">
   <div>
-    <div class="q-pa-md q-gutter-sm">
-      <q-breadcrumbs >
-        <template v-slot:separator>
-          <q-icon
-            size="1.2em"
-            name="arrow_forward"
-          />
-        </template>
-
-        <q-breadcrumbs-el label="Database" icon="fas fa-database"/>
-        <q-breadcrumbs-el label="Tables" icon="fas fa-table"/>
-      </q-breadcrumbs>
-    </div>
-    <q-separator></q-separator>
 
 
     <q-page-sticky style="z-index: 3000" position="bottom-right" :offset="[20, 20]">
@@ -24,13 +10,13 @@
       <div class="col-12 q-gutter-sm">
         <q-markup-table flat>
           <tbody>
-          <tr style="cursor: pointer" @click="$router.push('/tables/data/' + table.table_name)" v-for="table in tablesFiltered">
+          <tr style="cursor: pointer" @click="$router.push('/apps/workspace/' + table.table_name)" v-for="table in tablesFiltered">
             <td>{{table.table_name}}</td>
-            <td align="right">
+            <td style="text-align: left">
               <q-btn @click.stop="$router.push('/tables/edit/' + table.table_name)" flat icon="fas fa-wrench"></q-btn>
             </td>
-            <td align="left">
-              <q-btn @click.stop="$router.push('/tables/data/' + table.table_name)" flat icon="fas fa-list"></q-btn>
+            <td style="text-align: left">
+              <q-btn @click.stop="$router.push('/apps/workspace/' + table.table_name)" flat icon="fas fa-list"></q-btn>
             </td>
           </tr>
           </tbody>
@@ -38,9 +24,9 @@
       </div>
     </div>
 
-    <q-page-sticky v-if="!showHelp" position="top-right" :offset="[0, 0]">
-      <q-btn flat @click="showHelp = true" fab icon="fas fa-question"/>
-    </q-page-sticky>
+<!--    <q-page-sticky v-if="!showHelp" position="top-right" :offset="[0, 0]">-->
+<!--      <q-btn flat @click="showHelp = true" fab icon="fas fa-question"/>-->
+<!--    </q-page-sticky>-->
 
     <q-drawer overlay :width="400" side="right" v-model="showHelp">
       <q-scroll-area class="fit">

@@ -1,10 +1,11 @@
 <template>
 
-  <q-header class="bg-white text-black">
-    <q-bar v-if="decodedAuthToken() !== null">
-      <form @submit="emitSearch">
-        <input @focusin="searchFocused" @focusout="searchUnFocused" id="searchInput"
+  <q-header reveal class="bg-white text-black">
+    <q-bar class="bg-primary text-white" style="height: 48px" v-if="decodedAuthToken() !== null">
+      <form @submit="emitSearch" class="col-2 col-xs-0">
+        <input  id="searchInput"
                placeholder="Search"
+               style=" height:32px; font-size: 15px; border: 1px solid black; border-radius: 4px; padding-left: 10px; width: 100%"
                type="text" v-model="searchQuery"/>
       </form>
       <q-btn :key="btn.icon" v-for="btn in buttons.before" flat @click="buttonClicked(btn)" :icon="btn.icon"></q-btn>
@@ -77,12 +78,6 @@ export default {
       event.stopPropagation();
       event.preventDefault();
     },
-    searchFocused() {
-      this.isTypingSearchQuery = true;
-    },
-    searchUnFocused() {
-      this.isTypingSearchQuery = false;
-    },
     buttonClicked(btn) {
       console.log("Button clicked", btn, this.searchQuery)
       if (btn.click) {
@@ -100,29 +95,17 @@ export default {
     },
     ...mapActions(['setDecodedAuthToken'])
   },
-  beforeDestroy() {
-    // document.onkeypress = null;
-  },
-  mounted() {
-    const that = this;
-    // document.onkeypress = function (keyEvent) {
-    //   if (that.isTypingSearchQuery) {
-    //     return;
-    //   }
-    //   console.log("Key pressed", keyEvent)
-    //   if (keyEvent.key === '/') {
-    //     document.getElementById("searchInput").focus();
-    //     keyEvent.stopPropagation();
-    //     keyEvent.preventDefault();
-    //   }
-    // }
-  },
   data() {
     return {
       ...mapGetters(['decodedAuthToken']),
       searchQuery: null,
-      isTypingSearchQuery: false,
       menuItems: [
+        {
+          name: "Workspace",
+          enable: true,
+          path: '/apps/workspace',
+          icon: 'fas fa-briefcase'
+        },
         {
           name: "Email",
           enable: false,
@@ -130,7 +113,7 @@ export default {
           icon: 'fas fa-envelope'
         },
         {
-          name: "Files",
+          name: "File browser",
           path: '/apps/files',
           enable: true,
           icon: 'fas fa-archive'

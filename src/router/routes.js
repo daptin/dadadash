@@ -96,6 +96,12 @@ const routes = [
         path: 'files', component: () => import('pages/UserApps/FileBrowser.vue')
       },
       {
+        path: 'workspace', component: () => import('pages/UserApps/WorkspaceBrowser.vue')
+      },
+      {
+        path: 'workspace/:workspaceName', component: () => import('pages/UserApps/WorkspaceBrowser.vue')
+      },
+      {
         path: 'document/:documentId', component: () => import('pages/UserApps/DocumentEditor')
       },
       {

@@ -1,1 +1,26 @@
 // app global css in SCSS form
+
+// app global css in SCSS form
+
+body {
+  font-family: "opensans", sans-serif !important;
+  font-size: 14px;
+  line-height: 16.41px;
+}
+
+.q-toolbar__title {
+  font-size: 18px;
+  line-height: 24.51px;
+}
+
+.q-tab {
+  text-transform: capitalize;
+}
+
+.q-tab--active {
+  color: #5034A4;
+}
+
+.q-tab--active .q-tab__label {
+  font-weight: bold;
+}

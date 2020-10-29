@@ -45,7 +45,6 @@
           ],
         after: [
             {icon: 'fas fa-sync-alt', event: 'search'},
-            {icon: viewMode === 'card' ? 'fas fa-th-list' : 'fas fa-th-large', click: () => {viewMode = viewMode === 'card' ? 'table' : 'card'}},
           ],
         }" title="Files"></user-header-bar>
 
@@ -79,83 +78,50 @@
 
           <q-card flat>
             <q-card-section>
-              <q-list bordered separator>
-                <q-item @click="$router.push('/apps/document/new')" clickable>
-                  <q-item-section>New document</q-item-section>
-                </q-item>
-                <q-item @click="$router.push('/apps/spreadsheet/new')" clickable>
-                  <q-item-section>New spreadsheet</q-item-section>
-                </q-item>
-                <q-item clickable @click="() => {(newNamePrompt = true) ; (newName = '') ; ( newNameType = 'folder')}">
-                  <q-item-section>New folder</q-item-section>
-                </q-item>
-              </q-list>
+              <q-btn style="width: 100%; height: 38px" @click="showNewWorkspace = true" color="primary"
+                     icon="library_add" label="Add workspace"></q-btn>
             </q-card-section>
+
             <q-card-section>
 
+              <q-tree
+                :nodes="workspaceTree"
+                accordion
+                no-connectors
+                node-key="label"
+                :expanded.sync="expanded"
+              >
+                <template v-slot:default-header="prop">
+                  <div class="row items-center"  v-if="prop.node.mime_type  === 'root'">
+                    <div style="font-weight: 400; text-transform: uppercase" class=" text-primary">{{
+                        prop.node.label
+                      }}
+                    </div>
+                  </div>
+                  <div class="row cursor-pointer workspace-title" @click="openWorkspace(prop.node)"
+                       v-if="prop.node.mime_type  === 'workspace/root'">
+                    <q-icon name="fas fa-briefcase" color="primary" size="14px" class="q-mr-sm"/>
+                    <div>{{
+                        prop.node.label
+                      }}
+                    </div>
+                  </div>
+                </template>
+
+                <template v-slot:default-body="prop">
+                  <div v-if="prop.node.story">
+                    <span class="text-weight-bold">This node has a story</span>: {{ prop.node.story }}
+                  </div>
+                </template>
+              </q-tree>
+
             </q-card-section>
 
           </q-card>
-          <q-card style="border: 1px dashed black; font-size: 10px; box-shadow: none">
-            <file-upload
-              :multiple="true"
-              style="height: 300px; width: 100%; text-align: left"
-              ref="upload"
-              :drop="true"
-              :drop-directory="true"
-              v-model="uploadedFiles"
-              post-action="/post.method"
-              put-action="/put.method"
-              @input-file="uploadFile"
-            >
-              <div class="container">
-
-                <div class="row q-pa-xs">
-                  <div class="col-12 ">
-                    <table style="width: 100%">
-                      <thead v-if="uploadedFiles.length > 0">
-                      <tr>
-                        <th style="text-align: left">File</th>
-                        <th style="text-align: right">Size</th>
-                        <th style="text-align: right">Status</th>
-                      </tr>
-                      </thead>
-                      <tbody>
-                      <tr v-for="file in uploadedFiles">
-                        <td style="text-align: left"> {{ file.name }}</td>
-                        <td style="text-align: right">{{ parseInt(file.size / 1024) }} Kb</td>
-                        <td style="text-align: right">{{ file.status }}</td>
-                      </tr>
-                      </tbody>
-                    </table>
-                  </div>
-                </div>
-                <div style="padding: 10px" class="row">
-                  <div class="col-12" style="height: 100%; ">
-                <span class="vertical-middle" v-if="uploadedFiles.length === 0">
-                  Click here to select files, or drag and drop files here to upload</span>
-                  </div>
-                </div>
-
-              </div>
-            </file-upload>
-
-          </q-card>
-
         </div>
         <div class="col-10 col-sm-12 col-md-10 col-lg-10 col-xl-10 col-xs-12">
-          <paginated-table-view v-if="viewMode === 'table'"
-                                @item-deleted="itemDelete"
-                                @item-rename="itemRename"
-                                @item-double-clicked="fileDblClicked"
-                                @item-clicked="fileClicked"
-                                :items="files"></paginated-table-view>
-          <paginated-card-view v-if="viewMode === 'card'"
-                               @item-deleted="itemDelete"
-                               @item-rename="itemRename"
-                               @item-clicked="fileClicked"
-                               @item-double-clicked="fileDblClicked"
-                               :items="files"></paginated-card-view>
+          <new-workspace-screen v-if="showNewWorkspace" @new-workspace-created="refreshData"></new-workspace-screen>
+
         </div>
       </div>
       <!--      <q-page-sticky :offset="[10, 10]" v-if="showUploadComponent">-->
@@ -167,6 +133,11 @@
   </q-page-container>
 
 </template>
+<style>
+.workspace-title:hover {
+  background: rgba(80, 52, 164, 0.1);
+}
+</style>
 <script>
 
 import {mapActions, mapGetters} from "vuex";
@@ -195,15 +166,13 @@ function saveByteArray(reportName, fileType, byte) {
 export default {
 
   name: "FileBrowser",
-
-
   // NOTICE meta is a function here, which is the way
   // for you to reference properties from the Vue component's scope
-  meta () {
+  meta() {
     return {
       // this accesses the "title" property in your Vue "data";
       // whenever "title" prop changes, your meta will automatically update
-      title: (this.currentPath || '/') + " - File browser"
+      title: (this.currentPath.substring(1) || 'Home') + " - Workspace"
     }
   },
 
@@ -214,6 +183,9 @@ export default {
     }
   },
   methods: {
+    openWorkspace(workspace) {
+      console.log("open workspace", workspace)
+    },
     searchDocuments(query) {
       console.log("search documents", query);
       this.refreshData(query);
@@ -444,9 +416,18 @@ export default {
 
       }
 
+      that.workspaceTree[0].children = that.files.map(function (e) {
+        return {
+          label: e.document_name,
+          mime_type: e.mime_type
+        }
+      })
+
+
     },
     refreshData(searchTerm) {
       const that = this;
+      that.showNewWorkspace = false;
       that.selectedFile = null;
       let queryPayload = {
         tableName: "document",
@@ -454,7 +435,11 @@ export default {
           query: JSON.stringify([{
             column: "document_path",
             operator: "is",
-            value: that.currentPath + "/"
+            value: "/"
+          }, {
+            column: "mime_type",
+            operator: "like",
+            value: "workspace/root"
           }]),
           page: {
             size: 100,
@@ -505,7 +490,7 @@ export default {
       }, {
         "column": "document_path",
         "operator": "is",
-        "value": parentDir
+        "value": "/"
       }, {
         "column": "document_extension",
         "operator": "is",
@@ -617,9 +602,22 @@ export default {
   data() {
     return {
       searchInput: '',
+      showNewWorkspace: false,
       ...mapGetters(['endpoint']),
       directoryEnsureCache: {},
       newNamePrompt: false,
+      workspaceTree: [
+        {
+          label: 'My Workspaces',
+          children: [],
+          mime_type: "root"
+        },
+        {
+          label: "Shared workspaces",
+          children: [],
+        }
+      ],
+      expanded: ['My Workspaces'],
       viewMode: 'card',
       uploadedFiles: [],
       newName: '',
@@ -653,63 +651,63 @@ export default {
     that.refreshData();
 
 
-    document.querySelector('html').ondragenter = function (e) {
-      e.stopPropagation();
-      return false;
-    };
-    document.querySelector('html').ondragover = function (e) {
-      e.stopPropagation();
-      return false;
-    };
+    // document.querySelector('html').ondragenter = function (e) {
+    //   e.stopPropagation();
+    //   return false;
+    // };
+    // document.querySelector('html').ondragover = function (e) {
+    //   e.stopPropagation();
+    //   return false;
+    // };
 
-    document.ondrop = function (ev) {
-      console.log('File(s) dropped');
+    // document.ondrop = function (ev) {
+    //   console.log('File(s) dropped');
+    //
+    //   // Prevent default behavior (Prevent file from being opened)
+    //   ev.preventDefault();
+    //
+    //   if (ev.dataTransfer.items) {
+    //     // Use DataTransferItemList interface to access the file(s)
+    //     for (var i = 0; i < ev.dataTransfer.items.length; i++) {
+    //       // If dropped items aren't files, reject them
+    //       if (ev.dataTransfer.items[i].kind === 'file') {
+    //         var file = ev.dataTransfer.items[i].getAsFile();
+    //         console.log('... file[' + i + '].name = ' + file.name);
+    //         that.uploadFile({
+    //           file: file
+    //         })
+    //       }
+    //     }
+    //   } else {
+    //     // Use DataTransfer interface to access the file(s)
+    //     for (var i = 0; i < ev.dataTransfer.files.length; i++) {
+    //       console.log('... file[' + i + '].name = ' + ev.dataTransfer.files[i].name);
+    //       that.uploadFile({
+    //         file: ev.dataTransfer.files[i]
+    //       })
+    //     }
+    //   }
+    // }
 
-      // Prevent default behavior (Prevent file from being opened)
-      ev.preventDefault();
-
-      if (ev.dataTransfer.items) {
-        // Use DataTransferItemList interface to access the file(s)
-        for (var i = 0; i < ev.dataTransfer.items.length; i++) {
-          // If dropped items aren't files, reject them
-          if (ev.dataTransfer.items[i].kind === 'file') {
-            var file = ev.dataTransfer.items[i].getAsFile();
-            console.log('... file[' + i + '].name = ' + file.name);
-            that.uploadFile({
-              file: file
-            })
-          }
-        }
-      } else {
-        // Use DataTransfer interface to access the file(s)
-        for (var i = 0; i < ev.dataTransfer.files.length; i++) {
-          console.log('... file[' + i + '].name = ' + ev.dataTransfer.files[i].name);
-          that.uploadFile({
-            file: ev.dataTransfer.files[i]
-          })
-        }
-      }
-    }
-
-    document.onpaste = function (event) {
-      var items = (event.clipboardData || event.originalEvent.clipboardData).items;
-      console.log("Items", items)
-
-      for (var index in items) {
-        var item = items[index];
-        console.log("Items", index, item, item)
-        window.item = item;
-        if (item.kind === 'file') {
-          var blob = item.getAsFile();
-          console.log("Upload blob", blob)
-          let nameParts = blob.name.split(".");
-          let newName = nameParts[0] + " pasted at " + new Date().toLocaleString() + "." + nameParts[1]
-          that.uploadFile({
-            file: blob,
-          }, newName)
-        }
-      }
-    }
+    // document.onpaste = function (event) {
+    //   var items = (event.clipboardData || event.originalEvent.clipboardData).items;
+    //   console.log("Items", items)
+    //
+    //   for (var index in items) {
+    //     var item = items[index];
+    //     console.log("Items", index, item, item)
+    //     window.item = item;
+    //     if (item.kind === 'file') {
+    //       var blob = item.getAsFile();
+    //       console.log("Upload blob", blob)
+    //       let nameParts = blob.name.split(".");
+    //       let newName = nameParts[0] + " pasted at " + new Date().toLocaleString() + "." + nameParts[1]
+    //       that.uploadFile({
+    //         file: blob,
+    //       }, newName)
+    //     }
+    //   }
+    // }
 
 
   }

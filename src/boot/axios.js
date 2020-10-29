@@ -14,7 +14,8 @@ const VueUploadComponent = require('vue-upload-component');
 const AceEditor = require('vue2-ace-editor');
 import VJstree from 'vue-jstree'
 import PaginatedTableView from "pages/UserApps/PaginatedListViewTemplate/PaginatedTableView.vue";
-import PaginatedCardView from "pages/UserApps/PaginatedListViewTemplate/PaginatedCardView";
+import PaginatedCardView from "pages/UserApps/PaginatedListViewTemplate/PaginatedCardView.vue";
+import NewWorkspaceScreen from "pages/UserApps/NewWorkspaceScreen.vue";
 
 
 // import CKEditor from '@ckeditor/ckeditor5-vue'
@@ -23,6 +24,7 @@ import PaginatedCardView from "pages/UserApps/PaginatedListViewTemplate/Paginate
 Vue.component('v-jstree', VJstree);
 Vue.component('ace-editor', AceEditor);
 Vue.component('user-header-bar', UserHeaderBar);
+Vue.component('new-workspace-screen', NewWorkspaceScreen);
 Vue.component('file-upload', VueUploadComponent);
 Vue.component('daptin-document-uploader', DaptinDocumentUploader);
 Vue.component('file-browser', FileBrowser);

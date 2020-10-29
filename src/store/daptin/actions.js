@@ -1,7 +1,7 @@
 import {DaptinClient} from 'daptin-client';
 
 // const daptinClient = new DaptinClient(window.location.protocol + "//" + window.location.hostname, false, function () {
-let endpoint = window.location.hostname === "site.daptin.com" && window.location.port == "8080" ? "http://localhost:6336" : window.location.protocol + "//" + window.location.hostname + (window.location.port === "80" ? "" : ':' +window.location.port);
+let endpoint = window.location.hostname === "site.daptin.com" ? "http://localhost:6336" : window.location.protocol + "//" + window.location.hostname + (window.location.port === "80" ? "" : ':' +window.location.port);
 // let process = process || undefined;
 // if (process) {
 //   endpoint = "http://localhost:6336"
@@ -137,7 +137,7 @@ export function saveConfig({commit}, params) {
 
 export function getTableSchema({commit}, tableName) {
   return new Promise(function (resolve, reject) {
-    daptinClient.worldManager.loadModel(tableName, true).then(function () {
+    daptinClient.worldManager.loadModel(tableName, false).then(function () {
       resolve(daptinClient.worldManager.getColumnKeys(tableName, true));
     }).catch(reject)
   })

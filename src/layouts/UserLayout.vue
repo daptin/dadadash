@@ -1,5 +1,5 @@
 <template>
-  <q-layout class="user-area-pattern" view="lHh Lpr lFf">
+  <q-layout  class="user-area-pattern" view="lHh Lpr lFf">
 
 
     <router-view @logout="logout()" v-if="loaded"/>

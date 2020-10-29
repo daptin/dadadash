@@ -1,63 +1,74 @@
 <template>
-  <div>
-    <div class="q-pa-md q-gutter-sm">
-      <q-breadcrumbs>
-        <template v-slot:separator>
-          <q-icon
-            size="1.2em"
-            name="arrow_forward"
-            color="purple"
-          />
-        </template>
-        <q-breadcrumbs-el @click="$router.push('/')" style="cursor: pointer" label="Database" icon="fas fa-database"/>
-        <q-breadcrumbs-el @click="$router.push('/tables')" style="cursor: pointer" label="Tables" icon="fas fa-table"/>
-        <q-breadcrumbs-el :label="$route.params.tableName"/>
-      </q-breadcrumbs>
-    </div>
-    <q-separator></q-separator>
+  <q-page-container>
 
-    <div class="row">
-      <div class="col-12">
-        <q-btn size="sm" @click="showNewRowDrawer()" color="primary" flat label="New row"></q-btn>
-        <q-btn size="sm" @click="showPermissionsDrawer()" color="primary" flat label="Table Permissions"></q-btn>
-        <q-btn size="sm" flat label="Table Options">
-          <q-menu anchor="bottom left" self="top left">
-            <q-item clickable>
-              <q-item-section>
-                <q-checkbox size="xs" @input="refreshData()" label="Show column filters"
-                            v-model="tabulatorOptions.headerFilter"></q-checkbox>
-              </q-item-section>
-            </q-item>
-            <q-item clickable @click="refreshData()">
-              <q-item-section>Refresh data</q-item-section>
-            </q-item>
-          </q-menu>
-        </q-btn>
 
-        <q-btn v-if="selectedRows.length > 0" @click="deleteSelectedRows" flat color="red" size="sm">Delete selected
-          rows
-        </q-btn>
+    <user-header-bar style="border-bottom: 1px solid black" @search="searchDocuments"
+                     :buttons="{
+        before: [
+            {icon: 'fas fa-search', event: 'search'},
+          ],
+        after: [
+            {icon: 'fas fa-sync-alt', event: 'search'},
+          ],
+        }" title="Files"></user-header-bar>
+
+
+    <q-page style="padding-top: 32px">
+      <q-page-sticky expand position="top-left">
+        <q-bar class="bg-white">
+
+          <q-btn icon="fas fa-bars" flat>
+            <q-menu style="min-height: 150px">
+              <q-list>
+                <q-item clickable v-for="table in tablesFiltered" :key="table.table_name">
+                  <q-item-section flat @click="$router.push('/apps/workspace/' + table.table_name)"
+                  >{{ table.table_name }}
+                  </q-item-section>
+                </q-item>
+              </q-list>
+            </q-menu>
+          </q-btn>
+          <q-btn id="newTableButton" icon="fas fa-plus" flat/>
+
+
+          <q-btn size="sm" @click="showNewRowDrawer()" flat label="New row"></q-btn>
+          <q-btn size="sm" @click="showPermissionsDrawer()" color="primary" flat label="Table Permissions"></q-btn>
+          <q-btn size="sm" flat label="Table Options">
+            <q-menu anchor="bottom left" self="top left">
+              <q-item clickable>
+                <q-item-section>
+                  <q-checkbox size="xs" @input="refreshData()" label="Show column filters"
+                              v-model="tabulatorOptions.headerFilter"></q-checkbox>
+                </q-item-section>
+              </q-item>
+              <q-item clickable @click="refreshData()">
+                <q-item-section>Refresh data</q-item-section>
+              </q-item>
+            </q-menu>
+          </q-btn>
+
+          <q-btn v-if="selectedRows.length > 0" @click="deleteSelectedRows" flat color="red" size="sm">Delete selected
+            rows
+          </q-btn>
+        </q-bar>
         <q-separator></q-separator>
-      </div>
-
-      <div class="col-12">
-        <div id="spreadsheet" style="height: 80vh; overflow: scroll;"></div>
-      </div>
-
-      <q-page-sticky v-if="!newRowDrawer" position="bottom-right" :offset="[20, 20]">
-        <q-fab vertical-actions-align="right" color="primary" icon="keyboard_arrow_up" direction="up">
-          <q-fab-action color="orange" @click="downloadData('xls')" label="Download XLS" icon="fas fa-file-excel">
-          </q-fab-action>
-          <q-fab-action color="orange" @click="downloadData('csv')" label="Download CSV" icon="fas fa-download">
-          </q-fab-action>
-          <q-fab-action color="orange" @click="$refs.fileUpload.pickFiles()" label="Upload CSV/XLS"
-                        icon="fas fa-upload">
-            <q-file v-model="dataUploadFile" ref="fileUpload" @input="uploadFileSelected"
-                    style="display: none"></q-file>
-          </q-fab-action>
-        </q-fab>
       </q-page-sticky>
-    </div>
+      <div id="spreadsheet" style="height: calc(100vh - 65px); border-top: 1px solid black"></div>
+    </q-page>
+
+    <q-page-sticky v-if="!newRowDrawer" position="bottom-right" :offset="[20, 20]">
+      <q-fab vertical-actions-align="right" color="primary" icon="keyboard_arrow_up" direction="up">
+        <q-fab-action color="orange" @click="downloadData('xls')" label="Download XLS" icon="fas fa-file-excel">
+        </q-fab-action>
+        <q-fab-action color="orange" @click="downloadData('csv')" label="Download CSV" icon="fas fa-download">
+        </q-fab-action>
+        <q-fab-action color="orange" @click="$refs.fileUpload.pickFiles()" label="Upload CSV/XLS"
+                      icon="fas fa-upload">
+          <q-file v-model="dataUploadFile" ref="fileUpload" @input="uploadFileSelected"
+                  style="display: none"></q-file>
+        </q-fab-action>
+      </q-fab>
+    </q-page-sticky>
 
 
     <q-drawer
@@ -148,14 +159,70 @@
 
       </q-scroll-area>
     </q-drawer>
-  </div>
+
+
+  </q-page-container>
 </template>
 <style>
-@import "~tabulator-tables/dist/css/tabulator.min.css";
-/*@import "~tabulator-tables/dist/css/tabulator_simple.min.css";*/
+/*@import "~tabulator-tables/dist/css/tabulator.min.css";*/
+@import "~tabulator-tables/dist/css/tabulator_simple.min.css";
+
 .tabulator-col-title input {
   margin-left: 9px;
 }
+
+
+/*#newTableButton i {*/
+/*  border: 1px solid #DDDBDA;*/
+/*  font-size: 13px;*/
+/*  color: #5034A4;*/
+/*  border-radius: 2px;*/
+/*}*/
+
+.tabulator-row.tabulator-selectable:hover {
+  cursor: default;
+}
+
+.tabulator .tabulator-header {
+}
+
+.tabulator .tabulator-header .tabulator-col {
+  background: #FAFAF9;
+  border-right: none;
+  height: 32px;
+
+}
+
+.tabulator .tabulator-header .tabulator-col .tabulator-col-content .tabulator-col-title {
+  font-weight: 700;
+  padding-top: 4px;
+  padding-left: 3px;
+}
+
+div.tabulator-col:nth-child(1) > div:nth-child(1) > div:nth-child(1) > div:nth-child(1) > input:nth-child(1) {
+  /*display: none;*/
+}
+
+.tabulator-row .tabulator-cell {
+  font-size: 12px;
+  height: 127px;
+  border-right: none;
+  padding: 7px;
+}
+
+.tabulator-row.tabulator-selectable:hover {
+
+}
+
+.tabulator-header-menu-button {
+  float: right;
+}
+
+.tabulator-row.tabulator-selectable:hover {
+  background: #FFF8E8;
+}
+
+
 </style>
 
 <script>
@@ -165,7 +232,9 @@ import XLSX from 'xlsx';
 
 window.XLSX = XLSX;
 const assetEndpoint = window.location.hostname === "site.daptin.com" && window.location.port === "8080" ? "http://localhost:" + window.location.port : window.location.protocol + "//" + window.location.hostname + (window.location.port === "80" ? "" : ':' + window.location.port);
-var Tabulator = require('tabulator-tables');
+
+import Tabulator from 'tabulator-tables';
+
 
 Tabulator.prototype.extendModule("format", "formatters", {
   image: function (cell, formatterParams) {
@@ -215,6 +284,11 @@ Tabulator.prototype.extendModule("format", "formatters", {
 export default {
   name: "EditData",
   methods: {
+    searchDocuments(searchQuery) {
+      console.log("search data", arguments)
+      this.searchQuery = searchQuery;
+      this.spreadsheet.setData();
+    },
     uploadFileSelected(file) {
       const that = this;
       console.log("file selected", file, file.name)
@@ -417,14 +491,25 @@ export default {
           });
           that.newRowDrawer = false;
         }).catch(function (e) {
-          if (e instanceof Array) {
+          console.log("Failed to save row", e)
+          if (e instanceof Array || e[0]) {
             that.$q.notify({
               message: e[0].title
             })
           } else {
-            that.$q.notify({
-              message: "Failed to save row"
-            })
+            if (e.title) {
+              that.$q.notify({
+                title: e.title,
+                message: e.title
+              })
+
+            } else {
+
+
+              that.$q.notify({
+                message: "Failed to save row"
+              })
+            }
           }
         });
       }).catch(function (e) {
@@ -439,11 +524,11 @@ export default {
     onCancelNewRow() {
       this.newRowDrawer = false;
     },
-    ...mapActions(['loadData', 'getTableSchema', 'updateRow', 'createRow', 'deleteRow', 'executeAction']),
+    ...mapActions(['loadData', 'getTableSchema', 'updateRow', 'createRow', 'deleteRow', 'executeAction', 'loadTables']),
     refreshData() {
       const that = this;
       var assetColumns = [];
-
+      that.newRowData = [];
       var tableName = this.$route.params.tableName;
       console.log("loaded data editor", tableName);
       that.getTableSchema(tableName).then(function (res) {
@@ -486,6 +571,9 @@ export default {
             formatter = "textarea"
             width = 300
           }
+          if (col.ColumnType === "truefalse") {
+            width = 100
+          }
 
           var tableColumn = {
             title: col.Name,
@@ -526,7 +614,6 @@ export default {
           // pagination: "remote",
           tooltips: true,
           ajaxSorting: true,
-
           layout: "fitDataFill",
           ajaxFiltering: true,
           paginationSizeSelector: true,
@@ -606,7 +693,13 @@ export default {
                     })
                 }
               }
-              requestUrl = requestUrl + "query=" + JSON.stringify(queryFilters) + "&"
+              console.log("search query", that.searchQuery)
+              if (that.searchQuery && that.searchQuery !== "") {
+                requestUrl = requestUrl + "filter=" + that.searchQuery + "&"
+              }
+              if (queryFilters && queryFilters.length > 0) {
+                requestUrl = requestUrl + "query=" + JSON.stringify(queryFilters) + "&"
+              }
 
             }
             if (assetColumns.length > 0) {
@@ -670,6 +763,7 @@ export default {
   data() {
     return {
       dataUploadFile: null,
+      searchQuery: null,
       tablePermissionDrawer: false,
       currentPage: 1,
       tabulatorOptions: {
@@ -686,12 +780,30 @@ export default {
     }
   },
   computed: {
-    ...mapGetters(['endpoint', 'authToken'])
+    tablesFiltered() {
+      const that = this;
+      console.log("Get tables filtered", that.tables);
+      if (that.text && that.text.length > 0) {
+        return that.tables.filter(function (e) {
+          return e.table_name.indexOf(that.text) > -1 && !e.is_hidden;
+        })
+      } else {
+        return that.tables.filter(function (e) {
+          return !e.is_hidden;
+        });
+      }
+    },
+    ...mapGetters(['endpoint', 'authToken', 'tables'])
   },
   mounted() {
+    this.loadTables();
     this.refreshData();
   },
-  watch: {},
+  watch: {
+    '$route.params.tableName': function () {
+      this.refreshData();
+    }
+  },
 }
 </script>
 

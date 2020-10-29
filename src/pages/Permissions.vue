@@ -129,12 +129,13 @@
           </q-card>
         </q-dialog>
 
-        <q-page-sticky position="top-right" :offset="[20, 20]">
-          <q-btn @click="$emit('close')" flat icon="fas fa-times"></q-btn>
-        </q-page-sticky>
 
       </div>
+
     </div>
+    <q-page-sticky position="top-right" :offset="[5, -10]">
+      <q-btn @click="$emit('close')" flat size="sm" icon="fas fa-times"></q-btn>
+    </q-page-sticky>
   </div>
 
 
