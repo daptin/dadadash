@@ -86,8 +86,8 @@
                 <q-item @click="$router.push('/apps/spreadsheet/new')" clickable>
                   <q-item-section>New spreadsheet</q-item-section>
                 </q-item>
-                <q-item clickable @click="() => {(newNamePrompt = true) ; (newName = '') ; ( newNameType = 'file')}">
-                  <q-item-section>New file</q-item-section>
+                <q-item clickable @click="() => {(newNamePrompt = true) ; (newName = '') ; ( newNameType = 'folder')}">
+                  <q-item-section>New folder</q-item-section>
                 </q-item>
               </q-list>
             </q-card-section>
@@ -195,6 +195,18 @@ function saveByteArray(reportName, fileType, byte) {
 export default {
 
   name: "FileBrowser",
+
+
+  // NOTICE meta is a function here, which is the way
+  // for you to reference properties from the Vue component's scope
+  meta () {
+    return {
+      // this accesses the "title" property in your Vue "data";
+      // whenever "title" prop changes, your meta will automatically update
+      title: (this.currentPath || '/') + " - File browser"
+    }
+  },
+
   watch: {
     'currentPath': function (newVal) {
       console.log("Current path changed", newVal);

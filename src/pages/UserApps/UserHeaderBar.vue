@@ -4,7 +4,7 @@
     <q-bar v-if="decodedAuthToken() !== null">
       <form @submit="emitSearch">
         <input @focusin="searchFocused" @focusout="searchUnFocused" id="searchInput"
-               placeholder="Type '/' to focus here"
+               placeholder="Search"
                type="text" v-model="searchQuery"/>
       </form>
       <q-btn :key="btn.icon" v-for="btn in buttons.before" flat @click="buttonClicked(btn)" :icon="btn.icon"></q-btn>
@@ -101,21 +101,21 @@ export default {
     ...mapActions(['setDecodedAuthToken'])
   },
   beforeDestroy() {
-    document.onkeypress = null;
+    // document.onkeypress = null;
   },
   mounted() {
     const that = this;
-    document.onkeypress = function (keyEvent) {
-      if (that.isTypingSearchQuery) {
-        return;
-      }
-      console.log("Key pressed", keyEvent)
-      if (keyEvent.key === '/') {
-        document.getElementById("searchInput").focus();
-        keyEvent.stopPropagation();
-        keyEvent.preventDefault();
-      }
-    }
+    // document.onkeypress = function (keyEvent) {
+    //   if (that.isTypingSearchQuery) {
+    //     return;
+    //   }
+    //   console.log("Key pressed", keyEvent)
+    //   if (keyEvent.key === '/') {
+    //     document.getElementById("searchInput").focus();
+    //     keyEvent.stopPropagation();
+    //     keyEvent.preventDefault();
+    //   }
+    // }
   },
   data() {
     return {

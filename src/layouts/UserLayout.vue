@@ -83,6 +83,7 @@ export default {
         });
         that.setDecodedAuthToken(null);
         that.logout();
+        return
       }
     }
 

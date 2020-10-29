@@ -125,397 +125,405 @@
 </template>
 
 <style>
-@import "../../statics/luckysheet/css/luckysheet.css";
-@import "../../statics/luckysheet/plugins/css/pluginsCss.css";
-@import "../../statics/luckysheet/plugins/plugins.css";
-@import "../../statics/luckysheet/assets/iconfont/iconfont.css";
+  @import "../../statics/luckysheet/css/luckysheet.css";
+  @import "../../statics/luckysheet/plugins/css/pluginsCss.css";
+  @import "../../statics/luckysheet/plugins/plugins.css";
+  @import "../../statics/luckysheet/assets/iconfont/iconfont.css";
 
+  .q-layout__shadow::after {
+    box-shadow: none;
+  }
 
-.q-layout__shadow::after {
-  box-shadow: none;
-}
+  .luckysheet-work-area {
+    /*height: 41px !important;*/
+    top: 27px;
+  }
 
-.luckysheet-work-area {
-  /*height: 41px !important;*/
-  top: 27px;
-}
+  /**/
+  /*.luckysheet-grid-container {*/
+  /*  top: 64px !important;*/
+  /*}*/
 
-/**/
-/*.luckysheet-grid-container {*/
-/*  top: 64px !important;*/
-/*}*/
-
-/*div.luckysheet-grid-container.luckysheet-scrollbars-enabled {*/
-/*  top: 65px !important;*/
-/*}*/
+  /*div.luckysheet-grid-container.luckysheet-scrollbars-enabled {*/
+  /*  top: 65px !important;*/
+  /*}*/
 
 </style>
 <script>
-import {mapActions, mapGetters} from "vuex";
-import JSZip from "jszip";
+  import {mapActions, mapGetters} from "vuex";
+  import JSZip from "jszip";
 
 
-// import "../../statics/luckysheet/luckysheet.umd.js"
-// import "../../statics/luckysheet/plugins/js/plugin.js"
+  // import "../../statics/luckysheet/luckysheet.umd.js"
+  // import "../../statics/luckysheet/plugins/js/plugin.js"
 
-function debounce(func, wait, immediate) {
-  var timeout;
-  return function () {
-    var context = this, args = arguments;
-    var later = function () {
-      timeout = null;
-      if (!immediate) func.apply(context, args);
+  function debounce(func, wait, immediate) {
+    var timeout;
+    return function () {
+      var context = this, args = arguments;
+      var later = function () {
+        timeout = null;
+        if (!immediate) func.apply(context, args);
+      };
+      var callNow = immediate && !timeout;
+      clearTimeout(timeout);
+      timeout = setTimeout(later, wait);
+      if (callNow) func.apply(context, args);
     };
-    var callNow = immediate && !timeout;
-    clearTimeout(timeout);
-    timeout = setTimeout(later, wait);
-    if (callNow) func.apply(context, args);
-  };
-}
+  }
 
-function encodeUnicode(str) {
-  // first we use encodeURIComponent to get percent-encoded UTF-8,
-  // then we convert the percent encodings into raw bytes which
-  // can be fed into btoa.
-  return btoa(encodeURIComponent(str).replace(/%([0-9A-F]{2})/g,
-    function toSolidBytes(match, p1) {
-      return String.fromCharCode('0x' + p1);
-    }));
-}
+  function encodeUnicode(str) {
+    // first we use encodeURIComponent to get percent-encoded UTF-8,
+    // then we convert the percent encodings into raw bytes which
+    // can be fed into btoa.
+    return btoa(encodeURIComponent(str).replace(/%([0-9A-F]{2})/g,
+      function toSolidBytes(match, p1) {
+        return String.fromCharCode('0x' + p1);
+      }));
+  }
 
 
-function decodeUnicode(str) {
-  // Going backwards: from bytestream, to percent-encoding, to original string.
-  return decodeURIComponent(atob(str).split('').map(function (c) {
-    return '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2);
-  }).join(''));
-}
+  function decodeUnicode(str) {
+    // Going backwards: from bytestream, to percent-encoding, to original string.
+    return decodeURIComponent(atob(str).split('').map(function (c) {
+      return '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2);
+    }).join(''));
+  }
 
-export default {
+  export default {
 
-  name: "SpreadsheetEditorApp",
-  data() {
-    return {
-      file: null,
-      ...mapGetters(['decodedAuthToken', 'endpoint']),
-      saveDebounced: null,
-      showSharingBox: false,
-      contents: "",
-      loading: true,
-      newNameDialog: false,
-      newName: null,
-      document: null,
-      containerId: "id-" + new Date().getMilliseconds(),
-      screenWidth: (window.screen.width < 1200 ? window.screen.width : 1200) + "px",
-    }
-  },
-  watch: {
-    'contents': function (newVal, oldVal) {
-      if (this.loading) {
-        return
+    name: "SpreadsheetEditorApp",
+    meta() {
+      return {
+        // this accesses the "title" property in your Vue "data";
+        // whenever "title" prop changes, your meta will automatically update
+        title: (this.document ? this.document.document_name : 'New file') + " - Spreadsheet"
       }
-      console.log("Contents changed", arguments)
-      if (this.saveDebounced === null) {
-        this.saveDebounced = debounce(this.saveDocument, 3000, true)
-      }
-      this.saveDebounced();
-    }
-  },
-  methods: {
-    logout() {
-      this.$emit("logout");
     },
-    loadEditor() {
-      const that = this;
-      setTimeout(function () {
 
-        console.log("Create sheet")
-        var options = {
-          container: 'luckysheet', //luckysheet is the container id
-          showinfobar: false,
-          title: that.document ? that.document.document_name : "New document",
-          userInfo: that.decodedAuthToken() !== null ? that.decodedAuthToken().email : 'Anonymous',
+
+    data() {
+      return {
+        file: null,
+        ...mapGetters(['decodedAuthToken', 'endpoint']),
+        saveDebounced: null,
+        showSharingBox: false,
+        contents: "",
+        loading: true,
+        newNameDialog: false,
+        newName: null,
+        document: null,
+        containerId: "id-" + new Date().getMilliseconds(),
+        screenWidth: (window.screen.width < 1200 ? window.screen.width : 1200) + "px",
+      }
+    },
+    watch: {
+      'contents': function (newVal, oldVal) {
+        if (this.loading) {
+          return
         }
-        console.log("l", luckysheet)
+        console.log("Contents changed", arguments)
+        if (this.saveDebounced === null) {
+          this.saveDebounced = debounce(this.saveDocument, 3000, true)
+        }
+        this.saveDebounced();
+      }
+    },
+    methods: {
+      logout() {
+        this.$emit("logout");
+      },
+      loadEditor() {
+        const that = this;
+        setTimeout(function () {
 
-        luckysheet.destroy();
-        if (that.contents.length > 0) {
-          try {
-            console.log("set string data", that.contents)
-            var item = that.contents;
-            if (!item) {
-              // item = workingData
-            } else {
-              item = JSON.parse(item)
+          console.log("Create sheet")
+          var options = {
+            container: 'luckysheet', //luckysheet is the container id
+            showinfobar: false,
+            title: that.document ? that.document.document_name : "New document",
+            userInfo: that.decodedAuthToken() !== null ? that.decodedAuthToken().email : 'Anonymous',
+          }
+          console.log("l", luckysheet)
+
+          luckysheet.destroy();
+          if (that.contents.length > 0) {
+            try {
+              console.log("set string data", that.contents)
+              var item = that.contents;
+              if (!item) {
+                // item = workingData
+              } else {
+                item = JSON.parse(item)
+              }
+
+              if (item) {
+                options.data = item;
+                // luckysheet.buildGridData(item)
+              }
+              console.log("set sheet data", item)
+              luckysheet.create(options);
+
+            } catch (e) {
+              console.log("Failed to parse data", e);
+              luckysheet.create(options);
             }
-
-            if (item) {
-              options.data = item;
-              // luckysheet.buildGridData(item)
-            }
-            console.log("set sheet data", item)
-            luckysheet.create(options);
-
-          } catch (e) {
-            console.log("Failed to parse data", e);
+          } else {
+            console.log("Else just create")
             luckysheet.create(options);
           }
-        } else {
-          console.log("Else just create")
-          luckysheet.create(options);
-        }
-        if (that.decodedAuthToken() === null) {
+          if (that.decodedAuthToken() === null) {
+            return;
+          }
+          setInterval(function () {
+            that.loading = false;
+            let newData = luckysheet.getluckysheetfile();
+            if (!newData) {
+              return
+            }
+            newData = newData.map(function (sheet) {
+              // console.log("Get grid data for sheet", sheet)
+              sheet.celldata = luckysheet.getGridData(sheet.data)
+              // delete sheet.data
+              return sheet;
+            })
+            var newContents = JSON.stringify(newData);
+            that.contents = newContents;
+            window.localStorage.setItem("d", newContents)
+          }, 10000)
+
+        }, 300)
+      },
+      saveDocumentState() {
+        const that = this;
+        // let newData = luckysheet.getluckysheetfile();
+        // newData = newData.map(function (sheet) {
+        //   console.log("Get grid data for sheet", sheet)
+        // sheet.celldata = luckysheet.getGridData(sheet.data)
+        // delete sheet.data
+        // return sheet;
+        // })
+        let value = luckysheet.toJson();
+        console.log("sheet json", value);
+        that.contents = JSON.stringify(value);
+        window.localStorage.setItem("d", that.contents)
+
+
+      },
+      newDocument() {
+        const that = this;
+        if (!this.newNameDialog) {
+          this.newNameDialog = true;
           return;
         }
-        setInterval(function () {
-          that.loading = false;
-          let newData = luckysheet.getluckysheetfile();
-          if (!newData) {
-            return
-          }
-          newData = newData.map(function (sheet) {
-            // console.log("Get grid data for sheet", sheet)
-            sheet.celldata = luckysheet.getGridData(sheet.data)
-            // delete sheet.data
-            return sheet;
-          })
-          var newContents = JSON.stringify(newData);
-          that.contents = newContents;
-          window.localStorage.setItem("d", newContents)
-        }, 10000)
 
-      }, 300)
-    },
-    saveDocumentState() {
-      const that = this;
-      // let newData = luckysheet.getluckysheetfile();
-      // newData = newData.map(function (sheet) {
-      //   console.log("Get grid data for sheet", sheet)
-      // sheet.celldata = luckysheet.getGridData(sheet.data)
-      // delete sheet.data
-      // return sheet;
-      // })
-      let value = luckysheet.toJson();
-      console.log("sheet json", value);
-      that.contents = JSON.stringify(value);
-      window.localStorage.setItem("d", that.contents)
+        if (!this.newName) {
+          this.$q.notify({
+            message: "Please enter a name"
+          });
+          return
+        }
+        if (!this.newName.endsWith(".dsheet")) {
+          this.newName = this.newName + ".dsheet"
+        }
 
+        var newFileName = null;
+        newFileName = this.newName;
 
-    },
-    newDocument() {
-      const that = this;
-      if (!this.newNameDialog) {
-        this.newNameDialog = true;
-        return;
-      }
+        this.document = {
+          document_name: newFileName,
+          document_extension: "html",
+          mime_type: "text/html",
+          document_path: localStorage.getItem("_last_current_path") || "/"
+        }
 
-      if (!this.newName) {
-        this.$q.notify({
-          message: "Please enter a name"
-        });
-        return
-      }
-      if (!this.newName.endsWith(".dsheet")) {
-        this.newName = this.newName + ".dsheet"
-      }
-
-      var newFileName = null;
-      newFileName = this.newName;
-
-      this.document = {
-        document_name: newFileName,
-        document_extension: "html",
-        mime_type: "text/html",
-        document_path: localStorage.getItem("_last_current_path") || "/"
-      }
-
-      this.file = {
-        contents: that.contents,
-        name: newFileName,
-        type: "text/json"
-      }
-      this.newName = null;
-      this.newNameDialog = false;
-      this.document.document_content = [this.file]
-    },
-    saveDocument() {
-      const that = this;
-      console.log("save document", this.document, this.contents);
-      if (!this.document) {
-        this.newNameDialog = true;
-        return
-      }
-      if (this.decodedAuthToken() === null) {
-        return
-      }
-      this.document.tableName = "document";
+        this.file = {
+          contents: that.contents,
+          name: newFileName,
+          type: "text/json"
+        }
+        this.newName = null;
+        this.newNameDialog = false;
+        this.document.document_content = [this.file]
+      },
+      saveDocument() {
+        const that = this;
+        console.log("save document", this.document, this.contents);
+        if (!this.document) {
+          this.newNameDialog = true;
+          return
+        }
+        if (this.decodedAuthToken() === null) {
+          return
+        }
+        this.document.tableName = "document";
 
 
-      var zip = new JSZip();
-      zip.file("contents_encoded.json", encodeUnicode(this.contents));
+        var zip = new JSZip();
+        zip.file("contents_encoded.json", encodeUnicode(this.contents));
 
-      zip.generateAsync({type: "base64"}).then(function (base64) {
+        zip.generateAsync({type: "base64"}).then(function (base64) {
 
-        that.document.document_content[0].contents = "data:application/dspreadsheet," + base64
-        if (that.document.reference_id) {
+          that.document.document_content[0].contents = "data:application/dspreadsheet," + base64
+          if (that.document.reference_id) {
 
-          if (that.document.permission === 2097027) {
-            that.loadData({
-              tableName: "world",
-              params: {
-                query: JSON.stringify([{
-                  column: "table_name",
-                  operator: "is",
-                  value: "document"
-                }]),
-                page: {
-                  size: 1,
+            if (that.document.permission === 2097027) {
+              that.loadData({
+                tableName: "world",
+                params: {
+                  query: JSON.stringify([{
+                    column: "table_name",
+                    operator: "is",
+                    value: "document"
+                  }]),
+                  page: {
+                    size: 1,
+                  }
                 }
-              }
-            }).then(function (res) {
-              console.log("Document", res);
-              var documentTable = res.data[0];
-              if (documentTable.permission !== that.document.permission) {
-                that.updateRow({
-                  tableName: "world",
-                  id: documentTable.reference_id,
-                  permission: that.document.permission
-                }).then(function (res) {
-                  console.log("Updated permission")
-                }).catch(function (res) {
-                  console.log("Failed to get table document", res)
-                  that.$q.notify({
-                    message: "Failed to check table permissions, share link might not be working"
+              }).then(function (res) {
+                console.log("Document", res);
+                var documentTable = res.data[0];
+                if (documentTable.permission !== that.document.permission) {
+                  that.updateRow({
+                    tableName: "world",
+                    id: documentTable.reference_id,
+                    permission: that.document.permission
+                  }).then(function (res) {
+                    console.log("Updated permission")
+                  }).catch(function (res) {
+                    console.log("Failed to get table document", res)
+                    that.$q.notify({
+                      message: "Failed to check table permissions, share link might not be working"
+                    })
                   })
+                }
+              }).catch(function (res) {
+                console.log("Failed to get table document", res)
+                that.$q.notify({
+                  message: "Failed to check table permissions, share link might not be working"
                 })
-              }
-            }).catch(function (res) {
-              console.log("Failed to get table document", res)
+              })
+            }
+
+
+            that.updateRow(that.document).then(function (res) {
+              console.log("Document saved", res);
+            }).catch(function (err) {
+              console.log("errer", err)
               that.$q.notify({
-                message: "Failed to check table permissions, share link might not be working"
+                message: "We are offline, changes are not being stored"
               })
             })
+          } else {
+            that.createRow(that.document).then(function (res) {
+              that.document = res.data;
+              console.log("Spreadsheet created", res);
+              that.$router.push('/apps/spreadsheet/' + that.document.reference_id)
+            }).catch(function (err) {
+              console.log("eror", err)
+              that.$q.notify({
+                message: "We are offline, changes are not being stored"
+              })
+            })
+
           }
 
 
-          that.updateRow(that.document).then(function (res) {
-            console.log("Document saved", res);
-          }).catch(function (err) {
-            console.log("errer", err)
-            that.$q.notify({
-              message: "We are offline, changes are not being stored"
-            })
-          })
-        } else {
-          that.createRow(that.document).then(function (res) {
-            that.document = res.data;
-            console.log("Spreadsheet created", res);
-            that.$router.push('/apps/spreadsheet/' + that.document.reference_id)
-          }).catch(function (err) {
-            console.log("eror", err)
-            that.$q.notify({
-              message: "We are offline, changes are not being stored"
-            })
-          })
-
-        }
+        })
 
 
-      })
-
-
+      },
+      ...mapActions(['loadData', 'updateRow', 'createRow'])
     },
-    ...mapActions(['loadData', 'updateRow', 'createRow'])
-  },
-  mounted() {
-    const that = this;
+    mounted() {
+      const that = this;
 
 
-    var script1 = document.createElement("script");
-    script1.setAttribute("type", "text/javascript");
-    script1.setAttribute("src", "/statics/luckysheet/plugins/js/plugin.js");
-    document.getElementsByTagName("head")[0].appendChild(script1);
+      var script1 = document.createElement("script");
+      script1.setAttribute("type", "text/javascript");
+      script1.setAttribute("src", "/statics/luckysheet/plugins/js/plugin.js");
+      document.getElementsByTagName("head")[0].appendChild(script1);
 
-    var script = document.createElement("script");
-    script.setAttribute("type", "text/javascript");
-    script.setAttribute("src", "/statics/luckysheet/luckysheet.umd.js");
+      var script = document.createElement("script");
+      script.setAttribute("type", "text/javascript");
+      script.setAttribute("src", "/statics/luckysheet/luckysheet.umd.js");
 
-    document.getElementsByTagName("head")[0].appendChild(script);
-    script.onload = function () {
-      console.log("lucky loaded");
+      document.getElementsByTagName("head")[0].appendChild(script);
+      script.onload = function () {
+        console.log("lucky loaded");
 
-      that.containerId = "id-" + new Date().getMilliseconds();
-      var documentId = that.$route.params.documentId;
-      console.log("Mounted FilesApp", that.containerId, that.$route.params.documentId);
-      if (documentId === "new") {
-        that.file = {
-          contents: "",
-          name: "New file.html"
-        }
-        that.contents = that.file.contents;
-        that.loadEditor();
-        return
-      }
-
-
-      that.loadData({
-        tableName: 'document',
-        params: {
-          query: JSON.stringify([
-            {
-              column: "reference_id",
-              operator: "is",
-              value: documentId
-            }
-          ]),
-          included_relations: "document_content"
-        }
-      }).then(function (res) {
-        console.log("Loaded document", res.data)
-        if (res.data === null || res.data.length < 1) {
+        that.containerId = "id-" + new Date().getMilliseconds();
+        var documentId = that.$route.params.documentId;
+        console.log("Mounted FilesApp", that.containerId, that.$route.params.documentId);
+        if (documentId === "new") {
           that.file = {
             contents: "",
-            name: "New file.html",
-            path: localStorage.getItem("_last_current_path") || "/"
-          };
+            name: "New file.html"
+          }
+          that.contents = that.file.contents;
           that.loadEditor();
           return
         }
-        that.document = res.data[0];
-        if (that.document.document_content) {
-          that.file = that.document.document_content[0];
-        } else {
-          that.file = {
-            contents: btoa(""),
-            name: that.document.document_name,
-            type: "application/x-ddocument",
-            path: localStorage.getItem("_last_current_path") || "/"
-          }
-          that.document.document_content = [that.file]
-        }
 
-        JSZip.loadAsync(atob(that.file.contents)).then(function (zipFile) {
-          // that.contents = atob(that.file.contents);
-          zipFile.file("contents_encoded.json").async("string").then(function (data) {
-            console.log("Loaded file: ", data)
-            that.contents = decodeUnicode(data);
-            that.loadEditor()
+
+        that.loadData({
+          tableName: 'document',
+          params: {
+            query: JSON.stringify([
+              {
+                column: "reference_id",
+                operator: "is",
+                value: documentId
+              }
+            ]),
+            included_relations: "document_content"
+          }
+        }).then(function (res) {
+          console.log("Loaded document", res.data)
+          if (res.data === null || res.data.length < 1) {
+            that.file = {
+              contents: "",
+              name: "New file.html",
+              path: localStorage.getItem("_last_current_path") || "/"
+            };
+            that.loadEditor();
+            return
+          }
+          that.document = res.data[0];
+          if (that.document.document_content) {
+            that.file = that.document.document_content[0];
+          } else {
+            that.file = {
+              contents: btoa(""),
+              name: that.document.document_name,
+              type: "application/x-ddocument",
+              path: localStorage.getItem("_last_current_path") || "/"
+            }
+            that.document.document_content = [that.file]
+          }
+
+          JSZip.loadAsync(atob(that.file.contents)).then(function (zipFile) {
+            // that.contents = atob(that.file.contents);
+            zipFile.file("contents_encoded.json").async("string").then(function (data) {
+              console.log("Loaded file: ", data)
+              that.contents = decodeUnicode(data);
+              that.loadEditor()
+            }).catch(function (err) {
+              console.log("Failed to open contents.html", err)
+              that.loadEditor()
+            });
+
+
           }).catch(function (err) {
-            console.log("Failed to open contents.html", err)
+            console.log("Failed to load zip file", err)
             that.loadEditor()
           });
+        })
 
 
-        }).catch(function (err) {
-          console.log("Failed to load zip file", err)
-          that.loadEditor()
-        });
-      })
+      }
 
 
     }
-
-
   }
-}
 </script>
