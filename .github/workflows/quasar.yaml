@@ -24,14 +24,15 @@ jobs:
         shell: bash
         run: |
           npm install -g @quasar/cli
+          npm install -g cordova
+          npm install
 
 
       - name: Build
         run: |
-          npm install
           quasar build -m spa
 
       - uses: actions/upload-artifact@v2
         with:
           name: web-spa
-          path: disp/spa
+          path: dist/spa

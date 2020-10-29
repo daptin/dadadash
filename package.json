@@ -3,7 +3,7 @@
   "version": "0.0.1",
   "description": "A Daptin Dashboard",
   "productName": "DadaDash",
-  "cordovaId": "in.dapt.dadadash",
+  "cordovaId": "din.dapt.dadadash",
   "capacitorId": "",
   "author": "artpar <artpar@gmail.com>",
   "private": true,
