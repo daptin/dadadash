@@ -455,6 +455,10 @@ export default {
             column: "document_path",
             operator: "is",
             value: that.currentPath + "/"
+          },{
+            column: "mime_type",
+            operator: "not like",
+            value: "workspace"
           }]),
           page: {
             size: 100,

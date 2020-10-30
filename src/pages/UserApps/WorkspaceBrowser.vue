@@ -21,21 +21,21 @@
     </q-dialog>
 
 
-    <q-menu context-menu>
-      <q-list dense style="min-width: 100px">
-        <q-item @click="() => {(newNamePrompt = true) ; (newName = '') ; ( newNameType = 'file')}" clickable
-                v-close-popup>
-          <q-item-section>New file</q-item-section>
-        </q-item>
-        <q-separator/>
-        <q-item @click="() => {(newNamePrompt = true) ; (newName = '') ; ( newNameType = 'folder')}" clickable
-                v-close-popup>
-          <q-item-section>New folder</q-item-section>
-        </q-item>
-        <q-separator/>
+<!--    <q-menu context-menu>-->
+<!--      <q-list dense style="min-width: 100px">-->
+<!--        <q-item @click="() => {(newNamePrompt = true) ; (newName = '') ; ( newNameType = 'file')}" clickable-->
+<!--                v-close-popup>-->
+<!--          <q-item-section>New file</q-item-section>-->
+<!--        </q-item>-->
+<!--        <q-separator/>-->
+<!--        <q-item @click="() => {(newNamePrompt = true) ; (newName = '') ; ( newNameType = 'folder')}" clickable-->
+<!--                v-close-popup>-->
+<!--          <q-item-section>New folder</q-item-section>-->
+<!--        </q-item>-->
+<!--        <q-separator/>-->
 
-      </q-list>
-    </q-menu>
+<!--      </q-list>-->
+<!--    </q-menu>-->
 
     <q-page>
       <user-header-bar style="border-bottom: 1px solid black" @search="searchDocuments" @show-uploader="showUploader"
@@ -76,7 +76,7 @@
           </q-card>
 
 
-          <q-card flat>
+          <q-card flat style="background: white">
             <q-card-section>
               <q-btn style="width: 100%; height: 38px" @click="showNewWorkspace = true" color="primary"
                      icon="library_add" label="Add workspace"></q-btn>
@@ -91,17 +91,17 @@
                 node-key="label"
                 :expanded.sync="expanded"
               >
-                <template v-slot:default-header="prop">
-                  <div class="row items-center"  v-if="prop.node.mime_type  === 'root'">
+                <template v-slot:default-header="prop" class="workspace-title">
+                  <div class="row items-center" v-if="prop.node.mime_type  === 'root'">
                     <div style="font-weight: 400; text-transform: uppercase" class=" text-primary">{{
                         prop.node.label
                       }}
                     </div>
                   </div>
-                  <div class="row cursor-pointer workspace-title" @click="openWorkspace(prop.node)"
+                  <div class="row cursor-pointer " @click="openWorkspace(prop.node)"
                        v-if="prop.node.mime_type  === 'workspace/root'">
                     <q-icon name="fas fa-briefcase" color="primary" size="14px" class="q-mr-sm"/>
-                    <div>{{
+                    <div style="text-transform: capitalize">{{
                         prop.node.label
                       }}
                     </div>
@@ -119,8 +119,9 @@
 
           </q-card>
         </div>
-        <div class="col-10 col-sm-12 col-md-10 col-lg-10 col-xl-10 col-xs-12">
+        <div class="col-10 col-sm-12 col-md-10 col-lg-10 col-xl-10 col-xs-12" style="background: #F2F1F9">
           <new-workspace-screen v-if="showNewWorkspace" @new-workspace-created="refreshData"></new-workspace-screen>
+          <workspace-view :workspace-name="currentWorkspace" v-if="currentWorkspace"></workspace-view>
 
         </div>
       </div>
@@ -134,9 +135,9 @@
 
 </template>
 <style>
-.workspace-title:hover {
-  background: rgba(80, 52, 164, 0.1);
-}
+/*.workspace-title:hover {*/
+/*  background: rgba(80, 52, 164, 0.1);*/
+/*}*/
 </style>
 <script>
 
@@ -185,6 +186,8 @@ export default {
   methods: {
     openWorkspace(workspace) {
       console.log("open workspace", workspace)
+      this.$router.push("/apps/workspace/" + workspace.label)
+      this.currentWorkspace = workspace.label;
     },
     searchDocuments(query) {
       console.log("search documents", query);
@@ -298,7 +301,6 @@ export default {
               operator: "is",
               value: file.reference_id
             }]),
-            "included_relations": "document_content",
             page: {
               size: 1,
             }
@@ -358,43 +360,9 @@ export default {
       console.log("Documents ", documentList);
       that.files = documentList.data.map(function (e) {
         // e.color = "white"
-        e.icon = "fas fa-file"
-        e.name = e.document_name
-        e.path = e.document_path
-
-        if (e.name.endsWith("xlsx") || e.name.endsWith("xls")) {
-          e.icon = "fas fa-file-excel"
-        } else if (e.name.endsWith(".doc") || e.name.endsWith("docx")) {
-          e.icon = "fas fa-file-word"
-        } else if (e.name.endsWith("dsheet")) {
-          e.icon = "fas fa-border-none"
-        } else if (e.name.endsWith("ddoc")) {
-          e.icon = "fas fa-file-alt"
-        } else if (e.name.endsWith("ppt") || e.name.endsWith("pptx")) {
-          e.icon = "fas fa-file-powerpoint"
-        } else if (e.name.endsWith("pdf")) {
-          e.icon = "fas fa-file-pdf"
-        } else if (e.name.endsWith("txt") || e.name.endsWith("yaml") || e.name.endsWith("json")) {
-          e.icon = "fas fa-file-alt"
-        } else if (e.name.endsWith("html") || e.name.endsWith("xml") || e.name.endsWith("css")) {
-          e.icon = "fas fa-file-code"
-        } else if (e.name.endsWith("csv")) {
-          e.icon = "fas fa-file-csv"
-        } else if (e.name.endsWith("jpg") || e.name.endsWith("tiff") || e.name.endsWith("gif") || e.name.endsWith("png")) {
-          e.icon = "fas fa-image"
-        } else if (e.name.endsWith("mp3") || e.name.endsWith("wav") || e.name.endsWith("riff") || e.name.endsWith("ogg")) {
-          e.icon = "fas fa-file-audio"
-        } else if (e.name.endsWith("mp4") || e.name.endsWith("mkv") || e.name.endsWith("riff") || e.name.endsWith("m4a")) {
-          e.icon = "fas fa-file-video"
-        } else if (e.name.endsWith("zip") || e.name.endsWith("rar") || e.name.endsWith("gz") || e.name.endsWith("tar")) {
-          e.icon = "fas fa-file-archive"
-        }
-        if (e.document_extension === "folder") {
-          e.icon = "fas fa-folder"
-          e.is_dir = true
-          e.color = "rgb(224, 135, 94)"
-
-        }
+        e.icon = "fas fa-folder"
+        e.is_dir = true
+        e.color = "rgb(224, 135, 94)"
 
         return e;
       });
@@ -419,9 +387,14 @@ export default {
       that.workspaceTree[0].children = that.files.map(function (e) {
         return {
           label: e.document_name,
+          icon: e.icon,
           mime_type: e.mime_type
         }
       })
+      that.expanded.push(that.workspaceTree[0].children[0].label);
+      if (!this.currentWorkspace) {
+        that.$router.push('/apps/workspace/' + that.workspaceTree[0].children[0].label);
+      }
 
 
     },
@@ -443,7 +416,8 @@ export default {
           }]),
           page: {
             size: 100,
-          }
+          },
+          included_relations: "document_content"
         }
       };
       if (searchTerm && searchTerm.trim().length > 0) {
@@ -603,6 +577,7 @@ export default {
     return {
       searchInput: '',
       showNewWorkspace: false,
+      currentWorkspace: null,
       ...mapGetters(['endpoint']),
       directoryEnsureCache: {},
       newNamePrompt: false,
@@ -615,6 +590,7 @@ export default {
         {
           label: "Shared workspaces",
           children: [],
+          mime_type: "root"
         }
       ],
       expanded: ['My Workspaces'],
@@ -641,7 +617,8 @@ export default {
   mounted() {
     const that = this;
     this.containerId = "id-" + new Date().getMilliseconds();
-    console.log("Mounted FilesBrowser", this.containerId);
+    console.log("Mounted FilesBrowser", this.containerId, this.$route.params);
+    this.currentWorkspace = this.$route.params.workspaceName;
 
     var lastPath = localStorage.getItem("_last_current_path")
     if (lastPath) {

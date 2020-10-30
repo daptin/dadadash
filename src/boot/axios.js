@@ -16,6 +16,8 @@ import VJstree from 'vue-jstree'
 import PaginatedTableView from "pages/UserApps/PaginatedListViewTemplate/PaginatedTableView.vue";
 import PaginatedCardView from "pages/UserApps/PaginatedListViewTemplate/PaginatedCardView.vue";
 import NewWorkspaceScreen from "pages/UserApps/NewWorkspaceScreen.vue";
+import WorkspaceView from "pages/UserApps/WorkspaceView.vue";
+import AddBaseView from "pages/UserApps/AddBaseView.vue";
 
 
 // import CKEditor from '@ckeditor/ckeditor5-vue'
@@ -25,6 +27,8 @@ Vue.component('v-jstree', VJstree);
 Vue.component('ace-editor', AceEditor);
 Vue.component('user-header-bar', UserHeaderBar);
 Vue.component('new-workspace-screen', NewWorkspaceScreen);
+Vue.component('workspace-view', WorkspaceView);
+Vue.component('add-base-view', AddBaseView);
 Vue.component('file-upload', VueUploadComponent);
 Vue.component('daptin-document-uploader', DaptinDocumentUploader);
 Vue.component('file-browser', FileBrowser);

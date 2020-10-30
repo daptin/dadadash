@@ -38,7 +38,7 @@
           <div class="row no-wrap q-pa-md">
 
             <div class="column items-center">
-              <q-avatar size="72px">
+              <q-avatar >
                 <img :src="decodedAuthToken().picture">
               </q-avatar>
 
