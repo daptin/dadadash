@@ -77,7 +77,7 @@
           </q-card>
 
 
-          <q-card flat>
+          <q-card flat style="background: white">
             <q-card-section>
               <q-list bordered separator>
                 <q-item @click="$router.push('/apps/document/new')" clickable>
@@ -96,7 +96,7 @@
             </q-card-section>
 
           </q-card>
-          <q-card style="border: 1px dashed black; font-size: 10px; box-shadow: none">
+          <q-card style="border: 1px dashed black; font-size: 10px; box-shadow: none; background: white; margin: 10px">
             <file-upload
               :multiple="true"
               style="height: 300px; width: 100%; text-align: left"
@@ -143,7 +143,7 @@
           </q-card>
 
         </div>
-        <div class="col-10 col-sm-12 col-md-10 col-lg-10 col-xl-10 col-xs-12">
+        <div class="col-10 col-sm-12 col-md-10 col-lg-10 col-xl-10 col-xs-12" style="background: #F2F1F9">
           <paginated-table-view v-if="viewMode === 'table'"
                                 @item-deleted="itemDelete"
                                 @item-rename="itemRename"

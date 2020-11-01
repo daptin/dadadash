@@ -21,21 +21,21 @@
     </q-dialog>
 
 
-<!--    <q-menu context-menu>-->
-<!--      <q-list dense style="min-width: 100px">-->
-<!--        <q-item @click="() => {(newNamePrompt = true) ; (newName = '') ; ( newNameType = 'file')}" clickable-->
-<!--                v-close-popup>-->
-<!--          <q-item-section>New file</q-item-section>-->
-<!--        </q-item>-->
-<!--        <q-separator/>-->
-<!--        <q-item @click="() => {(newNamePrompt = true) ; (newName = '') ; ( newNameType = 'folder')}" clickable-->
-<!--                v-close-popup>-->
-<!--          <q-item-section>New folder</q-item-section>-->
-<!--        </q-item>-->
-<!--        <q-separator/>-->
+    <!--    <q-menu context-menu>-->
+    <!--      <q-list dense style="min-width: 100px">-->
+    <!--        <q-item @click="() => {(newNamePrompt = true) ; (newName = '') ; ( newNameType = 'file')}" clickable-->
+    <!--                v-close-popup>-->
+    <!--          <q-item-section>New file</q-item-section>-->
+    <!--        </q-item>-->
+    <!--        <q-separator/>-->
+    <!--        <q-item @click="() => {(newNamePrompt = true) ; (newName = '') ; ( newNameType = 'folder')}" clickable-->
+    <!--                v-close-popup>-->
+    <!--          <q-item-section>New folder</q-item-section>-->
+    <!--        </q-item>-->
+    <!--        <q-separator/>-->
 
-<!--      </q-list>-->
-<!--    </q-menu>-->
+    <!--      </q-list>-->
+    <!--    </q-menu>-->
 
     <q-page>
       <user-header-bar style="border-bottom: 1px solid black" @search="searchDocuments" @show-uploader="showUploader"
@@ -46,7 +46,7 @@
         after: [
             {icon: 'fas fa-sync-alt', event: 'search'},
           ],
-        }" title="Files"></user-header-bar>
+        }"></user-header-bar>
 
       <div style="height: 100vh; overflow-y: scroll" class="row">
         <div class="col-2 col-sm-12 col-md-2 col-lg-2 col-xl-2 col-xs-12">
@@ -121,7 +121,7 @@
         </div>
         <div class="col-10 col-sm-12 col-md-10 col-lg-10 col-xl-10 col-xs-12" style="background: #F2F1F9">
           <new-workspace-screen v-if="showNewWorkspace" @new-workspace-created="refreshData"></new-workspace-screen>
-          <workspace-view :workspace-name="currentWorkspace" v-if="currentWorkspace"></workspace-view>
+          <workspace-view :workspace-name="currentWorkspace" v-if="!showNewWorkspace && currentWorkspace"></workspace-view>
 
         </div>
       </div>
@@ -166,14 +166,14 @@ function saveByteArray(reportName, fileType, byte) {
 
 export default {
 
-  name: "FileBrowser",
+  name: "WorkspaceBrowser",
   // NOTICE meta is a function here, which is the way
   // for you to reference properties from the Vue component's scope
   meta() {
     return {
       // this accesses the "title" property in your Vue "data";
       // whenever "title" prop changes, your meta will automatically update
-      title: (this.currentPath.substring(1) || 'Home') + " - Workspace"
+      title: (this.currentWorkspace || 'Home') + " - Workspace"
     }
   },
 
@@ -181,6 +181,9 @@ export default {
     'currentPath': function (newVal) {
       console.log("Current path changed", newVal);
       localStorage.setItem("_last_current_path", newVal)
+    },
+    '$route.params.currentWorkspace': function (newVal) {
+      console.log("Workspace changed", newVal)
     }
   },
   methods: {
@@ -349,16 +352,16 @@ export default {
 
     },
     ...mapActions(['loadData', 'createRow', 'loadModel', 'deleteRow']),
-    handleDataLoad(documentList) {
+    handleDataLoad(workspaceListResponse) {
       const that = this;
-      if (documentList.data === null) {
+      if (workspaceListResponse.data === null) {
         that.$q.notify({
           message: "Error fetching files"
         })
         return
       }
-      console.log("Documents ", documentList);
-      that.files = documentList.data.map(function (e) {
+      console.log("Documents ", workspaceListResponse);
+      that.files = workspaceListResponse.data.map(function (e) {
         // e.color = "white"
         e.icon = "fas fa-folder"
         e.is_dir = true
@@ -366,23 +369,6 @@ export default {
 
         return e;
       });
-      if (that.currentPath !== "") {
-        that.files.unshift({
-          name: '..',
-          path: '..',
-          icon: 'fas fa-folder',
-          is_dir: true,
-          color: "rgb(224, 135, 94)"
-        })
-        that.files.unshift({
-          name: '.',
-          path: '.',
-          icon: 'fas fa-folder',
-          is_dir: true,
-          color: "rgb(224, 135, 94)"
-        });
-
-      }
 
       that.workspaceTree[0].children = that.files.map(function (e) {
         return {
@@ -417,7 +403,6 @@ export default {
           page: {
             size: 100,
           },
-          included_relations: "document_content"
         }
       };
       if (searchTerm && searchTerm.trim().length > 0) {
@@ -435,28 +420,32 @@ export default {
       console.log("Query data")
 
       that.loadData(queryPayload).then(function (res) {
-        console.log("data load complete")
+        console.log("data load complete", that.currentWorkspace, res);
+        if (!that.currentWorkspace) {
+          that.currentWorkspace = res.data[0].document_name;
+          that.$router.push('/apps/workspace/' + that.currentWorkspace)
+        }
         that.handleDataLoad(res)
       });
 
 
     },
-    ensureDirectory(path) {
+    ensureDirectory(workspaceName) {
       const that = this;
-      if (path === "/") {
+      if (workspaceName === "/") {
         return
       }
-      if (that.directoryEnsureCache[path]) {
+      if (that.workspaceEnsureCache[workspaceName]) {
         return
       }
-      that.directoryEnsureCache[path] = true
+      that.workspaceEnsureCache[workspaceName] = true
 
-      var pathParts = path.split("/");
+      var pathParts = workspaceName.split("/");
       var dirName = pathParts[pathParts.length - 1];
       pathParts.pop()
       var parentDir = pathParts.join("/") + "/";
 
-      console.log("Ensure directory", path)
+      console.log("Ensure directory", workspaceName)
       let query = [{
         "column": "document_name",
         "operator": "is",
@@ -465,6 +454,10 @@ export default {
         "column": "document_path",
         "operator": "is",
         "value": "/"
+      }, {
+        "column": "mime_type",
+        "operator": "is",
+        "value": "workspace/root"
       }, {
         "column": "document_extension",
         "operator": "is",
@@ -479,12 +472,12 @@ export default {
       }).then(function (res) {
         console.log("Ensure directory result", res)
         if (res.data.length === 0) {
-          console.log("Directory does not exist", path);
+          console.log("Directory does not exist", workspaceName);
           var newRow = {
             document_name: dirName,
             tableName: "document",
             document_extension: "folder",
-            mime_type: '',
+            mime_type: 'workspace/root',
             document_path: parentDir,
             document_content: [],
           }
@@ -579,7 +572,7 @@ export default {
       showNewWorkspace: false,
       currentWorkspace: null,
       ...mapGetters(['endpoint']),
-      directoryEnsureCache: {},
+      workspaceEnsureCache: {},
       newNamePrompt: false,
       workspaceTree: [
         {
@@ -617,12 +610,12 @@ export default {
   mounted() {
     const that = this;
     this.containerId = "id-" + new Date().getMilliseconds();
-    console.log("Mounted FilesBrowser", this.containerId, this.$route.params);
+    console.log("Mounted WorkspaceBrowser", this.containerId, this.$route.params);
     this.currentWorkspace = this.$route.params.workspaceName;
 
-    var lastPath = localStorage.getItem("_last_current_path")
-    if (lastPath) {
-      this.currentPath = lastPath;
+    var lastWorkspace = localStorage.getItem("_last_workspace")
+    if (lastWorkspace && !this.currentWorkspace) {
+      this.currentWorkspace = lastWorkspace;
     }
 
     that.refreshData();

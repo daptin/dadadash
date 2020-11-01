@@ -69,7 +69,6 @@ export default {
                 item_type: "summary",
                 label: "Bug tracker",
                 target: {
-                  type: "table",
                   name: "bug"
                 },
                 title: {
