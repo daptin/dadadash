@@ -1,9 +1,9 @@
 <template>
   <div>
     <div v-if="baseItem.item_type === 'view'">
-      <edit-data-table v-if="targetTable" :tableName="targetTable.targetTable.TableName"></edit-data-table>
+      <edit-data-table style="width: 100vw" v-if="targetTable" :tableName="targetTable.targetTable.TableName"></edit-data-table>
     </div>
-    <div class="col-12" v-if="baseItem.item_type !== 'view'">
+    <div  class="col-12" v-if="baseItem.item_type !== 'view'">
       <h6>Base view router</h6>
       {{ baseItem.item_type }}
       <span>{{ baseItem }}</span>

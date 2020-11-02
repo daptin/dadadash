@@ -1,6 +1,6 @@
 <template>
 
-  <q-header reveal class="bg-white text-black">
+  <q-page-sticky reveal class="bg-white text-black">
     <q-bar class="bg-primary text-white" style="height: 48px" v-if="decodedAuthToken() !== null">
       <q-btn flat @click="onBack ? onBack() : $router.back()" icon="fas fa-arrow-left"></q-btn>
       <q-toolbar-title v-if="title" style="text-transform: capitalize" v-html="title">
@@ -63,7 +63,7 @@
       </q-btn>
       <!--      <q-img :src="decodedAuthToken().picture" width="40px" ></q-img>-->
     </q-bar>
-  </q-header>
+  </q-page-sticky>
 
 </template>
 <style>

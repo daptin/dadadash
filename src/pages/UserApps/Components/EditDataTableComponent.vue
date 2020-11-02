@@ -3,8 +3,14 @@
 
     <q-page>
 
+
       <div class="row">
-        <q-bar class="bg-white">
+        <div id="spreadsheet" style="height: calc(100vh - 65px); border-top: 1px solid black"></div>
+      </div>
+
+
+      <q-page-sticky position="top" expand :offset="[0, 50]">
+        <q-toolbar class="bg-white">
 
           <q-btn icon="fas fa-bars" flat>
             <q-menu style="min-height: 150px">
@@ -39,12 +45,9 @@
           <q-btn v-if="selectedRows.length > 0" @click="deleteSelectedRows" flat color="red" size="sm">Delete selected
             rows
           </q-btn>
-        </q-bar>
+        </q-toolbar>
         <q-separator></q-separator>
-      </div>
-      <div class="row">
-        <div id="spreadsheet" style="height: calc(100vh - 65px); border-top: 1px solid black"></div>
-      </div>
+      </q-page-sticky>
 
 
     </q-page>
@@ -69,6 +72,7 @@
       side="right"
       v-model="newRowDrawer"
       bordered
+      overlay
       :width="500"
       :breakpoint="500"
       content-class="bg-grey-3"
@@ -146,7 +150,7 @@
 
     <q-drawer overlay side="right" v-model="tablePermissionDrawer" bordered :width="400" :breakpoint="1400"
               content-class="bg-grey-3">
-      <q-scroll-area class="fit row" v-if="!newRowDrawer">
+      <q-scroll-area class="fit row" v-if="tablePermissionDrawer">
 
         <table-permissions @close="tablePermissionDrawer = false" v-if="tableData"
                            v-bind:selectedTable="tableData"/>
