@@ -18,6 +18,8 @@ import PaginatedCardView from "pages/UserApps/PaginatedListViewTemplate/Paginate
 import NewWorkspaceScreen from "pages/UserApps/NewWorkspaceScreen.vue";
 import WorkspaceView from "pages/UserApps/WorkspaceView.vue";
 import AddBaseView from "pages/UserApps/AddBaseView.vue";
+import BaseViewRouter from "pages/UserApps/BaseViewRouter.vue";
+import EditDataTableComponent from "pages/UserApps/Components/EditDataTableComponent.vue";
 
 
 // import CKEditor from '@ckeditor/ckeditor5-vue'
@@ -29,6 +31,8 @@ Vue.component('user-header-bar', UserHeaderBar);
 Vue.component('new-workspace-screen', NewWorkspaceScreen);
 Vue.component('workspace-view', WorkspaceView);
 Vue.component('add-base-view', AddBaseView);
+Vue.component('base-view-router', BaseViewRouter);
+Vue.component('edit-data-table', EditDataTableComponent);
 Vue.component('file-upload', VueUploadComponent);
 Vue.component('daptin-document-uploader', DaptinDocumentUploader);
 Vue.component('file-browser', FileBrowser);

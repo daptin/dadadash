@@ -270,7 +270,7 @@ Tabulator.prototype.extendModule("format", "formatters", {
 });
 
 export default {
-  name: "EditData",
+  name: "EditDataTableComponent",
   methods: {
     searchDocuments(searchQuery) {
       console.log("search data", arguments)
@@ -314,7 +314,7 @@ export default {
       promise.then(function (res) {
         console.log("File read complete", res);
         var uploadObject = {
-          "entity_name": that.$route.params.tableName,
+          "entity_name": that.tableName,
         }
         var actionName = "upload_csv_to_system_schema"
         var onTable = "world";
@@ -356,10 +356,10 @@ export default {
     },
     downloadData(format) {
       if (format === "csv") {
-        this.spreadsheet.download("csv", this.$route.params.tableName + ".csv")
+        this.spreadsheet.download("csv", this.tableName + ".csv")
       } else if (format === "xls") {
-        this.spreadsheet.download("xlsx", this.$route.params.tableName + ".xlsx", {
-          sheetName: this.$route.params.tableName
+        this.spreadsheet.download("xlsx", this.tableName + ".xlsx", {
+          sheetName: this.tableName
         });
       }
     },
@@ -380,7 +380,7 @@ export default {
       } else {
         Promise.all(this.selectedRows.map(function (row) {
           return that.deleteRow({
-            tableName: that.$route.params.tableName,
+            tableName: that.tableName,
             reference_id: row.reference_id
           })
         })).then(function () {
@@ -459,7 +459,7 @@ export default {
         }
       });
       console.log("Promises list", promises);
-      obj['tableName'] = that.$route.params.tableName;
+      obj['tableName'] = that.tableName;
 
       Promise.all(promises).then(function () {
         that.createRow(obj).then(function (res) {
@@ -518,7 +518,7 @@ export default {
       const that = this;
       var assetColumns = [];
       that.newRowData = [];
-      var tableName = this.$route.params.tableName;
+      var tableName = this.tableName;
       console.log("loaded data editor", tableName);
       that.getTableSchema(tableName).then(function (res) {
         that.tableSchema = res;
@@ -626,7 +626,7 @@ export default {
             //cell - cell component
             console.log("cell edited", reference_id, arguments);
             const obj = {
-              tableName: that.$route.params.tableName,
+              tableName: that.tableName,
               id: reference_id,
             };
             obj[field] = newValue;

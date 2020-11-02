@@ -67,8 +67,8 @@
               inline-label
             >
               <q-route-tab
-                :icon="itemIconMap[item.item_type]" :key="item.lael"
-                v-if="item.item_type === 'view'" v-for="item in baseConfig.items"
+                :icon="itemIconMap[item.item_type]" :key="item.label"
+                v-if="item.item_type !== 'table'" v-for="item in baseConfig.items"
                 :to="'/apps/workspace/' + workspaceName + '/' + baseName + '/' + item.label" exact replace
                 :label="item.label"/>
 
@@ -98,8 +98,7 @@
       </q-page-sticky>
 
 
-      <div id="spreadsheet"
-           style="height: calc(100vh - 98px); border-top: 1px solid black"></div>
+      <base-view-router v-if="selectedBaseItem" :baseItem="selectedBaseItem"></base-view-router>
 
 
     </q-page>
@@ -308,6 +307,7 @@ import {mapActions, mapGetters} from 'vuex';
 
 import XLSX from 'xlsx';
 import Tabulator from 'tabulator-tables';
+import BaseViewRouter from "pages/UserApps/BaseViewRouter";
 
 window.XLSX = XLSX;
 const assetEndpoint = window.location.hostname === "site.daptin.com" && window.location.port === "8080" ? "http://localhost:" + window.location.port : window.location.protocol + "//" + window.location.hostname + (window.location.port === "80" ? "" : ':' + window.location.port);
@@ -361,6 +361,7 @@ Tabulator.prototype.extendModule("format", "formatters", {
 
 export default {
   name: "BaseData",
+  components: {BaseViewRouter},
   meta() {
     return {
       // this accesses the "title" property in your Vue "data";
@@ -728,10 +729,36 @@ export default {
         // var updateSchema = {
         //   Tables: [],
         // };
+        that.selectedBaseItem = that.baseConfig.items.filter(function (e) {
+          return e.label === that.selectedItem
+        })[0];
+        console.log("selected base item", that.selectedItem, that.baseConfig, that.selectedBaseItem)
         let hasBaseConfigChanged = false;
 
 
+        let queryPayload = {
+          tableName: "document",
+          params: {
+            query: JSON.stringify([{
+              column: "document_path",
+              operator: "is",
+              value: "/" + workspaceName + "/" + baseName
+            }, {
+              column: "mime_type",
+              operator: "like",
+              value: "workspace/"
+            }]),
+            page: {
+              size: 100,
+            },
+            included_relations: "document_content"
+          }
+        };
 
+        that.loadData(queryPayload).then(function (res) {
+          console.log("base items", res);
+        });
+        return
 
 
         for (var itemIndex in that.baseConfig.items) {
@@ -775,138 +802,34 @@ export default {
       const that = this;
       that.newRowData = [];
       that.sourceMap = {};
+      console.log("Selected base item", that.selectedItem, that.selectedBaseItem);
+      that.selectedItem = that.$route.params.itemName;
+      that.baseName = that.$route.params.baseName;
+      that.selectedBaseItem = that.baseConfig.items.filter(function (e) {
+        return e.label === that.selectedItem;
+      })[0];
+      // console.log("Refresh data for ", that.baseName, that.selectedItem, that.selectedBaseItem)
 
-
-      for (var i = 0; i < that.baseConfig.items.length; i++) {
-        if (that.baseConfig.items[i].item_type === "table") {
-          console.log("Table", that.baseConfig.items[i])
-          that.sourceMap[that.baseConfig.items[i].label] = that.baseConfig.items[i]
-        }
-      }
-      for (var i = 0; i < that.baseConfig.items.length; i++) {
-        const baseItem = that.baseConfig.items[i];
-        if (baseItem.item_type === "view") {
-          console.log("load table for view type", baseItem.attributes.TableName);
-          var source = that.sourceMap[baseItem.attributes.TableName]
-          if (!source) {
-            alert("Table not found used in view: " + baseItem.attributes.TableName);
-            continue
-          }
-          that.loadTable(source.targetTable.TableName, baseItem.label)
-        }
-
-      }
-
-      // return;
       //
-      // const workspaceName = this.$route.params.workspaceName;
-      // const baseName = this.$route.params.baseName;
-      // const itemName = this.$route.params.itemName;
-      // console.log("loaded data editor", tableName);
-      // that.baseName = baseName;
-      // that.itemName = itemName;
-      // that.workspaceName = workspaceName;
-      //
-      // let queryPayload = {
-      //   tableName: "document",
-      //   params: {
-      //     query: JSON.stringify([{
-      //       column: "document_path",
-      //       operator: "is",
-      //       value: "/"
-      //     }, {
-      //       column: "mime_type",
-      //       operator: "like",
-      //       value: "workspace/root"
-      //     }, {
-      //       column: "document_name",
-      //       operator: "like",
-      //       value: workspaceName
-      //     }]),
-      //     page: {
-      //       size: 100,
-      //     },
-      //     included_relations: "document_content"
+      // for (var i = 0; i < that.baseConfig.items.length; i++) {
+      //   if (that.baseConfig.items[i].item_type === "table") {
+      //     console.log("Table", that.baseConfig.items[i])
+      //     that.sourceMap[that.baseConfig.items[i].label] = that.baseConfig.items[i]
       //   }
-      // };
-      //
-      // that.files = [];
-      // console.log("Query data")
-      //
-      // that.loadData(queryPayload).then(function (data) {
-      //   console.log("data load complete", data)
-      //
-      //
-      //   that.workspaceDocument = data.data[0];
-      //   if (!that.workspaceDocument.document_content) {
-      //     alert("workspace configuration not found");
-      //     return
-      //   }
-      //   var workspaceSchema = that.workspaceDocument.document_content[0] && that.workspaceDocument.document_content[0].contents ? that.workspaceDocument.document_content[0].contents : null;
-      //   if (workspaceSchema) {
-      //
-      //     JSZip.loadAsync(atob(workspaceSchema)).then(function (zipFile) {
-      //       // that.contents = atob(that.file.contents);
-      //       zipFile.file("metadata.json").async("string").then(function (data) {
-      //         console.log("Loaded file: ", data)
-      //         that.workspaceSchema = JSON.parse(data);
-      //         that.loadTable();
-      //       }).catch(function (err) {
-      //         that.workspaceSchema = {
-      //           workspaceItems: [],
-      //           label: that.workspaceName
-      //         }
-      //       });
-      //
-      //
-      //     }).catch(function (err) {
-      //       console.log("Failed to load zip file", err);
-      //       that.workspaceSchema = {
-      //         workspaceItems: [],
-      //         label: this.workspaceName
-      //       }
-      //
-      //     });
-      //
-      //   } else {
-      //     that.workspaceSchema = {
-      //       workspaceItems: [],
-      //       label: that.workspaceName
+      // }
+      // for (var i = 0; i < that.baseConfig.items.length; i++) {
+      //   const baseItem = that.baseConfig.items[i];
+      //   if (baseItem.item_type === "view" && baseItem.label === that.selectedItem) {
+      //     console.log("load table for view type", baseItem.attributes.TableName);
+      //     var source = that.sourceMap[baseItem.attributes.TableName]
+      //     if (!source) {
+      //       alert("Table not found used in view: " + baseItem.attributes.TableName);
+      //       continue
       //     }
+      //     that.loadTable(source.targetTable.TableName, baseItem.label)
       //   }
       //
-      // });
-
-      //
-      // return;
-      //
-      // that.loadData({
-      //   tableName: 'world',
-      //   params: {
-      //     query: JSON.stringify([
-      //       {
-      //         column: 'table_name',
-      //         operator: 'is',
-      //         value: tableName
-      //       }
-      //     ]),
-      //     included_relations: 'user_account',
-      //   }
-      // }).then(function (res) {
-      //   console.log("Table row", res, arguments);
-      //   if (!res.data || res.data.length !== 1) {
-      //     that.$q.notify({
-      //       message: "Failed to load table metadata"
-      //     });
-      //     return;
-      //   }
-      //   that.tableData = res.data[0];
-      // }).catch(function (err) {
-      //   console.log("Failed to load table metadata", err);
-      //   that.$q.notify({
-      //     message: "Failed to load table metadata"
-      //   });
-      // });
+      // }
 
     },
     loadTable(tableName, targetContainerId) {
@@ -1129,6 +1052,7 @@ export default {
   data() {
     return {
       dataUploadFile: null,
+      selectedBaseItem: null,
       baseItemTypes: {
         "table": {
           label: "Data table",
@@ -1227,7 +1151,10 @@ export default {
   },
   watch: {
     'selectedItem': function (newVal) {
+      const that = this;
       console.log("New tab selected", newVal)
+      console.log("base load");
+      that.refreshData();
     },
     '$route.params.baseName': function () {
       this.refreshData();
