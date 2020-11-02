@@ -1,16 +1,10 @@
 <template>
-  <q-page-container>
+  <q-page-container style="padding-top: 0;">
 
-    <q-page>
-
+    <q-page style=" overflow: hidden">
 
       <div class="row">
-        <div id="spreadsheet" style="height: calc(100vh - 65px); border-top: 1px solid black"></div>
-      </div>
-
-
-      <q-page-sticky position="top" expand :offset="[0, 50]">
-        <q-toolbar class="bg-white">
+        <q-bar class="bg-white">
 
           <q-btn icon="fas fa-bars" flat>
             <q-menu style="min-height: 150px">
@@ -45,28 +39,15 @@
           <q-btn v-if="selectedRows.length > 0" @click="deleteSelectedRows" flat color="red" size="sm">Delete selected
             rows
           </q-btn>
-        </q-toolbar>
+        </q-bar>
         <q-separator></q-separator>
-      </q-page-sticky>
+      </div>
 
+      <div class="row">
+        <div id="spreadsheet" style="height: calc(100vh - 100px); width: 100vw; border-top: 1px solid black"></div>
+      </div>
 
     </q-page>
-
-
-<!--    <q-page-sticky v-if="!newRowDrawer" position="bottom-right" :offset="[20, 20]">-->
-<!--      <q-fab vertical-actions-align="right" color="primary" icon="keyboard_arrow_up" direction="up">-->
-<!--        <q-fab-action color="orange" @click="downloadData('xls')" label="Download XLS" icon="fas fa-file-excel">-->
-<!--        </q-fab-action>-->
-<!--        <q-fab-action color="orange" @click="downloadData('csv')" label="Download CSV" icon="fas fa-download">-->
-<!--        </q-fab-action>-->
-<!--        <q-fab-action color="orange" @click="$refs.fileUpload.pickFiles()" label="Upload CSV/XLS"-->
-<!--                      icon="fas fa-upload">-->
-<!--          <q-file v-model="dataUploadFile" ref="fileUpload" @input="uploadFileSelected"-->
-<!--                  style="display: none"></q-file>-->
-<!--        </q-fab-action>-->
-<!--      </q-fab>-->
-<!--    </q-page-sticky>-->
-
 
     <q-drawer
       side="right"
@@ -281,7 +262,8 @@ Tabulator.prototype.extendModule("format", "formatters", {
 
 export default {
   name: "EditDataTableComponent",
-  props: ["tableName"],
+  props: ["tableName", "config"],
+  // todo use the config property to show only configured columns for this view and not all columns
   methods: {
     searchDocuments(searchQuery) {
       console.log("search data", arguments)
@@ -800,6 +782,9 @@ export default {
   },
   watch: {
     '$route.params.tableName': function () {
+      this.refreshData();
+    },
+    'tableName': function () {
       this.refreshData();
     }
   },

@@ -16,9 +16,7 @@
                      + "&nbsp;&nbsp; › &nbsp;&nbsp;" + ($route.params.baseName)
                      + "&nbsp;&nbsp; › &nbsp;&nbsp;" + ($route.params.itemName)'
       ></user-header-bar>
-
-      <div expand position="top-left">
-
+      <div>
         <div class="row">
           <q-bar style="height: 50px" dark>
             <q-tabs
@@ -27,7 +25,7 @@
             >
               <q-route-tab
                 :icon="itemIconMap[item.item_type]" :key="item.label"
-                v-if="item.item_type !== 'table'" v-for="item in baseConfig.items"
+                v-if="item.item_type !== 'summary'" v-for="item in baseConfig.items"
                 :to="'/apps/workspace/' + workspaceName + '/' + baseName + '/' + item.label" exact replace
                 :label="item.label + ' - ' + item.item_type"/>
 
@@ -58,8 +56,6 @@
 
       <base-view-router v-if="selectedBaseItem" :base-config="baseConfig"
                         :baseItem="selectedBaseItem"></base-view-router>
-
-
 
 
     </q-page>
@@ -319,6 +315,7 @@ export default {
       that.selectedBaseItem = that.baseConfig.items.filter(function (e) {
         return e.label === that.selectedItem;
       })[0];
+      console.log("Updated base ", that.selectedItem, that.baseName, that.selectedBaseItem);
 
 
     },

@@ -1,14 +1,11 @@
 <template>
   <div>
-    <div v-if="baseItem.item_type === 'view'">
-      <edit-data-table style="width: 100vw" v-if="targetTable" :tableName="targetTable.targetTable.TableName"></edit-data-table>
-    </div>
-    <div  class="col-12" v-if="baseItem.item_type !== 'view'">
-      <h6>Base view router</h6>
-      {{ baseItem.item_type }}
-      <span>{{ baseItem }}</span>
-    </div>
-
+    {{ baseItem }}
+    <component :is="baseItemComponentMap[baseItem.item_type]"
+               v-if="baseItemComponentMap[baseItem.item_type] && baseItem.targetTable"
+               :tableName="baseItem.targetTable.TableName"
+               :config="baseItem"
+    ></component>
   </div>
 
 </template>
@@ -20,7 +17,11 @@ export default {
   data() {
     return {
       baseItemComponentMap: {
-        'view': 'edit-data-table'
+        'view': 'edit-data-table',
+        'table': 'edit-data-table',
+        'document': 'edit-data-table',
+        'spreadsheet': 'edit-data-table',
+        'calendar': 'edit-data-table',
       },
       targetTable: null,
     }
