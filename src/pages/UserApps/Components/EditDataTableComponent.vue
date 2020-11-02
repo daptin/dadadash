@@ -1,8 +1,9 @@
 <template>
   <q-page-container>
 
-    <q-page style="padding-top: 32px">
-      <q-page-sticky expand position="top-left">
+    <q-page>
+
+      <div class="row">
         <q-bar class="bg-white">
 
           <q-btn icon="fas fa-bars" flat>
@@ -40,23 +41,28 @@
           </q-btn>
         </q-bar>
         <q-separator></q-separator>
-      </q-page-sticky>
-      <div id="spreadsheet" style="height: calc(100vh - 65px); border-top: 1px solid black"></div>
+      </div>
+      <div class="row">
+        <div id="spreadsheet" style="height: calc(100vh - 65px); border-top: 1px solid black"></div>
+      </div>
+
+
     </q-page>
 
-    <q-page-sticky v-if="!newRowDrawer" position="bottom-right" :offset="[20, 20]">
-      <q-fab vertical-actions-align="right" color="primary" icon="keyboard_arrow_up" direction="up">
-        <q-fab-action color="orange" @click="downloadData('xls')" label="Download XLS" icon="fas fa-file-excel">
-        </q-fab-action>
-        <q-fab-action color="orange" @click="downloadData('csv')" label="Download CSV" icon="fas fa-download">
-        </q-fab-action>
-        <q-fab-action color="orange" @click="$refs.fileUpload.pickFiles()" label="Upload CSV/XLS"
-                      icon="fas fa-upload">
-          <q-file v-model="dataUploadFile" ref="fileUpload" @input="uploadFileSelected"
-                  style="display: none"></q-file>
-        </q-fab-action>
-      </q-fab>
-    </q-page-sticky>
+
+<!--    <q-page-sticky v-if="!newRowDrawer" position="bottom-right" :offset="[20, 20]">-->
+<!--      <q-fab vertical-actions-align="right" color="primary" icon="keyboard_arrow_up" direction="up">-->
+<!--        <q-fab-action color="orange" @click="downloadData('xls')" label="Download XLS" icon="fas fa-file-excel">-->
+<!--        </q-fab-action>-->
+<!--        <q-fab-action color="orange" @click="downloadData('csv')" label="Download CSV" icon="fas fa-download">-->
+<!--        </q-fab-action>-->
+<!--        <q-fab-action color="orange" @click="$refs.fileUpload.pickFiles()" label="Upload CSV/XLS"-->
+<!--                      icon="fas fa-upload">-->
+<!--          <q-file v-model="dataUploadFile" ref="fileUpload" @input="uploadFileSelected"-->
+<!--                  style="display: none"></q-file>-->
+<!--        </q-fab-action>-->
+<!--      </q-fab>-->
+<!--    </q-page-sticky>-->
 
 
     <q-drawer
@@ -271,6 +277,7 @@ Tabulator.prototype.extendModule("format", "formatters", {
 
 export default {
   name: "EditDataTableComponent",
+  props: ["tableName"],
   methods: {
     searchDocuments(searchQuery) {
       console.log("search data", arguments)
@@ -512,7 +519,6 @@ export default {
     onCancelNewRow() {
       this.newRowDrawer = false;
     },
-    props: ["tableName"],
     ...mapActions(['loadData', 'getTableSchema', 'updateRow', 'createRow', 'deleteRow', 'executeAction', 'loadTables']),
     refreshData() {
       const that = this;

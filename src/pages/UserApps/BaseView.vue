@@ -1,68 +1,12 @@
 <template>
   <q-page-container>
+    <q-page>
 
-
-    <user-header-bar @delete-base="deleteBase" style="border-bottom: 1px solid black" @search="searchDocuments"
-                     :buttons="{
-        before: [
-            {icon: 'fas fa-search', event: 'search'},
-          ],
-        after: [
-            {icon: 'fas fa-sync-alt', event: 'search'},
-            {icon: 'fas fa-trash', event: 'delete-base'},
-          ],
-        }" :onBack="() => {$router.push('/apps/workspace/' + $route.params.workspaceName)}"
-                     :title='"[Workspace] " + $route.params.workspaceName
-                     + "&nbsp;&nbsp; › &nbsp;&nbsp;" + ($route.params.baseName)
-                     + "&nbsp;&nbsp; › &nbsp;&nbsp;" + ($route.params.itemName)'
-    ></user-header-bar>
-
-
-    <q-page style="padding-top: 50px">
-      <q-page-sticky expand position="top-left">
-        <!--        <q-bar class="bg-white">-->
-
-
-        <!--          <q-btn icon="fas fa-bars" flat>-->
-        <!--            <q-menu style="min-height: 150px">-->
-        <!--              <q-list>-->
-        <!--                <q-item clickable v-for="table in tablesFiltered" :key="table.table_name">-->
-        <!--                  <q-item-section flat-->
-        <!--                                  @click="$router.push('/apps/workspace/' + $route.params.workspaceName + '/' + table.table_name)"-->
-        <!--                  >{{ table.table_name }}-->
-        <!--                  </q-item-section>-->
-        <!--                </q-item>-->
-        <!--              </q-list>-->
-        <!--            </q-menu>-->
-        <!--          </q-btn>-->
-        <!--          <q-btn id="newTableButton" icon="fas fa-plus" flat/>-->
-
-
-        <!--          <q-btn size="sm" @click="showNewRowDrawer()" flat label="New row"></q-btn>-->
-        <!--          <q-btn size="sm" @click="showPermissionsDrawer()" color="primary" flat label="Table Permissions"></q-btn>-->
-        <!--          <q-btn size="sm" flat label="Table Options">-->
-        <!--            <q-menu anchor="bottom left" self="top left">-->
-        <!--              <q-item clickable>-->
-        <!--                <q-item-section>-->
-        <!--                  <q-checkbox size="xs" @input="refreshData()" label="Show column filters"-->
-        <!--                              v-model="tabulatorOptions.headerFilter"></q-checkbox>-->
-        <!--                </q-item-section>-->
-        <!--              </q-item>-->
-        <!--              <q-item clickable @click="refreshData()">-->
-        <!--                <q-item-section>Refresh data</q-item-section>-->
-        <!--              </q-item>-->
-        <!--            </q-menu>-->
-        <!--          </q-btn>-->
-
-        <!--          <q-btn v-if="selectedRows.length > 0" @click="deleteSelectedRows" flat color="red" size="sm">Delete selected-->
-        <!--            rows-->
-        <!--          </q-btn>-->
-        <!--        </q-bar>-->
+      <div expand position="top-left">
 
         <div class="row">
           <q-bar style="height: 50px" dark>
             <q-tabs
-              v-model="selectedItem"
               class="text-black"
               inline-label
             >
@@ -70,7 +14,7 @@
                 :icon="itemIconMap[item.item_type]" :key="item.label"
                 v-if="item.item_type !== 'table'" v-for="item in baseConfig.items"
                 :to="'/apps/workspace/' + workspaceName + '/' + baseName + '/' + item.label" exact replace
-                :label="item.label"/>
+                :label="item.label + ' - ' + item.item_type"/>
 
 
             </q-tabs>
@@ -95,117 +39,29 @@
         </div>
 
         <q-separator></q-separator>
-      </q-page-sticky>
+      </div>
+
+      <base-view-router v-if="selectedBaseItem" :base-config="baseConfig"
+                        :baseItem="selectedBaseItem"></base-view-router>
 
 
-      <base-view-router v-if="selectedBaseItem" :baseItem="selectedBaseItem"></base-view-router>
-
+      <user-header-bar @delete-base="deleteBase" style="border-bottom: 1px solid black" @search="searchDocuments"
+                       :buttons="{
+        before: [
+            {icon: 'fas fa-search', event: 'search'},
+          ],
+        after: [
+            {icon: 'fas fa-sync-alt', event: 'search'},
+            {icon: 'fas fa-trash', event: 'delete-base'},
+          ],
+        }" :onBack="() => {$router.push('/apps/workspace/' + $route.params.workspaceName)}"
+                       :title='"[Workspace] " + $route.params.workspaceName
+                     + "&nbsp;&nbsp; › &nbsp;&nbsp;" + ($route.params.baseName)
+                     + "&nbsp;&nbsp; › &nbsp;&nbsp;" + ($route.params.itemName)'
+      ></user-header-bar>
 
     </q-page>
 
-    <!--    <q-page-sticky v-if="!newRowDrawer" position="bottom-right" :offset="[20, 20]">-->
-    <!--      <q-fab vertical-actions-align="right" color="primary" icon="keyboard_arrow_up" direction="up">-->
-    <!--        <q-fab-action color="orange" @click="downloadData('xls')" label="Download XLS" icon="fas fa-file-excel">-->
-    <!--        </q-fab-action>-->
-    <!--        <q-fab-action color="orange" @click="downloadData('csv')" label="Download CSV" icon="fas fa-download">-->
-    <!--        </q-fab-action>-->
-    <!--        <q-fab-action color="orange" @click="$refs.fileUpload.pickFiles()" label="Upload CSV/XLS"-->
-    <!--                      icon="fas fa-upload">-->
-    <!--          <q-file v-model="dataUploadFile" ref="fileUpload" @input="uploadFileSelected"-->
-    <!--                  style="display: none"></q-file>-->
-    <!--        </q-fab-action>-->
-    <!--      </q-fab>-->
-    <!--    </q-page-sticky>-->
-
-
-    <q-drawer
-      side="right"
-      v-model="newRowDrawer"
-      bordered
-      :width="500"
-      :breakpoint="500"
-      content-class="bg-grey-3"
-    >
-      <q-scroll-area class="fit">
-        <div class="q-pa-md">
-          <span class="text-h6">New {{ $route.params.tableName }}</span>
-          <q-form class="q-gutter-md q-pa-md">
-
-            <div v-for="column in newRowData">
-              <q-input
-                :label="column.meta.ColumnName"
-                v-if="['label', 'measurement', 'value', 'email'].indexOf(column.meta.ColumnType) > -1"
-                filled
-                v-model="column.value"
-              />
-
-              <q-file
-                filled bottom-slots v-model="column.value" :label="column.meta.ColumnName"
-                v-if="column.meta.ColumnType.startsWith('file.')"
-                counter>
-                <template v-slot:prepend>
-                  <q-icon name="cloud_upload" @click.stop/>
-                </template>
-                <template v-slot:append>
-                  <q-icon name="close" @click.stop="column.value = null" class="cursor-pointer"/>
-                </template>
-              </q-file>
-
-
-              <q-input
-                :label="column.meta.ColumnName"
-                type="password"
-                v-if="['password'].indexOf(column.meta.ColumnType) > -1"
-                filled
-                v-model="column.value"
-              />
-
-              <q-toggle
-                :label="column.meta.ColumnName"
-                class="text-right"
-                v-if="column.meta.ColumnType === 'truefalse'"
-                v-model="column.value"
-              />
-
-              <span v-if="['content', 'json'].indexOf(column.meta.ColumnType) > -1 ">{{ column.meta.ColumnName }}</span>
-              <q-editor
-                :toolbar="[
-        ['viewsource']
-      ]"
-                :label="column.meta.ColumnName"
-                v-if="['content', 'json'].indexOf(column.meta.ColumnType) > -1 "
-                v-model="column.value"
-              />
-
-              <q-date
-                v-if="['datetime'].indexOf(column.meta.ColumnType) > -1 "
-                :subtitle="column.meta.ColumnName"
-                v-model="column.value"
-              />
-
-            </div>
-
-
-            <div>
-              <q-btn label="Save" class="float-right" @click="onNewRow" color="primary"/>
-              <q-btn label="Cancel" @click="onCancelNewRow" color="primary" flat class="q-ml-sm"/>
-            </div>
-          </q-form>
-
-        </div>
-
-      </q-scroll-area>
-    </q-drawer>
-
-    <q-drawer overlay side="right" v-model="tablePermissionDrawer" bordered :width="400" :breakpoint="1400"
-              content-class="bg-grey-3">
-      <q-scroll-area class="fit row" v-if="!newRowDrawer">
-
-        <table-permissions @close="tablePermissionDrawer = false" v-if="tableData"
-                           v-bind:selectedItem="tableData"/>
-
-      </q-scroll-area>
-    </q-drawer>
 
     <q-dialog v-model="confirmDeleteBaseMessage">
       <q-card style="background: white">
@@ -230,12 +86,6 @@
   </q-page-container>
 </template>
 <style>
-/*@import "~tabulator-tables/dist/css/tabulator.min.css";*/
-@import "~tabulator-tables/dist/css/tabulator_simple.min.css";
-
-.tabulator-col-title input {
-  margin-left: 9px;
-}
 
 
 #newTableButton i {
@@ -246,117 +96,13 @@
 }
 
 
-/*#newTableButton i {*/
-/*  border: 1px solid #DDDBDA;*/
-/*  font-size: 13px;*/
-/*  color: #5034A4;*/
-/*  border-radius: 2px;*/
-/*}*/
-
-
-.tabulator-row.tabulator-selectable:hover {
-  cursor: default;
-}
-
-.tabulator .tabulator-header {
-}
-
-.tabulator .tabulator-header .tabulator-col {
-  background: #FAFAF9;
-  border-right: none;
-  height: 32px;
-
-}
-
-.tabulator .tabulator-header .tabulator-col .tabulator-col-content .tabulator-col-title {
-  font-weight: 700;
-  padding-top: 4px;
-  padding-left: 3px;
-}
-
-div.tabulator-tableHolder div.tabulator-table div.tabulator-row.tabulator-selectable.tabulator-row-even div.tabulator-cell input {
-  border: 1px solid red;
-  border-radius: 4px;
-}
-
-.tabulator-row .tabulator-cell {
-  font-size: 13px;
-  height: 127px;
-  line-height: 20px;
-  border-right: none;
-  padding: 7px;
-}
-
-.tabulator-row.tabulator-selectable:hover {
-
-}
-
-.tabulator-header-menu-button {
-  float: right;
-}
-
-.tabulator-row.tabulator-selectable:hover {
-  background: #FFF8E8;
-}
-
-
 </style>
 
 <script>
 import {mapActions, mapGetters} from 'vuex';
-
-import XLSX from 'xlsx';
-import Tabulator from 'tabulator-tables';
 import BaseViewRouter from "pages/UserApps/BaseViewRouter";
 
 window.XLSX = XLSX;
-const assetEndpoint = window.location.hostname === "site.daptin.com" && window.location.port === "8080" ? "http://localhost:" + window.location.port : window.location.protocol + "//" + window.location.hostname + (window.location.port === "80" ? "" : ':' + window.location.port);
-
-
-Tabulator.prototype.extendModule("format", "formatters", {
-  image: function (cell, formatterParams) {
-    console.log("format image cell", cell);
-    var column = cell._cell.column;
-    var row = cell._cell.row;
-    if (!row.data[column.field] || row.data[column.field].length < 1) {
-      return "null"
-    }
-    var field = row.data[column.field][0];
-
-    console.log("Image data", field);
-    return "<img style='width: 300px; height: 200px' class='fileicon' src='data:" + field.type + ";base64," + field.contents + "'/>";
-  },
-  audio: function (cell, formatterParams) {
-    console.log("format audio cell", cell);
-    var column = cell._cell.column;
-    var row = cell._cell.row;
-    if (!row.data[column.field] || row.data[column.field].length < 1) {
-      return "null"
-    }
-    var field = row.data[column.field][0];
-    return "<audio controls class='audio' src='data:" + field.type + ";base64," + field.contents + "'/>";
-  },
-  video: function (cell, formatterParams) {
-    console.log("format video cell", cell);
-    var column = cell._cell.column;
-    var row = cell._cell.row;
-    if (!row.data[column.field] || row.data[column.field].length < 1) {
-      return "null"
-    }
-    var field = row.data[column.field][0];
-    return "<video controls style='width: 300px; height: 200px' class='video' src='data:" + field.type + ";base64," + field.contents + "'/>";
-  },
-  file: function (cell, formatterParams) {
-    console.log("format video cell", cell);
-    var column = cell._cell.column;
-    var row = cell._cell.row;
-    if (!row.data[column.field] || row.data[column.field].length < 1) {
-      return "null"
-    }
-    var field = row.data[column.field][0];
-    return "<a href='" + assetEndpoint + "/asset/" + row.data.__type + "/" + row.data.reference_id + "/" + column.field + ".'" + field.type.split("/")[1] + "></a>";
-  },
-});
 
 
 export default {
@@ -375,7 +121,8 @@ export default {
       const that = this;
       console.log("Add new item to base", item);
       that.baseConfig.items.push({
-        item_type: item.type
+        item_type: item.type,
+        label: "New " + item.type
       })
 
     },
@@ -726,9 +473,6 @@ export default {
         that.baseRow = baseRow
         var baseConfigString = baseRow.document_content[0].contents;
         that.baseConfig = JSON.parse(atob(baseConfigString));
-        // var updateSchema = {
-        //   Tables: [],
-        // };
         that.selectedBaseItem = that.baseConfig.items.filter(function (e) {
           return e.label === that.selectedItem
         })[0];
@@ -773,10 +517,7 @@ export default {
               var targetTable = itemConfig.targetTable;
               if (!targetTable) {
                 console.log("No target table exists for this item, creating one", itemConfig.label);
-                // var targetTableConfig = itemConfig.attributes;
-                // targetTableConfig.TableName = "tab-" + makeid(7)
-                // updateSchema.Tables.push(targetTableConfig)
-                // itemConfig.targetTable = targetTableConfig;
+
               } else {
                 that.loadModel(targetTable.TableName).then(function (res) {
                   console.log("Loaded table config", res)
@@ -808,243 +549,7 @@ export default {
       that.selectedBaseItem = that.baseConfig.items.filter(function (e) {
         return e.label === that.selectedItem;
       })[0];
-      // console.log("Refresh data for ", that.baseName, that.selectedItem, that.selectedBaseItem)
 
-      //
-      // for (var i = 0; i < that.baseConfig.items.length; i++) {
-      //   if (that.baseConfig.items[i].item_type === "table") {
-      //     console.log("Table", that.baseConfig.items[i])
-      //     that.sourceMap[that.baseConfig.items[i].label] = that.baseConfig.items[i]
-      //   }
-      // }
-      // for (var i = 0; i < that.baseConfig.items.length; i++) {
-      //   const baseItem = that.baseConfig.items[i];
-      //   if (baseItem.item_type === "view" && baseItem.label === that.selectedItem) {
-      //     console.log("load table for view type", baseItem.attributes.TableName);
-      //     var source = that.sourceMap[baseItem.attributes.TableName]
-      //     if (!source) {
-      //       alert("Table not found used in view: " + baseItem.attributes.TableName);
-      //       continue
-      //     }
-      //     that.loadTable(source.targetTable.TableName, baseItem.label)
-      //   }
-      //
-      // }
-
-    },
-    loadTable(tableName, targetContainerId) {
-      const that = this;
-      var assetColumns = [];
-      console.log("Load base view", that.workspaceSchema, tableName, targetContainerId)
-      that.getTableSchema(tableName).then(function (res) {
-        const tableSchema = res;
-        console.log("Schema", tableSchema);
-        // that.loadData({tableName: tableName}).then(function (data) {
-        //   console.log("Loaded data", data);
-        //   that.rows = data.data;
-        let columns = Object.keys(tableSchema.ColumnModel).map(function (columnName) {
-          var col = tableSchema.ColumnModel[columnName];
-          // console.log("Make column ", col);
-          if (col.jsonApi || col.ColumnName === "__type" || that.defaultColumns.indexOf(col.ColumnName) > -1) {
-            return null;
-          }
-
-          let formatter = col.ColumnType === "truefalse" ? "tickCross" : null;
-
-          let width = 200
-          if (col.ColumnType === "content" || col.ColumnType === "json") {
-            formatter = "textarea"
-            width = 300
-          }
-          if (col.ColumnType === "truefalse") {
-            width = 100
-          }
-
-          var tableColumn = {
-            title: col.Name,
-            field: col.ColumnName,
-            editor: true,
-            headerFilter: that.tabulatorOptions.headerFilter,
-            editable: !col.ColumnType.startsWith('file.'),
-            formatter: formatter,
-            width: width,
-            hozAlign: col.ColumnType === "truefalse" ? "center" : "left",
-            sorter: col.ColumnType === "measurement" ? "number" : null,
-          };
-
-          if (col.ColumnType.startsWith("file.") && col.ColumnType.indexOf('jpg') > -1) {
-            tableColumn.formatter = "image";
-          }
-          if (col.ColumnType.startsWith("file.") && col.ColumnType.indexOf('mp4') > -1) {
-            tableColumn.formatter = "video";
-          }
-          if (col.ColumnType.startsWith("file.") && col.ColumnType.indexOf('mp3') > -1) {
-            tableColumn.formatter = "audio";
-          }
-
-          return tableColumn;
-        }).filter(e => !!e);
-
-
-        console.log("Table columns", columns);
-        columns.unshift({
-          formatter: "rowSelection",
-          titleFormatter: "rowSelection",
-          align: "center",
-          headerSort: false
-        });
-        that.spreadsheet = new Tabulator("#spreadsheet", {
-          data: [],
-          columns: columns,
-          // pagination: "remote",
-          tooltips: true,
-          ajaxSorting: true,
-          layout: "fitDataFill",
-          ajaxFiltering: true,
-          paginationSizeSelector: true,
-          ajaxProgressiveLoad: "scroll",
-          ajaxProgressiveLoadDelay: 200,
-          ajaxProgressiveLoadScrollMargin: 600,
-          index: 'reference_id',
-          history: true,
-          movableColumns: true,
-          rowSelectionChanged: function (data, rows) {
-            console.log("row selection changed", data, rows);
-            //rows - array of row components for the selected rows in order of selection
-            //data - array of data objects for the selected rows in order of selection
-            that.selectedRows = data;
-          },
-          paginationSize: 100,
-          cellEdited: function (cell) {
-            const reference_id = cell._cell.row.data.reference_id;
-            const field = cell._cell.column.field;
-            const newValue = cell._cell.value;
-            //cell - cell component
-            console.log("cell edited", reference_id, arguments);
-            const obj = {
-              tableName: tableName,
-              id: reference_id,
-            };
-            obj[field] = newValue;
-
-            if (reference_id) {
-
-
-              that.updateRow(obj).then(function () {
-                that.$q.notify({
-                  message: "Saved"
-                });
-              }).catch(function (e) {
-                that.$q.notify({
-                  message: "Failed to save"
-                });
-              });
-            } else {
-              that.createRow(obj).then(function () {
-                that.$q.notify({
-                  message: "Saved"
-                });
-              }).catch(function (e) {
-                console.log("Failed to save", e)
-                if (e[0] && e[0].title) {
-                  that.$q.notify({
-                    message: "Failed to save - " + e[0].title
-                  });
-
-                } else {
-
-
-                  that.$q.notify({
-                    message: "Failed to save"
-                  });
-                }
-              });
-            }
-
-
-          },
-          ajaxURL: that.endpoint + "/api/" + tableName, //set url for ajax request
-          ajaxURLGenerator: function (url, config, params) {
-            //url - the url from the ajaxURL property or setData function
-            //config - the request config object from the ajaxConfig property
-            //params - the params object from the ajaxParams property, this will also include any pagination, filter and sorting properties based on table setup
-
-            //return request url
-            console.log("Generate request url ", url, config, params);
-            config.headers = {
-              Authorization: "Bearer " + that.authToken
-            };
-            let requestUrl = that.endpoint + "/api/" + tableName + "?page[number]=" + params.page + "&" + "page[size]=" + params.size + "&";
-            if (params.sorters) {
-              var sorts = "";
-              for (var i = 0; i < params.sorters.length; i++) {
-                var sortBy = params.sorters[i];
-                sorts = sorts + (sortBy.dir === "asc" ? "" : "-") + sortBy.field + ","
-              }
-              sorts = sorts.substring(0, sorts.length - 1);
-              requestUrl = requestUrl + "sort=" + sorts + "&"
-            }
-            if (params.filters) {
-              var queryFilters = [];
-              for (var i in params.filters) {
-                var filter = params.filters[i];
-                switch (filter.type) {
-                  case "like":
-                    queryFilters.push({
-                      "column": filter.field,
-                      "operator": "like",
-                      "value": filter.value,
-                    })
-                    break;
-                  default:
-                    queryFilters.push({
-                      "column": filter.field,
-                      "operator": filter.type,
-                      "value": filter.value,
-                    })
-                }
-              }
-              console.log("search query", that.searchQuery)
-              if (that.searchQuery && that.searchQuery !== "") {
-                requestUrl = requestUrl + "filter=" + that.searchQuery + "&"
-              }
-              if (queryFilters && queryFilters.length > 0) {
-                requestUrl = requestUrl + "query=" + JSON.stringify(queryFilters) + "&"
-              }
-
-            }
-            if (assetColumns.length > 0) {
-              requestUrl = requestUrl + "included_relations=" + assetColumns.join(",") + "&"
-            }
-            console.log("Request url ", requestUrl);
-            return requestUrl; //encode parameters as a json object
-          },
-
-          rowUpdated: function (row) {
-            console.log("Row edited", row);
-            //row - row component
-          },
-          ajaxResponse: function (url, params, response) {
-            console.log("ajax call complete", url, params, response);
-            //url - the URL of the request
-            //params - the parameters passed with the request
-            //response - the JSON object returned in the body of the response.
-
-            return {
-              last_page: response.links.last_page,
-              data: response.data.map(function (e) {
-                return e.attributes
-              })
-            }; //return the response data to tabulator
-          },
-        });
-
-        document.getElementById("spreadsheet").ondblclick = function () {
-          console.log("add");
-          that.spreadsheet.addRow({})
-        }
-        // })
-      });
 
     },
   },
@@ -1142,7 +647,6 @@ export default {
     ...mapGetters(['endpoint', 'authToken', 'tables'])
   },
   mounted() {
-    // this.loadTables();
     const that = this;
     this.refreshBaseData().then(function () {
       console.log("base load complete return");
@@ -1157,10 +661,12 @@ export default {
       that.refreshData();
     },
     '$route.params.baseName': function () {
+      console.log("base name changed", arguments)
       this.refreshData();
     },
     '$route.params.itemName': function () {
-      // this.refreshData();
+      console.log("item name changed", arguments)
+      this.refreshData();
     }
   },
 }
