@@ -102,7 +102,14 @@ const routes = [
         path: 'workspace/:workspaceName', component: () => import('pages/UserApps/WorkspaceBrowser.vue')
       },
       {
-        path: 'workspace/:workspaceName/:baseName/:itemName', component: () => import('pages/UserApps/BaseView.vue')
+        path: 'workspace/:workspaceName/:baseName',
+        component: () => import('pages/UserApps/BaseView.vue'),
+        children: [
+          {
+            path: ":itemName",
+            component: () => import('pages/UserApps/BaseViewRouter.vue'),
+          }
+        ]
       },
       {
         path: 'document/:documentId', component: () => import('pages/UserApps/DocumentEditor')

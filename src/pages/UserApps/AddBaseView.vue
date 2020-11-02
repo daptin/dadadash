@@ -66,6 +66,23 @@ export default {
                 }
               },
               {
+                item_type: "view",
+                label: "Bugs",
+                attributes: {
+                  TableName: "bug",
+                  Columns: [{
+                    ColumnName: "bug_title",
+                    ColumnType: "label",
+                  }, {
+                    ColumnName: "status",
+                    ColumnType: "label",
+                  }, {
+                    ColumnName: "created_at",
+                    ColumnType: "datetime",
+                  }]
+                }
+              },
+              {
                 item_type: "summary",
                 label: "Bug tracker",
                 target: {
@@ -107,9 +124,7 @@ export default {
       ]
     }
   },
-  methods: {
-
-  }
+  methods: {}
 }
 </script>
 

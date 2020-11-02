@@ -3,8 +3,7 @@
   <q-header reveal class="bg-white text-black">
     <q-bar class="bg-primary text-white" style="height: 48px" v-if="decodedAuthToken() !== null">
       <q-btn flat @click="onBack ? onBack() : $router.back()" icon="fas fa-arrow-left"></q-btn>
-      <q-toolbar-title v-if="title" style="text-transform: capitalize">
-        {{ title }}
+      <q-toolbar-title v-if="title" style="text-transform: capitalize" v-html="title">
       </q-toolbar-title>
 
       <form @submit="emitSearch" class="col-2 col-xs-0">

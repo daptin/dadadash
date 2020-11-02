@@ -2,16 +2,20 @@
   <q-page-container>
 
 
-    <user-header-bar style="border-bottom: 1px solid black" @search="searchDocuments"
+    <user-header-bar @delete-base="deleteBase" style="border-bottom: 1px solid black" @search="searchDocuments"
                      :buttons="{
         before: [
             {icon: 'fas fa-search', event: 'search'},
           ],
         after: [
             {icon: 'fas fa-sync-alt', event: 'search'},
+            {icon: 'fas fa-trash', event: 'delete-base'},
           ],
         }" :onBack="() => {$router.push('/apps/workspace/' + $route.params.workspaceName)}"
-                     :title="$route.params.workspaceName + ' > ' + ($route.params.baseName)"></user-header-bar>
+                     :title='"[Workspace] " + $route.params.workspaceName
+                     + "&nbsp;&nbsp; › &nbsp;&nbsp;" + ($route.params.baseName)
+                     + "&nbsp;&nbsp; › &nbsp;&nbsp;" + ($route.params.itemName)'
+    ></user-header-bar>
 
 
     <q-page style="padding-top: 50px">
@@ -58,19 +62,46 @@
         <div class="row">
           <q-bar style="height: 50px" dark>
             <q-tabs
-              v-model="selectedTable"
+              v-model="selectedItem"
               class="text-black"
+              inline-label
             >
-              <q-tab :name="table.table_name" :label="table.table_name" v-for="table in tablesFiltered"/>
-              <q-tab id="newTableButton" icon="fas fa-plus"/>
+              <q-route-tab
+                :icon="itemIconMap[item.item_type]" :key="item.lael"
+                v-if="item.item_type === 'view'" v-for="item in baseConfig.items"
+                :to="'/apps/workspace/' + workspaceName + '/' + baseName + '/' + item.label" exact replace
+                :label="item.label"/>
+
 
             </q-tabs>
+            <q-btn flat class="text-primary" id="newTableButton" icon="fas fa-plus">
+              <q-menu>
+                <q-list style="min-width: 280px">
+
+                  <q-item clickable @click="addBaseItem(item)" v-close-popup v-for="item in baseItemTypes"
+                          :key="item.label">
+                    <q-item-section>{{ item.label }}</q-item-section>
+                    <q-item-section avatar>
+                      <q-icon :name="item.icon"></q-icon>
+                    </q-item-section>
+                  </q-item>
+                  <q-separator/>
+
+                </q-list>
+              </q-menu>
+            </q-btn>
+
           </q-bar>
         </div>
 
         <q-separator></q-separator>
       </q-page-sticky>
-      <div id="spreadsheet" style="height: calc(100vh - 98px); border-top: 1px solid black"></div>
+
+
+      <div id="spreadsheet"
+           style="height: calc(100vh - 98px); border-top: 1px solid black"></div>
+
+
     </q-page>
 
     <!--    <q-page-sticky v-if="!newRowDrawer" position="bottom-right" :offset="[20, 20]">-->
@@ -172,10 +203,29 @@
       <q-scroll-area class="fit row" v-if="!newRowDrawer">
 
         <table-permissions @close="tablePermissionDrawer = false" v-if="tableData"
-                           v-bind:selectedTable="tableData"/>
+                           v-bind:selectedItem="tableData"/>
 
       </q-scroll-area>
     </q-drawer>
+
+    <q-dialog v-model="confirmDeleteBaseMessage">
+      <q-card style="background: white">
+        <q-card-section>
+          <q-item>
+            <q-item-label>
+              <span class="text-h5">Delete {{ baseName }}</span>
+            </q-item-label>
+          </q-item>
+        </q-card-section>
+        <q-card-section class="q-pa-md">
+          <span>Are you sure you want to delete this base ?</span>
+        </q-card-section>
+        <q-card-actions align="right">
+          <q-btn @click="confirmDeleteBaseMessage = false" class="float-left" label="Cancel"></q-btn>
+          <q-btn @click="deleteBaseConfirm()" color="warning" class="float-right" label="Yes"></q-btn>
+        </q-card-actions>
+      </q-card>
+    </q-dialog>
 
 
   </q-page-container>
@@ -191,7 +241,7 @@
 
 #newTableButton i {
   border: 1px solid #DDDBDA;
-  font-size: 13px;
+  font-size: 14px;
   color: #5034A4;
   border-radius: 4px;
 }
@@ -254,15 +304,13 @@ div.tabulator-tableHolder div.tabulator-table div.tabulator-row.tabulator-select
 </style>
 
 <script>
-import {mapActions, mapGetters, mapState} from 'vuex';
+import {mapActions, mapGetters} from 'vuex';
 
 import XLSX from 'xlsx';
+import Tabulator from 'tabulator-tables';
 
 window.XLSX = XLSX;
 const assetEndpoint = window.location.hostname === "site.daptin.com" && window.location.port === "8080" ? "http://localhost:" + window.location.port : window.location.protocol + "//" + window.location.hostname + (window.location.port === "80" ? "" : ':' + window.location.port);
-
-import Tabulator from 'tabulator-tables';
-import JSZip from "jszip";
 
 
 Tabulator.prototype.extendModule("format", "formatters", {
@@ -310,6 +358,7 @@ Tabulator.prototype.extendModule("format", "formatters", {
   },
 });
 
+
 export default {
   name: "BaseData",
   meta() {
@@ -321,6 +370,75 @@ export default {
   },
 
   methods: {
+    addBaseItem(item) {
+      const that = this;
+      console.log("Add new item to base", item);
+      that.baseConfig.items.push({
+        item_type: item.type
+      })
+
+    },
+    deleteBaseConfirm() {
+      // todo: more things need to be deleted here - tables, documents and other attachments
+      console.log("Delete base", this.baseName);
+      const that = this;
+      that.confirmDeleteBaseMessage = false;
+      var baseItems = that.loadData({
+        tableName: "document",
+        params: {
+          query: JSON.stringify([{
+            column: "document_path",
+            operator: "is",
+            value: "/" + that.workspaceName + "/" + that.baseName
+          }]),
+          page: {
+            size: 100,
+          }
+        }
+      }).then(function (res) {
+        console.log("base items to be deleted", res);
+        var promises = [];
+        for (var i = 0; i < res.data.length; i++) {
+          var item = res.data[i];
+          console.log("Delete item", item);
+          promises.push(that.deleteRow({
+            tableName: "document",
+            reference_id: item.id
+          }))
+        }
+        for (var i = 0; i < that.baseConfig.items; i++) {
+          var item = that.baseConfig.items[i];
+          if (item.item_type === "table") {
+            promises.push(that.executeActions({
+              tableName: "world",
+              actionName: ""
+            }))
+          }
+        }
+        Promise.all(promises).then(function (res) {
+          console.log("All child item deleted", res, "delete base", that.baseRow);
+          that.deleteRow({
+            tableName: "document",
+            reference_id: that.baseRow.id,
+          }).then(function (res) {
+            console.log("Base deleted");
+            that.$router.push('/apps/workspace/' + that.workspaceName)
+          }).catch(function (err) {
+            console.log("Failed to delete base", err);
+            that.$q.notify({
+              message: "Failed to delete base please try again later"
+            })
+          })
+        }).catch(function (err) {
+          console.log("Failed to delete a child item", err)
+        })
+      })
+    },
+    deleteBase() {
+      console.log("Delete base", this.baseName);
+      const that = this;
+      that.confirmDeleteBaseMessage = true;
+    },
     searchDocuments(searchQuery) {
       console.log("search data", arguments)
       this.searchQuery = searchQuery;
@@ -561,19 +679,14 @@ export default {
     onCancelNewRow() {
       this.newRowDrawer = false;
     },
-    ...mapActions(['loadData', 'getTableSchema', 'updateRow', 'createRow', 'deleteRow', 'executeAction', 'loadTables']),
-    refreshData() {
+    ...mapActions(['loadData', 'getTableSchema', 'updateRow', 'createRow', 'deleteRow', 'executeAction', 'loadTables', 'loadModel']),
+    refreshBaseData() {
       const that = this;
-      var assetColumns = [];
-      that.newRowData = [];
-      var tableName = this.$route.params.tableName;
 
       const workspaceName = this.$route.params.workspaceName;
       const baseName = this.$route.params.baseName;
-      const itemName = this.$route.params.itemName;
-      console.log("loaded data editor", tableName);
+      that.selectedItem = this.$route.params.itemName;
       that.baseName = baseName;
-      that.itemName = itemName;
       that.workspaceName = workspaceName;
 
       let queryPayload = {
@@ -582,18 +695,18 @@ export default {
           query: JSON.stringify([{
             column: "document_path",
             operator: "is",
-            value: "/"
+            value: "/" + workspaceName
           }, {
             column: "mime_type",
-            operator: "like",
-            value: "workspace/root"
+            operator: "is",
+            value: "workspace/base"
           }, {
             column: "document_name",
-            operator: "like",
-            value: workspaceName
+            operator: "is",
+            value: baseName
           }]),
           page: {
-            size: 100,
+            size: 1,
           },
           included_relations: "document_content"
         }
@@ -602,116 +715,215 @@ export default {
       that.files = [];
       console.log("Query data")
 
-      that.loadData(queryPayload).then(function (data) {
-        console.log("data load complete", data)
-
-
-        that.workspaceDocument = data.data[0];
-        if (!that.workspaceDocument.document_content) {
-          alert("workspace configuration not found");
+      return that.loadData(queryPayload).then(function (res) {
+        console.log("base load complete", res)
+        var baseRow = res.data[0];
+        if (!baseRow.document_content) {
+          alert("Base configuration is empty - " + baseRow)
           return
         }
-        var workspaceSchema = that.workspaceDocument.document_content[0] && that.workspaceDocument.document_content[0].contents ? that.workspaceDocument.document_content[0].contents : null;
-        if (workspaceSchema) {
+        that.baseRow = baseRow
+        var baseConfigString = baseRow.document_content[0].contents;
+        that.baseConfig = JSON.parse(atob(baseConfigString));
+        // var updateSchema = {
+        //   Tables: [],
+        // };
+        let hasBaseConfigChanged = false;
 
-          JSZip.loadAsync(atob(workspaceSchema)).then(function (zipFile) {
-            // that.contents = atob(that.file.contents);
-            zipFile.file("metadata.json").async("string").then(function (data) {
-              console.log("Loaded file: ", data)
-              that.workspaceSchema = JSON.parse(data);
-              that.loadTable();
-            }).catch(function (err) {
-              that.workspaceSchema = {
-                workspaceItems: [],
-                label: that.workspaceName
+
+
+
+
+        for (var itemIndex in that.baseConfig.items) {
+          let itemConfig = that.baseConfig.items[itemIndex];
+          console.log("Base item", itemConfig);
+          switch (itemConfig.item_type) {
+            case "summary":
+              break;
+            case "view":
+              break;
+            case "table":
+              var targetTable = itemConfig.targetTable;
+              if (!targetTable) {
+                console.log("No target table exists for this item, creating one", itemConfig.label);
+                // var targetTableConfig = itemConfig.attributes;
+                // targetTableConfig.TableName = "tab-" + makeid(7)
+                // updateSchema.Tables.push(targetTableConfig)
+                // itemConfig.targetTable = targetTableConfig;
+              } else {
+                that.loadModel(targetTable.TableName).then(function (res) {
+                  console.log("Loaded table config", res)
+                }).catch(function (err) {
+                  console.log("Failed to load information for table", err);
+                  that.$q.notify({
+                    message: "Failed to load table model for " + itemConfig.label
+                  });
+                })
               }
-            });
-
-
-          }).catch(function (err) {
-            console.log("Failed to load zip file", err);
-            that.workspaceSchema = {
-              workspaceItems: [],
-              label: this.workspaceName
-            }
-
-          });
-
-        } else {
-          that.workspaceSchema = {
-            workspaceItems: [],
-            label: that.workspaceName
+              break;
+            default:
+              console.log("Undefined item type", itemConfig.item_type)
           }
         }
 
+
       });
 
-
-      return;
-
-      that.loadData({
-        tableName: 'world',
-        params: {
-          query: JSON.stringify([
-            {
-              column: 'table_name',
-              operator: 'is',
-              value: tableName
-            }
-          ]),
-          included_relations: 'user_account',
-        }
-      }).then(function (res) {
-        console.log("Table row", res, arguments);
-        if (!res.data || res.data.length !== 1) {
-          that.$q.notify({
-            message: "Failed to load table metadata"
-          });
-          return;
-        }
-        that.tableData = res.data[0];
-      }).catch(function (err) {
-        console.log("Failed to load table metadata", err);
-        that.$q.notify({
-          message: "Failed to load table metadata"
-        });
-      });
 
     },
-    loadTable() {
+    refreshData() {
       const that = this;
-      console.log("Load base view", that.workspaceSchema, that.baseName, that.itemName)
+      that.newRowData = [];
+      that.sourceMap = {};
+
+
+      for (var i = 0; i < that.baseConfig.items.length; i++) {
+        if (that.baseConfig.items[i].item_type === "table") {
+          console.log("Table", that.baseConfig.items[i])
+          that.sourceMap[that.baseConfig.items[i].label] = that.baseConfig.items[i]
+        }
+      }
+      for (var i = 0; i < that.baseConfig.items.length; i++) {
+        const baseItem = that.baseConfig.items[i];
+        if (baseItem.item_type === "view") {
+          console.log("load table for view type", baseItem.attributes.TableName);
+          var source = that.sourceMap[baseItem.attributes.TableName]
+          if (!source) {
+            alert("Table not found used in view: " + baseItem.attributes.TableName);
+            continue
+          }
+          that.loadTable(source.targetTable.TableName, baseItem.label)
+        }
+
+      }
+
+      // return;
+      //
+      // const workspaceName = this.$route.params.workspaceName;
+      // const baseName = this.$route.params.baseName;
+      // const itemName = this.$route.params.itemName;
+      // console.log("loaded data editor", tableName);
+      // that.baseName = baseName;
+      // that.itemName = itemName;
+      // that.workspaceName = workspaceName;
+      //
+      // let queryPayload = {
+      //   tableName: "document",
+      //   params: {
+      //     query: JSON.stringify([{
+      //       column: "document_path",
+      //       operator: "is",
+      //       value: "/"
+      //     }, {
+      //       column: "mime_type",
+      //       operator: "like",
+      //       value: "workspace/root"
+      //     }, {
+      //       column: "document_name",
+      //       operator: "like",
+      //       value: workspaceName
+      //     }]),
+      //     page: {
+      //       size: 100,
+      //     },
+      //     included_relations: "document_content"
+      //   }
+      // };
+      //
+      // that.files = [];
+      // console.log("Query data")
+      //
+      // that.loadData(queryPayload).then(function (data) {
+      //   console.log("data load complete", data)
+      //
+      //
+      //   that.workspaceDocument = data.data[0];
+      //   if (!that.workspaceDocument.document_content) {
+      //     alert("workspace configuration not found");
+      //     return
+      //   }
+      //   var workspaceSchema = that.workspaceDocument.document_content[0] && that.workspaceDocument.document_content[0].contents ? that.workspaceDocument.document_content[0].contents : null;
+      //   if (workspaceSchema) {
+      //
+      //     JSZip.loadAsync(atob(workspaceSchema)).then(function (zipFile) {
+      //       // that.contents = atob(that.file.contents);
+      //       zipFile.file("metadata.json").async("string").then(function (data) {
+      //         console.log("Loaded file: ", data)
+      //         that.workspaceSchema = JSON.parse(data);
+      //         that.loadTable();
+      //       }).catch(function (err) {
+      //         that.workspaceSchema = {
+      //           workspaceItems: [],
+      //           label: that.workspaceName
+      //         }
+      //       });
+      //
+      //
+      //     }).catch(function (err) {
+      //       console.log("Failed to load zip file", err);
+      //       that.workspaceSchema = {
+      //         workspaceItems: [],
+      //         label: this.workspaceName
+      //       }
+      //
+      //     });
+      //
+      //   } else {
+      //     that.workspaceSchema = {
+      //       workspaceItems: [],
+      //       label: that.workspaceName
+      //     }
+      //   }
+      //
+      // });
+
+      //
+      // return;
+      //
+      // that.loadData({
+      //   tableName: 'world',
+      //   params: {
+      //     query: JSON.stringify([
+      //       {
+      //         column: 'table_name',
+      //         operator: 'is',
+      //         value: tableName
+      //       }
+      //     ]),
+      //     included_relations: 'user_account',
+      //   }
+      // }).then(function (res) {
+      //   console.log("Table row", res, arguments);
+      //   if (!res.data || res.data.length !== 1) {
+      //     that.$q.notify({
+      //       message: "Failed to load table metadata"
+      //     });
+      //     return;
+      //   }
+      //   that.tableData = res.data[0];
+      // }).catch(function (err) {
+      //   console.log("Failed to load table metadata", err);
+      //   that.$q.notify({
+      //     message: "Failed to load table metadata"
+      //   });
+      // });
+
+    },
+    loadTable(tableName, targetContainerId) {
+      const that = this;
+      var assetColumns = [];
+      console.log("Load base view", that.workspaceSchema, tableName, targetContainerId)
       that.getTableSchema(tableName).then(function (res) {
-        that.tableSchema = res;
-        console.log("Schema", that.tableSchema);
+        const tableSchema = res;
+        console.log("Schema", tableSchema);
         // that.loadData({tableName: tableName}).then(function (data) {
         //   console.log("Loaded data", data);
         //   that.rows = data.data;
-        let columns = Object.keys(that.tableSchema.ColumnModel).map(function (columnName) {
-          var col = that.tableSchema.ColumnModel[columnName];
+        let columns = Object.keys(tableSchema.ColumnModel).map(function (columnName) {
+          var col = tableSchema.ColumnModel[columnName];
           // console.log("Make column ", col);
           if (col.jsonApi || col.ColumnName === "__type" || that.defaultColumns.indexOf(col.ColumnName) > -1) {
             return null;
-          }
-          if (col.ColumnType.startsWith('file.')) {
-            assetColumns.push(col.ColumnName)
-            that.newRowData.push({
-                meta: col,
-                value: []
-              }
-            );
-          } else if (col.ColumnType === 'truefalse') {
-            that.newRowData.push({
-                meta: col,
-                value: false
-              }
-            );
-          } else {
-            that.newRowData.push({
-                meta: col,
-                value: ""
-              }
-            );
           }
 
           let formatter = col.ColumnType === "truefalse" ? "tickCross" : null;
@@ -787,20 +999,46 @@ export default {
             //cell - cell component
             console.log("cell edited", reference_id, arguments);
             const obj = {
-              tableName: that.$route.params.tableName,
+              tableName: tableName,
               id: reference_id,
             };
             obj[field] = newValue;
-            that.updateRow(obj).then(function () {
-              that.$q.notify({
-                message: "Saved"
+
+            if (reference_id) {
+
+
+              that.updateRow(obj).then(function () {
+                that.$q.notify({
+                  message: "Saved"
+                });
+              }).catch(function (e) {
+                that.$q.notify({
+                  message: "Failed to save"
+                });
               });
-            }).catch(function (e) {
-              that.$q.notify({
-                message: "Failed to save"
+            } else {
+              that.createRow(obj).then(function () {
+                that.$q.notify({
+                  message: "Saved"
+                });
+              }).catch(function (e) {
+                console.log("Failed to save", e)
+                if (e[0] && e[0].title) {
+                  that.$q.notify({
+                    message: "Failed to save - " + e[0].title
+                  });
+
+                } else {
+
+
+                  that.$q.notify({
+                    message: "Failed to save"
+                  });
+                }
               });
-              that.spreadsheet.undo();
-            });
+            }
+
+
           },
           ajaxURL: that.endpoint + "/api/" + tableName, //set url for ajax request
           ajaxURLGenerator: function (url, config, params) {
@@ -877,6 +1115,11 @@ export default {
             }; //return the response data to tabulator
           },
         });
+
+        document.getElementById("spreadsheet").ondblclick = function () {
+          console.log("add");
+          that.spreadsheet.addRow({})
+        }
         // })
       });
 
@@ -886,9 +1129,60 @@ export default {
   data() {
     return {
       dataUploadFile: null,
+      baseItemTypes: {
+        "table": {
+          label: "Data table",
+          type: "table",
+          icon: 'fas fa-table'
+        },
+        "view": {
+          label: "View",
+          type: "view",
+          icon: 'fas fa-eye'
+        },
+        "spreadsheet": {
+          label: "Spreadsheet",
+          type: "spreadsheet",
+          icon: 'table_view'
+        },
+        "document": {
+          label: "Document",
+          type: "document",
+          icon: 'fas fa-file-alt'
+        },
+        "folder": {
+          label: "Folder",
+          type: "folder",
+          icon: 'folder_open'
+        },
+        "calendar": {
+          label: "Calendar",
+          type: "calendar",
+          icon: 'fas fa-table'
+        },
+        "mailbox": {
+          label: "Mailbox",
+          type: "mailbox",
+          icon: 'all_inbox'
+        },
+
+      },
+      tableMap: {},
+      itemIconMap: {
+        'table': 'fas fa-table',
+        'view': 'fas fa-eye',
+        'spreadsheet': 'table_view',
+        'document': 'fas fa-file-alt',
+        'folder': 'folder_open',
+        'calendar': 'calendar_today',
+        'mailbox': 'all_inbox',
+      },
+      baseRow: null,
+      confirmDeleteBaseMessage: false,
       searchQuery: null,
+      baseConfig: {items: []},
       workspaceDocument: null,
-      selectedTable: null,
+      selectedItem: null,
       workspaceName: null,
       baseName: null,
       itemName: null,
@@ -925,14 +1219,21 @@ export default {
   },
   mounted() {
     // this.loadTables();
-    this.refreshData();
+    const that = this;
+    this.refreshBaseData().then(function () {
+      console.log("base load complete return");
+      that.refreshData();
+    });
   },
   watch: {
+    'selectedItem': function (newVal) {
+      console.log("New tab selected", newVal)
+    },
     '$route.params.baseName': function () {
       this.refreshData();
     },
     '$route.params.itemName': function () {
-      this.refreshData();
+      // this.refreshData();
     }
   },
 }

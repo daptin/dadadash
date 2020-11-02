@@ -71,6 +71,18 @@
 import {mapActions} from "vuex";
 import JSZip from "jszip";
 
+function makeid(length) {
+  var result = '';
+  var characters = 'abcdefghijklmnopqrstuvwxyz';
+  var charactersLength = characters.length;
+  for (var i = 0; i < length; i++) {
+    result += characters.charAt(Math.floor(Math.random() * charactersLength));
+  }
+  return result;
+}
+
+
+
 export default {
   name: "WorkspaceView",
   props: ['workspaceName'],
@@ -95,12 +107,31 @@ export default {
       console.log(that.workspaceDocument)
       console.log("Add catalog item", that.workspaceSchema, item);
       this.showAddBase = false;
+      var updateSchema = {
+        Tables: [],
+      };
+
+
       var schema = item.schema;
       for (var itemIndex in schema.items) {
         const item = schema.items[itemIndex];
         switch (item.item_type) {
           case "table":
-            baseSchema.items.push(item)
+
+            var targetTable = item.targetTable;
+            if (!targetTable) {
+              var targetTableConfig = item.attributes;
+              targetTableConfig.TableName = "tab_" + makeid(7)
+              console.log("No target table exists for this item, creating one", item.label, targetTableConfig.Tab);
+              updateSchema.Tables.push(targetTableConfig)
+              item.targetTable = targetTableConfig;
+            } else {
+              that.loadModel(targetTable.TableName).then(function (res) {
+                console.log("Loaded table config", res)
+              })
+            }
+            baseSchema.items.push(item);
+
             break;
           case "summary":
             baseSchema.items.push(item)
@@ -110,6 +141,7 @@ export default {
             console.log("Undefined item type", item)
         }
       }
+
 
       var newRow = {
         document_name: newBaseName,
@@ -127,7 +159,35 @@ export default {
       console.log("Create base request", newRow)
 
       that.createRow(newRow).then(function (res) {
-        that.refreshData();
+
+
+        if (updateSchema.Tables.length > 0) {
+
+          that.executeAction({
+            tableName: "world",
+            actionName: "upload_system_schema",
+            params: {
+              schema_file: [{
+                contents: "application/json," + btoa(JSON.stringify(updateSchema)),
+                name: newBaseName + ".json"
+              }]
+            }
+          }).then(function (res) {
+            that.refreshData();
+            console.log("Tables created", res);
+            that.$q.notify({
+              message: "Base created"
+            })
+          }).catch(function (err) {
+            console.log("Failed to create table", err)
+            that.$q.notify({
+              message: "Failed to create tables for the base"
+            });
+
+          })
+
+        }
+
       }).catch(function (e) {
         console.log("Failed to create base", e)
         that.$q.notify({
@@ -136,10 +196,8 @@ export default {
       });
 
 
-      that.refreshData();
-
     },
-    ...mapActions(['loadData', 'createRow', 'updateRow']),
+    ...mapActions(['loadData', 'createRow', 'updateRow', 'executeAction']),
     handleDataLoad(data) {
       const that = this;
       console.log("Configuration for workspace", data);
@@ -165,7 +223,6 @@ export default {
         }
         for (var j in baseSchemaJson.items) {
           var item = baseSchemaJson.items[j];
-          console.log("Item ", item)
           item.baseName = baseName;
           if (item.item_type === "summary") {
             that.workspaceSchema.workspaceItems[baseName].push(item)
@@ -174,8 +231,6 @@ export default {
 
 
       }
-
-      return
 
 
     },
