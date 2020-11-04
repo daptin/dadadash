@@ -32,11 +32,39 @@
           <add-base-view @add-base="addBaseFromCatalog"></add-base-view>
         </q-card-section>
       </q-card>
-      <div class="row" v-if="!showAddBase && workspaceSchema">
-        <div style="border-radius: 8px" class="col-3 q-pa-md"
-             v-for="(baseItems, baseName) in workspaceSchema.workspaceItems">
-          <template v-for="item in baseItems" v-if="item.item_type === 'summary'">
-            <q-card style="background: white; cursor: pointer;" @click="handleCardClick(item)" class="q-pa-md" flat>
+      <div class="row q-pa-md" v-if="!showAddBase && workspaceSchema">
+
+        <div class="col-4 q-pa-md"
+             @click="handleCardClick({
+              baseName: baseName,
+
+             })"
+             v-for="(baseItems, baseName) in workspaceSchema.workspaceItems"
+        >
+          <q-card flat>
+            <q-card-section >
+
+
+              <div style="border-radius: 8px">
+                <q-item>
+                  <q-item-section>
+                    <q-item-label>{{ baseName }}</q-item-label>
+                  </q-item-section>
+
+
+                </q-item>
+
+              </div>
+
+
+            </q-card-section>
+          </q-card>
+
+          <q-card v-for="item in baseItems" v-if="item.type === 'summary'"
+                  style="background: white; cursor: pointer; "
+                  @click="handleCardClick(item)"
+                  flat>
+            <div style="border-radius: 8px">
               <q-item>
                 <q-item-section avatar>
                   <q-icon size="sm" :name="item.title.icon"></q-icon>
@@ -50,16 +78,19 @@
 
 
               </q-item>
+
+
               <q-item>
                 <q-item-section>
                   <q-item-label caption>Summary from {{ baseName }}</q-item-label>
                 </q-item-section>
               </q-item>
-            </q-card>
-          </template>
 
-
+            </div>
+          </q-card>
         </div>
+
+
       </div>
 
 
@@ -70,6 +101,7 @@
 <script>
 import {mapActions} from "vuex";
 import JSZip from "jszip";
+import {v4 as uuidv4} from "uuid";
 
 function makeid(length) {
   var result = '';
@@ -80,7 +112,6 @@ function makeid(length) {
   }
   return result;
 }
-
 
 
 export default {
@@ -96,7 +127,11 @@ export default {
   methods: {
     handleCardClick(item) {
       console.log("Summary item ", item);
-      this.$router.push("/apps/workspace/" + this.workspaceName + "/" + item.baseName + "/" + item.target.name)
+      if (item.target && item.target.name) {
+        this.$router.push("/apps/workspace/" + this.workspaceName + "/" + item.baseName + "/" + item.target.name)
+      } else {
+        this.$router.push("/apps/workspace/" + this.workspaceName + "/" + item.baseName)
+      }
     },
     addBaseFromCatalog(newBaseName, item) {
       const that = this;
@@ -104,46 +139,46 @@ export default {
         items: [],
         created_at: new Date(),
       };
+      var promises = []
       console.log(that.workspaceDocument)
       console.log("Add catalog item", that.workspaceSchema, item);
       this.showAddBase = false;
-      var updateSchema = {
-        Tables: [],
-      };
 
 
       var schema = item.schema;
       for (var itemIndex in schema.items) {
         const item = schema.items[itemIndex];
-        switch (item.item_type) {
-          case "table":
 
-            var targetTable = item.targetTable;
-            if (!targetTable) {
-              var targetTableConfig = item.attributes;
-              targetTableConfig.TableName = "tab_" + makeid(7)
-              console.log("No target table exists for this item, creating one", item.label, targetTableConfig.Tab);
-              updateSchema.Tables.push(targetTableConfig)
-              item.targetTable = targetTableConfig;
-            } else {
-              that.loadModel(targetTable.TableName).then(function (res) {
-                console.log("Loaded table config", res)
-              })
-            }
-            baseSchema.items.push(item);
-
-            break;
-          case "summary":
-            baseSchema.items.push(item)
-            break;
-          default:
-            baseSchema.items.push(item)
-            console.log("Undefined item type", item)
+        if (item.type  === "summary") {
+          baseSchema.items.push(item);
         }
+
+
+        var newRow = null;
+
+        newRow = {
+          document_name: item.label,
+          tableName: "document",
+          document_extension: item.type,
+          mime_type: 'workspace/' + item.type,
+          document_path: "/" + that.workspaceName + "/" + newBaseName,
+          document_content: [{
+            name: item.type + "-" + uuidv4() + ".json",
+            type: "workspace/" + item.type,
+            path: "/" + that.workspaceName + "/" + newBaseName,
+            contents: "data:workspace/" + item.item + "," + btoa(JSON.stringify(item))
+          }],
+        }
+
+
+        console.log("Create base request", newRow)
+
+        promises.push(that.createRow(newRow))
+
       }
 
 
-      var newRow = {
+      var newBaseRow = {
         document_name: newBaseName,
         tableName: "document",
         document_extension: "base",
@@ -156,37 +191,13 @@ export default {
           contents: "data:workspace/base," + btoa(JSON.stringify(baseSchema))
         }],
       }
-      console.log("Create base request", newRow)
+      console.log("Create base request", newBaseRow);
 
-      that.createRow(newRow).then(function (res) {
+      promises.push(that.createRow(newBaseRow));
+      Promise.all(promises).then(function (res) {
 
-
-        if (updateSchema.Tables.length > 0) {
-
-          that.executeAction({
-            tableName: "world",
-            actionName: "upload_system_schema",
-            params: {
-              schema_file: [{
-                contents: "application/json," + btoa(JSON.stringify(updateSchema)),
-                name: newBaseName + ".json"
-              }]
-            }
-          }).then(function (res) {
-            that.refreshData();
-            console.log("Tables created", res);
-            that.$q.notify({
-              message: "Base created"
-            })
-          }).catch(function (err) {
-            console.log("Failed to create table", err)
-            that.$q.notify({
-              message: "Failed to create tables for the base"
-            });
-
-          })
-
-        }
+        console.log("All workspace entries created");
+        that.refreshData();
 
       }).catch(function (e) {
         console.log("Failed to create base", e)
@@ -224,12 +235,10 @@ export default {
         for (var j in baseSchemaJson.items) {
           var item = baseSchemaJson.items[j];
           item.baseName = baseName;
-          if (item.item_type === "summary") {
+          if (item.type === "summary") {
             that.workspaceSchema.workspaceItems[baseName].push(item)
           }
         }
-
-
       }
 
 
@@ -276,18 +285,28 @@ export default {
       const that = this;
       that.showNewWorkspace = false;
       that.selectedFile = null;
+      let searchQueryParams = [{
+        column: "document_path",
+        operator: "is",
+        value: "/" + that.workspaceName
+      }, {
+        column: "mime_type",
+        operator: "like",
+        value: "workspace/base"
+      }];
+
+      if (searchTerm && searchTerm.trim().length > 0) {
+        searchQueryParams.push({
+          column: "document_name",
+          operator: "like",
+          value: searchTerm.trim().length + "%"
+        })
+      }
+
       let queryPayload = {
         tableName: "document",
         params: {
-          query: JSON.stringify([{
-            column: "document_path",
-            operator: "is",
-            value: "/" + that.workspaceName
-          }, {
-            column: "mime_type",
-            operator: "like",
-            value: "workspace/base"
-          }]),
+          query: JSON.stringify(searchQueryParams),
           page: {
             size: 100,
           },

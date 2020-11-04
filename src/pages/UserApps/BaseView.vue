@@ -1,9 +1,58 @@
 <template>
-  <q-page-container>
-    <q-page>
+  <q-layout class="user-area-pattern" view="lHh Lpr lFf">
 
-      <user-header-bar @delete-base="deleteBase" style="border-bottom: 1px solid black" @search="searchDocuments"
-                       :buttons="{
+    <q-page-container>
+      <q-page>
+
+        <div class="row">
+
+          <div class="col-12">
+            <q-bar style="height: 50px" dark>
+              <q-tabs
+                class="text-black"
+                inline-label
+              >
+                <q-route-tab
+                  :icon="itemIconMap[item.type]" :key="item.label"
+                  v-if="item.type !== 'summary'" v-for="item in baseConfig.items"
+                  :to="'/apps/workspace/' + workspaceName + '/' + baseName + '/' + item.label" exact replace
+                  :label="item.label"/>
+
+
+              </q-tabs>
+              <q-btn flat class="text-primary" id="newTableButton" icon="fas fa-plus">
+                <q-menu>
+                  <q-list style="min-width: 280px">
+
+                    <q-item clickable @click="addBaseItem(item)" v-close-popup v-for="item in baseItemTypes"
+                            :key="item.label">
+                      <q-item-section>{{ item.label }}</q-item-section>
+                      <q-item-section avatar>
+                        <q-icon :name="item.icon"></q-icon>
+                      </q-item-section>
+                    </q-item>
+                    <q-separator/>
+
+                  </q-list>
+                </q-menu>
+              </q-btn>
+
+            </q-bar>
+          </div>
+
+          <q-separator></q-separator>
+        </div>
+
+        <base-view-router v-if="baseLoaded && selectedBaseItem" :base-config="baseConfig"
+                          :baseItem="selectedBaseItem"></base-view-router>
+
+
+      </q-page>
+
+    </q-page-container>
+
+    <user-header-bar @delete-base="deleteBase" style="border-bottom: 1px solid black" @search="searchDocuments"
+                     :buttons="{
         before: [
             {icon: 'fas fa-search', event: 'search'},
           ],
@@ -12,53 +61,10 @@
             {icon: 'fas fa-trash', event: 'delete-base'},
           ],
         }" :onBack="() => {$router.push('/apps/workspace/' + $route.params.workspaceName)}"
-                       :title='"[Workspace] " + $route.params.workspaceName
+                     :title='"[Workspace] " + $route.params.workspaceName
                      + "&nbsp;&nbsp; › &nbsp;&nbsp;" + ($route.params.baseName)
                      + "&nbsp;&nbsp; › &nbsp;&nbsp;" + ($route.params.itemName)'
-      ></user-header-bar>
-      <div>
-        <div class="row">
-          <q-bar style="height: 50px" dark>
-            <q-tabs
-              class="text-black"
-              inline-label
-            >
-              <q-route-tab
-                :icon="itemIconMap[item.item_type]" :key="item.label"
-                v-if="item.item_type !== 'summary'" v-for="item in baseConfig.items"
-                :to="'/apps/workspace/' + workspaceName + '/' + baseName + '/' + item.label" exact replace
-                :label="item.label + ' - ' + item.item_type"/>
-
-
-            </q-tabs>
-            <q-btn flat class="text-primary" id="newTableButton" icon="fas fa-plus">
-              <q-menu>
-                <q-list style="min-width: 280px">
-
-                  <q-item clickable @click="addBaseItem(item)" v-close-popup v-for="item in baseItemTypes"
-                          :key="item.label">
-                    <q-item-section>{{ item.label }}</q-item-section>
-                    <q-item-section avatar>
-                      <q-icon :name="item.icon"></q-icon>
-                    </q-item-section>
-                  </q-item>
-                  <q-separator/>
-
-                </q-list>
-              </q-menu>
-            </q-btn>
-
-          </q-bar>
-        </div>
-
-        <q-separator></q-separator>
-      </div>
-
-      <base-view-router v-if="selectedBaseItem" :base-config="baseConfig"
-                        :baseItem="selectedBaseItem"></base-view-router>
-
-
-    </q-page>
+    ></user-header-bar>
 
 
     <q-dialog v-model="confirmDeleteBaseMessage">
@@ -81,7 +87,8 @@
     </q-dialog>
 
 
-  </q-page-container>
+  </q-layout>
+
 </template>
 <style>
 
@@ -99,6 +106,18 @@
 <script>
 import {mapActions, mapGetters} from 'vuex';
 import BaseViewRouter from "pages/UserApps/BaseViewRouter";
+import {v4 as uuidv4} from 'uuid';
+
+
+function makeid(length) {
+  var result = '';
+  var characters = 'abcdefghijklmnopqrstuvwxyz';
+  var charactersLength = characters.length;
+  for (var i = 0; i < length; i++) {
+    result += characters.charAt(Math.floor(Math.random() * charactersLength));
+  }
+  return result;
+}
 
 window.XLSX = XLSX;
 
@@ -119,9 +138,34 @@ export default {
       const that = this;
       console.log("Add new item to base", item);
       that.baseConfig.items.push({
-        item_type: item.type,
+        type: item.type,
         label: "New " + item.type
+      });
+
+
+      var newRow = null;
+
+      newRow = {
+        document_name: "New " + item.type,
+        tableName: "document",
+        document_extension: item.type,
+        mime_type: 'workspace/' + item.type,
+        document_path: "/" + that.workspaceName + "/" + that.baseName,
+        document_content: [{
+          name: item.type + "-" + uuidv4() + ".json",
+          type: "workspace/" + item.type,
+          path: "/" + that.workspaceName + "/" + that.baseName,
+          contents: "workspace/" + item.type + "," + btoa(JSON.stringify(item))
+        }],
+      }
+
+
+      console.log("Create base request", newRow)
+
+      that.createRow(newRow).then(function (res) {
+        console.log("New workspace item created")
       })
+
 
     },
     deleteBaseConfirm() {
@@ -152,9 +196,9 @@ export default {
             reference_id: item.id
           }))
         }
-        for (var i = 0; i < that.baseConfig.items; i++) {
+        for (var i = 0; i < that.baseConfig.items.length; i++) {
           var item = that.baseConfig.items[i];
-          if (item.item_type === "table") {
+          if (item.type === "table") {
             promises.push(that.executeActions({
               tableName: "world",
               actionName: ""
@@ -187,13 +231,14 @@ export default {
     },
     searchDocuments(searchQuery) {
       console.log("search data", arguments)
+      // this.refreshBaseData();
       this.searchQuery = searchQuery;
-      this.spreadsheet.setData();
+      this.refreshData();
     },
     showUploadData() {
 
     },
-    ...mapActions(['loadData', 'getTableSchema', 'updateRow', 'createRow', 'deleteRow', 'executeAction', 'loadTables', 'loadModel']),
+    ...mapActions(['loadData', 'getTableSchema', 'updateRow', 'createRow', 'deleteRow', 'executeAction', 'loadModel']),
     refreshBaseData() {
       const that = this;
 
@@ -228,8 +273,9 @@ export default {
 
       that.files = [];
       console.log("Query data")
+      var promises = [];
 
-      return that.loadData(queryPayload).then(function (res) {
+      promises.push(that.loadData(queryPayload).then(function (res) {
         console.log("base load complete", res)
         var baseRow = res.data[0];
         if (!baseRow.document_content) {
@@ -239,69 +285,107 @@ export default {
         that.baseRow = baseRow
         var baseConfigString = baseRow.document_content[0].contents;
         that.baseConfig = JSON.parse(atob(baseConfigString));
-        that.selectedBaseItem = that.baseConfig.items.filter(function (e) {
-          return e.label === that.selectedItem
-        })[0];
-        console.log("selected base item", that.selectedItem, that.baseConfig, that.selectedBaseItem)
-        let hasBaseConfigChanged = false;
+        that.selectedBaseItem = that.baseItemMap[that.selectedItem];
+        // that.selectedBaseItem = that.baseConfig.items.filter(function (e) {
+        //   return e.label === that.selectedItem
+        // })[0];
+        console.log("selected base item 1", that.selectedItem, that.baseConfig, that.baseItemMap, that.selectedBaseItem)
+      }));
 
 
-        let queryPayload = {
-          tableName: "document",
-          params: {
-            query: JSON.stringify([{
-              column: "document_path",
-              operator: "is",
-              value: "/" + workspaceName + "/" + baseName
-            }, {
-              column: "mime_type",
-              operator: "like",
-              value: "workspace/"
-            }]),
-            page: {
-              size: 100,
-            },
-            included_relations: "document_content"
-          }
-        };
+      queryPayload = {
+        tableName: "document",
+        params: {
+          query: JSON.stringify([{
+            column: "document_path",
+            operator: "is",
+            value: "/" + workspaceName + "/" + baseName
+          }, {
+            column: "mime_type",
+            operator: "like",
+            value: "workspace/%"
+          }]),
+          page: {
+            size: 100,
+          },
+          included_relations: "document_content"
+        }
+      };
 
-        that.loadData(queryPayload).then(function (res) {
-          console.log("base items", res);
-        });
-        return
+      promises.push(that.loadData(queryPayload).then(function (res) {
+        console.log("base items", res);
+        for (var i = 0; i < res.data.length; i++) {
+          var item = res.data[i];
+          var itemConfig = JSON.parse(atob(item.document_content[0].contents))
+          itemConfig.type = item.document_extension;
+          itemConfig.label = item.document_name;
+          that.baseItemMap[item.document_name] = item;
+          that.baseConfig.items.push(itemConfig);
+        }
+      }));
+      return Promise.all(promises).then(function () {
+        that.ensureBaseTables()
+      })
 
 
-        for (var itemIndex in that.baseConfig.items) {
-          let itemConfig = that.baseConfig.items[itemIndex];
-          console.log("Base item", itemConfig);
-          switch (itemConfig.item_type) {
-            case "summary":
-              break;
-            case "view":
-              break;
-            case "table":
-              var targetTable = itemConfig.targetTable;
-              if (!targetTable) {
-                console.log("No target table exists for this item, creating one", itemConfig.label);
+    },
+    ensureBaseTables() {
+      const that = this;
+      console.log("Ensure base tables", this.baseConfig)
 
-              } else {
-                that.loadModel(targetTable.TableName).then(function (res) {
-                  console.log("Loaded table config", res)
-                }).catch(function (err) {
-                  console.log("Failed to load information for table", err);
-                  that.$q.notify({
-                    message: "Failed to load table model for " + itemConfig.label
-                  });
-                })
-              }
-              break;
-            default:
-              console.log("Undefined item type", itemConfig.item_type)
+      var promises = [];
+      var updateSchema = {
+        Tables: [],
+      };
+
+
+      for (var i = 0; i < that.baseConfig.items.length; i++) {
+        var item = that.baseConfig.items[i];
+        if (item.type === "table") {
+          console.log("Table item", item, item.targetTable);
+          var targetTable = item.targetTable;
+          if (!targetTable) {
+            var targetTableConfig = item.attributes;
+            targetTableConfig.TableName = "tab_" + makeid(7)
+            console.log("No target table exists for this item, creating one", item.label, targetTableConfig.TableName);
+            updateSchema.Tables.push(targetTableConfig);
+            item.targetTable = targetTableConfig;
+
+            that.baseItemMap[item.label].document_content[0].contents = btoa(JSON.stringify(item))
+            console.log("Update base request", that.baseItemMap[item.label])
+            that.baseItemMap[item.label].tableName = "document";
+            promises.push(that.updateRow(that.baseItemMap[item.label]))
           }
         }
+      }
 
 
-      });
+      return Promise.all(promises).then(function () {
+        if (updateSchema.Tables.length > 0) {
+          that.executeAction({
+            tableName: "world",
+            actionName: "upload_system_schema",
+            params: {
+              schema_file: [{
+                contents: "application/json," + btoa(JSON.stringify(updateSchema)),
+                name: that.baseName + ".json"
+              }]
+            }
+          }).then(function (res) {
+            console.log("Tables created", res);
+            that.$q.notify({
+              message: "Base created"
+            })
+          }).catch(function (err) {
+            console.log("Failed to create table", err)
+            that.$q.notify({
+              message: "Failed to create tables for the base"
+            });
+
+          })
+        } else{
+        }
+      })
 
 
     },
@@ -312,17 +396,19 @@ export default {
       console.log("Selected base item", that.selectedItem, that.selectedBaseItem);
       that.selectedItem = that.$route.params.itemName;
       that.baseName = that.$route.params.baseName;
-      that.selectedBaseItem = that.baseConfig.items.filter(function (e) {
-        return e.label === that.selectedItem;
-      })[0];
+      that.selectedBaseItem = that.baseItemMap[that.selectedItem]
       console.log("Updated base ", that.selectedItem, that.baseName, that.selectedBaseItem);
 
+      that.baseLoaded = true;
+      return Promise.resolve();
 
     },
   },
   props: ["baseConfiguration"],
   data() {
     return {
+      baseItemMap: {},
+      baseLoaded: false,
       dataUploadFile: null,
       selectedBaseItem: null,
       baseItemTypes: {
@@ -408,17 +494,15 @@ export default {
     });
   },
   watch: {
-    'selectedItem': function (newVal) {
-      const that = this;
-      console.log("New tab selected", newVal)
-      console.log("base load");
-      that.refreshData();
-    },
     '$route.params.baseName': function () {
+      const that = this;
+      that.baseLoaded = false;
       console.log("base name changed", arguments)
       this.refreshData();
     },
     '$route.params.itemName': function () {
+      const that = this;
+      that.baseLoaded = false;
       console.log("item name changed", arguments)
       this.refreshData();
     }

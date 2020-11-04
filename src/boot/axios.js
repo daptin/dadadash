@@ -20,6 +20,9 @@ import WorkspaceView from "pages/UserApps/WorkspaceView.vue";
 import AddBaseView from "pages/UserApps/AddBaseView.vue";
 import BaseViewRouter from "pages/UserApps/BaseViewRouter.vue";
 import EditDataTableComponent from "pages/UserApps/Components/EditDataTableComponent.vue";
+import CalendarComponent from "pages/UserApps/Calendar.vue";
+import DocumentEditorComponent from "pages/UserApps/DocumentEditor.vue";
+import SpreadsheetEditor from "pages/UserApps/SpreadsheetEditor";
 
 
 // import CKEditor from '@ckeditor/ckeditor5-vue'
@@ -32,6 +35,9 @@ Vue.component('new-workspace-screen', NewWorkspaceScreen);
 Vue.component('workspace-view', WorkspaceView);
 Vue.component('add-base-view', AddBaseView);
 Vue.component('base-view-router', BaseViewRouter);
+Vue.component('calendar-view', CalendarComponent);
+Vue.component('document-editor', DocumentEditorComponent);
+Vue.component('spreadsheet-editor', SpreadsheetEditor);
 Vue.component('edit-data-table', EditDataTableComponent);
 Vue.component('file-upload', VueUploadComponent);
 Vue.component('daptin-document-uploader', DaptinDocumentUploader);

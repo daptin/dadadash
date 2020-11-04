@@ -1,5 +1,42 @@
 <template>
-  <q-page-container>
+  <q-page-container style="padding-top: 0; overflow: hidden;">
+    <q-page style="min-height: 0 ; height:calc(100vh  - 75px);">
+      <div class="document-editor__toolbar"></div>
+      <div class="row" style=" overflow: scroll; ">
+        <div class="col-12">
+
+        </div>
+        <div class="col-12">
+          <div class="row-editor" v-for="page in pages">
+            <div v-html="page.html" :id="page.id" class="editor"
+                 :style="{
+              'min-height': pageSetting.height + 'px',
+              'width': pageSetting.width  + 'px',
+              'padding-left': pageSetting.margin.left  + 'px',
+              'padding-right': pageSetting.margin.right  + 'px',
+              'padding-top': pageSetting.margin.top  + 'px',
+              'padding-bottom': pageSetting.margin.bottom  + 'px',
+            }"></div>
+          </div>
+        </div>
+
+      </div>
+
+
+    </q-page>
+
+
+    <q-dialog v-model="newNameDialog">
+      <q-card style="min-width: 400px">
+        <q-card-section>
+          <q-input label="New file name" v-model="newName"></q-input>
+        </q-card-section>
+        <q-card-actions align="right">
+          <q-btn @click="newNameDialog = false" label="Cancel"></q-btn>
+          <q-btn @click="newDocument()" color="primary" label="Create"></q-btn>
+        </q-card-actions>
+      </q-card>
+    </q-dialog>
 
     <q-dialog v-model="showSharingBox" v-if="document">
       <q-card style="min-width: 33vw; width: 43vw">
@@ -38,78 +75,6 @@
 
     </q-dialog>
 
-    <q-header class="bg-white text-black document-heading">
-      <q-bar>
-        <q-btn-group flat>
-          <q-btn flat label="File">
-            <q-menu>
-              <q-list dense style="min-width: 100px">
-                <q-item @click="newDocument()" clickable v-close-popup>
-                  <q-item-section>New</q-item-section>
-                </q-item>
-                <q-item @click="$router.push('/apps/files')" clickable v-close-popup>
-                  <q-item-section>Open</q-item-section>
-                </q-item>
-                <q-item @click="pageSettingDialog = true" clickable v-close-popup>
-                  <q-item-section>Page setting</q-item-section>
-                </q-item>
-                <q-item @click="saveDocument()" clickable v-close-popup>
-                  <q-item-section>Save</q-item-section>
-                </q-item>
-                <q-item @click="printDocument()" clickable v-close-popup>
-                  <q-item-section>Print</q-item-section>
-                </q-item>
-                <q-item @click="$router.push('/apps/files')" clickable v-close-popup>
-                  <q-item-section>Close</q-item-section>
-                </q-item>
-              </q-list>
-            </q-menu>
-          </q-btn>
-          <!--          <q-btn flat label="Edit"></q-btn>-->
-          <!--          <q-btn flat label="Format">-->
-          <!---->
-          <!--          </q-btn>-->
-          <!--          <q-btn flat label="Data"></q-btn>-->
-          <!--          <q-btn flat label="Help"></q-btn>-->
-        </q-btn-group>
-        <q-space></q-space>
-        <q-btn @click="showSharingBox = true" class="text-primary" flat label="Share"></q-btn>
-        <q-btn v-if="decodedAuthToken() !== null" size="0.8em" class="profile-image" flat
-               :icon="'img:' + decodedAuthToken().picture">
-          <q-menu>
-            <div class="row no-wrap q-pa-md">
-
-              <div class="column items-center">
-                <q-avatar size="72px">
-                  <img :src="decodedAuthToken().picture">
-                </q-avatar>
-
-                <div class="text-subtitle1 q-mt-md q-mb-xs">{{ decodedAuthToken().name }}</div>
-
-                <q-btn
-                  color="black"
-                  label="Logout"
-                  push
-                  @click="logout()"
-                  size="sm"
-                  v-close-popup
-                />
-              </div>
-            </div>
-          </q-menu>
-        </q-btn>
-      </q-bar>
-      <div class="row">
-        <div class="12">
-
-        </div>
-      </div>
-      <div class="row">
-        <div class="col-12">
-          <div class="document-editor__toolbar"></div>
-        </div>
-      </div>
-    </q-header>
     <q-dialog v-model="pageSettingDialog">
       <q-card>
         <q-card-section>
@@ -131,36 +96,10 @@
         </q-card-section>
       </q-card>
     </q-dialog>
-    <q-page>
-      <main style="position: absolute; bottom: 0; left: 0; right: 0; top: -1px; overflow-y: scroll">
-        <div>
-          <div class="row-editor" v-for="page in pages">
-            <div v-html="page.html" :id="page.id" class="editor"
-                 :style="{
-              'min-height': pageSetting.height + 'px',
-              'width': pageSetting.width  + 'px',
-              'padding-left': pageSetting.margin.left  + 'px',
-              'padding-right': pageSetting.margin.right  + 'px',
-              'padding-top': pageSetting.margin.top  + 'px',
-              'padding-bottom': pageSetting.margin.bottom  + 'px',
-            }"></div>
-          </div>
-        </div>
-      </main>
 
-      <q-dialog v-model="newNameDialog">
-        <q-card style="min-width: 400px">
-          <q-card-section>
-            <q-input label="New file name" v-model="newName"></q-input>
-          </q-card-section>
-          <q-card-actions align="right">
-            <q-btn @click="newNameDialog = false" label="Cancel"></q-btn>
-            <q-btn @click="newDocument()" color="primary" label="Create"></q-btn>
-          </q-card-actions>
-        </q-card>
-      </q-dialog>
-    </q-page>
   </q-page-container>
+
+
 </template>
 <style>
 @import '../../statics/ckeditor/ckeditor.css';
@@ -233,6 +172,7 @@ function debounce(func, wait, immediate) {
 export default {
 
   name: "DocumentEditorApp",
+  props: ["baseItem"],
   meta() {
     return {
       // this accesses the "title" property in your Vue "data";
@@ -606,7 +546,7 @@ export default {
     }).then(function (res) {
       console.log("Loaded document", res.data)
       that.document = res.data[0];
-      if (!that.document.document_content) {
+      if (!that.document || !that.document.document_content) {
         that.loadEditor();
         return;
       }

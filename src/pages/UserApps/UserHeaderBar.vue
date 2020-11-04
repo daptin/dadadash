@@ -3,10 +3,10 @@
   <q-header reveal class="bg-white text-black" position="top" expand>
     <q-bar class="bg-primary text-white" style="height: 48px" v-if="decodedAuthToken() !== null">
       <q-btn flat @click="onBack ? onBack() : $router.back()" icon="fas fa-arrow-left"></q-btn>
-      <q-toolbar-title v-if="title" style="text-transform: capitalize" v-html="title">
+      <q-toolbar-title  v-if="title && $q.screen.gt.md" style="text-transform: capitalize" v-html="title">
       </q-toolbar-title>
 
-      <form @submit="emitSearch" class="col-2 col-xs-0">
+      <form v-if="$q.screen.gt.xs" @submit="emitSearch" class="col-2 col-xs-0">
         <input id="searchInput"
                placeholder="Search"
                style=" height:32px; font-size: 15px; border: 1px solid black; border-radius: 4px; padding-left: 10px; width: 100%"

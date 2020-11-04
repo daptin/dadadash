@@ -1,45 +1,29 @@
 <template>
 
-  <q-page-container style="height: 100vh; overflow: hidden;">
+  <q-layout>
+    <q-page-container style="height: 100vh; overflow: hidden;">
 
 
-    <q-dialog v-model="newNamePrompt" persistent>
-      <q-card style="min-width: 350px">
-        <q-card-section>
-          <div class="text-h6">Name</div>
-        </q-card-section>
+      <q-dialog v-model="newNamePrompt" persistent>
+        <q-card style="min-width: 350px">
+          <q-card-section>
+            <div class="text-h6">Name</div>
+          </q-card-section>
 
-        <q-card-section class="q-pt-none">
-          <q-input dense v-model="newName" autofocus @keyup.enter="createNew()"/>
-        </q-card-section>
+          <q-card-section class="q-pt-none">
+            <q-input dense v-model="newName" autofocus @keyup.enter="createNew()"/>
+          </q-card-section>
 
-        <q-card-actions align="right" class="text-primary">
-          <q-btn flat label="Cancel" v-close-popup/>
-          <q-btn flat label="Create" @click="createNew()" v-close-popup/>
-        </q-card-actions>
-      </q-card>
-    </q-dialog>
+          <q-card-actions align="right" class="text-primary">
+            <q-btn flat label="Cancel" v-close-popup/>
+            <q-btn flat label="Create" @click="createNew()" v-close-popup/>
+          </q-card-actions>
+        </q-card>
+      </q-dialog>
 
-
-    <!--    <q-menu context-menu>-->
-    <!--      <q-list dense style="min-width: 100px">-->
-    <!--        <q-item @click="() => {(newNamePrompt = true) ; (newName = '') ; ( newNameType = 'file')}" clickable-->
-    <!--                v-close-popup>-->
-    <!--          <q-item-section>New file</q-item-section>-->
-    <!--        </q-item>-->
-    <!--        <q-separator/>-->
-    <!--        <q-item @click="() => {(newNamePrompt = true) ; (newName = '') ; ( newNameType = 'folder')}" clickable-->
-    <!--                v-close-popup>-->
-    <!--          <q-item-section>New folder</q-item-section>-->
-    <!--        </q-item>-->
-    <!--        <q-separator/>-->
-
-    <!--      </q-list>-->
-    <!--    </q-menu>-->
-
-    <q-page>
-      <user-header-bar style="border-bottom: 1px solid black" @search="searchDocuments" @show-uploader="showUploader"
-                       :buttons="{
+      <q-page>
+        <user-header-bar style="border-bottom: 1px solid black" @search="searchDocuments" @show-uploader="showUploader"
+                         :buttons="{
         before: [
             {icon: 'fas fa-search', event: 'search'},
           ],
@@ -48,91 +32,93 @@
           ],
         }"></user-header-bar>
 
-      <div style="height: 100vh; overflow-y: scroll" class="row">
-        <div class="col-2 col-sm-12 col-md-2 col-lg-2 col-xl-2 col-xs-12">
-          <q-card v-if="selectedFile && !selectedFile.is_dir" flat style="background: transparent;">
-            <q-card-section>
-              <span class="text-bold">{{ selectedFile.name }}</span><br/>
-            </q-card-section>
-            <q-card-section>
-              Size <span class="text-bold">{{ parseInt(selectedFile.document_content[0].size / 1024) }} Kb</span> <br/>
-              Type <span class="text-bold">{{ selectedFile.mime_type }}</span>
-            </q-card-section>
-            <q-card-section>
-              <q-list separator bordered>
-                <q-item clickable @click="fileDownload(selectedFile)">
-                  <q-item-section>Download</q-item-section>
-                </q-item>
-                <q-item clickable v-if="isEditable(selectedFile)"
-                        @click="openEditor(selectedFile)">
-                  <q-item-section>Open</q-item-section>
-                </q-item>
-                <q-item clickable v-if="isViewable(selectedFile)"
-                        @click="openViewer(selectedFile)">
-                  <q-item-section>View</q-item-section>
-                </q-item>
-              </q-list>
-            </q-card-section>
-          </q-card>
+        <div style="height: 100vh; overflow-y: scroll" class="row">
+          <div class="col-2 col-sm-12 col-md-2 col-lg-2 col-xl-2 col-xs-12">
+            <q-card v-if="selectedFile && !selectedFile.is_dir" flat style="background: transparent;">
+              <q-card-section>
+                <span class="text-bold">{{ selectedFile.name }}</span><br/>
+              </q-card-section>
+              <q-card-section>
+                Size <span class="text-bold">{{ parseInt(selectedFile.document_content[0].size / 1024) }} Kb</span>
+                <br/>
+                Type <span class="text-bold">{{ selectedFile.mime_type }}</span>
+              </q-card-section>
+              <q-card-section>
+                <q-list separator bordered>
+                  <q-item clickable @click="fileDownload(selectedFile)">
+                    <q-item-section>Download</q-item-section>
+                  </q-item>
+                  <q-item clickable v-if="isEditable(selectedFile)"
+                          @click="openEditor(selectedFile)">
+                    <q-item-section>Open</q-item-section>
+                  </q-item>
+                  <q-item clickable v-if="isViewable(selectedFile)"
+                          @click="openViewer(selectedFile)">
+                    <q-item-section>View</q-item-section>
+                  </q-item>
+                </q-list>
+              </q-card-section>
+            </q-card>
 
 
-          <q-card flat style="background: white">
-            <q-card-section>
-              <q-btn style="width: 100%; height: 38px" @click="showNewWorkspace = true" color="primary"
-                     icon="library_add" label="Add workspace"></q-btn>
-            </q-card-section>
+            <q-card flat style="background: white">
+              <q-card-section>
+                <q-btn style="width: 100%; height: 38px" @click="showNewWorkspace = true" color="primary"
+                       icon="library_add" label="Add workspace"></q-btn>
+              </q-card-section>
 
-            <q-card-section>
+              <q-card-section>
 
-              <q-tree
-                :nodes="workspaceTree"
-                accordion
-                no-connectors
-                node-key="label"
-                :expanded.sync="expanded"
-              >
-                <template v-slot:default-header="prop" class="workspace-title">
-                  <div class="row items-center" v-if="prop.node.mime_type  === 'root'">
-                    <div style="font-weight: 400; text-transform: uppercase" class=" text-primary">{{
-                        prop.node.label
-                      }}
+                <q-tree
+                  :nodes="workspaceTree"
+                  accordion
+                  no-connectors
+                  node-key="label"
+                  :expanded.sync="expanded"
+                >
+                  <template v-slot:default-header="prop" class="workspace-title">
+                    <div class="row items-center" v-if="prop.node.mime_type  === 'root'">
+                      <div style="font-weight: 400; text-transform: uppercase" class=" text-primary">{{
+                          prop.node.label
+                        }}
+                      </div>
                     </div>
-                  </div>
-                  <div class="row cursor-pointer " @click="openWorkspace(prop.node)"
-                       v-if="prop.node.mime_type  === 'workspace/root'">
-                    <q-icon name="fas fa-briefcase" color="primary" size="14px" class="q-mr-sm"/>
-                    <div style="text-transform: capitalize">{{
-                        prop.node.label
-                      }}
+                    <div class="row cursor-pointer " @click="openWorkspace(prop.node)"
+                         v-if="prop.node.mime_type  === 'workspace/root'">
+                      <q-icon name="fas fa-briefcase" color="primary" size="14px" class="q-mr-sm"/>
+                      <div style="text-transform: capitalize">{{
+                          prop.node.label
+                        }}
+                      </div>
                     </div>
-                  </div>
-                </template>
+                  </template>
 
-                <template v-slot:default-body="prop">
-                  <div v-if="prop.node.story">
-                    <span class="text-weight-bold">This node has a story</span>: {{ prop.node.story }}
-                  </div>
-                </template>
-              </q-tree>
+                  <template v-slot:default-body="prop">
+                    <div v-if="prop.node.story">
+                      <span class="text-weight-bold">This node has a story</span>: {{ prop.node.story }}
+                    </div>
+                  </template>
+                </q-tree>
 
-            </q-card-section>
+              </q-card-section>
 
-          </q-card>
+            </q-card>
+          </div>
+          <div class="col-10 col-sm-12 col-md-10 col-lg-10 col-xl-10 col-xs-12" style="background: #F2F1F9">
+            <new-workspace-screen v-if="showNewWorkspace" @new-workspace-created="refreshData"></new-workspace-screen>
+            <workspace-view :workspace-name="currentWorkspace"
+                            v-if="!showNewWorkspace && currentWorkspace"></workspace-view>
+
+          </div>
         </div>
-        <div class="col-10 col-sm-12 col-md-10 col-lg-10 col-xl-10 col-xs-12" style="background: #F2F1F9">
-          <new-workspace-screen v-if="showNewWorkspace" @new-workspace-created="refreshData"></new-workspace-screen>
-          <workspace-view :workspace-name="currentWorkspace" v-if="!showNewWorkspace && currentWorkspace"></workspace-view>
-
-        </div>
-      </div>
-      <!--      <q-page-sticky :offset="[10, 10]" v-if="showUploadComponent">-->
-      <!--        -->
-      <!--      </q-page-sticky>-->
-    </q-page>
+        <!--      <q-page-sticky :offset="[10, 10]" v-if="showUploadComponent">-->
+        <!--        -->
+        <!--      </q-page-sticky>-->
+      </q-page>
 
 
-  </q-page-container>
-
+    </q-page-container>
+  </q-layout>
 </template>
 <style>
 /*.workspace-title:hover {*/
@@ -377,9 +363,11 @@ export default {
           mime_type: e.mime_type
         }
       })
-      that.expanded.push(that.workspaceTree[0].children[0].label);
-      if (!this.currentWorkspace) {
-        that.$router.push('/apps/workspace/' + that.workspaceTree[0].children[0].label);
+      if (that.workspaceTree[0].children.length > 0) {
+        that.expanded.push(that.workspaceTree[0].children[0].label);
+        if (!this.currentWorkspace) {
+          that.$router.push('/apps/workspace/' + that.workspaceTree[0].children[0].label);
+        }
       }
 
 
@@ -421,7 +409,7 @@ export default {
 
       that.loadData(queryPayload).then(function (res) {
         console.log("data load complete", that.currentWorkspace, res);
-        if (!that.currentWorkspace) {
+        if (!that.currentWorkspace && res.data.length > 0) {
           that.currentWorkspace = res.data[0].document_name;
           that.$router.push('/apps/workspace/' + that.currentWorkspace)
         }
@@ -554,16 +542,8 @@ export default {
     showUploader() {
       console.log("show uploader", this.showUploadComponent)
       const that = this;
-      // if (this.showUploadComponent) {
-      //   this.showUploadComponent = false;
-      //   return;
-      // }
       this.uploadedFiles = [];
-
-      // this.showUploadComponent = true
-      // setTimeout(function () {
       that.$refs.upload.$el.click()
-      // }, 200);
     },
   },
   data() {
@@ -619,65 +599,6 @@ export default {
     }
 
     that.refreshData();
-
-
-    // document.querySelector('html').ondragenter = function (e) {
-    //   e.stopPropagation();
-    //   return false;
-    // };
-    // document.querySelector('html').ondragover = function (e) {
-    //   e.stopPropagation();
-    //   return false;
-    // };
-
-    // document.ondrop = function (ev) {
-    //   console.log('File(s) dropped');
-    //
-    //   // Prevent default behavior (Prevent file from being opened)
-    //   ev.preventDefault();
-    //
-    //   if (ev.dataTransfer.items) {
-    //     // Use DataTransferItemList interface to access the file(s)
-    //     for (var i = 0; i < ev.dataTransfer.items.length; i++) {
-    //       // If dropped items aren't files, reject them
-    //       if (ev.dataTransfer.items[i].kind === 'file') {
-    //         var file = ev.dataTransfer.items[i].getAsFile();
-    //         console.log('... file[' + i + '].name = ' + file.name);
-    //         that.uploadFile({
-    //           file: file
-    //         })
-    //       }
-    //     }
-    //   } else {
-    //     // Use DataTransfer interface to access the file(s)
-    //     for (var i = 0; i < ev.dataTransfer.files.length; i++) {
-    //       console.log('... file[' + i + '].name = ' + ev.dataTransfer.files[i].name);
-    //       that.uploadFile({
-    //         file: ev.dataTransfer.files[i]
-    //       })
-    //     }
-    //   }
-    // }
-
-    // document.onpaste = function (event) {
-    //   var items = (event.clipboardData || event.originalEvent.clipboardData).items;
-    //   console.log("Items", items)
-    //
-    //   for (var index in items) {
-    //     var item = items[index];
-    //     console.log("Items", index, item, item)
-    //     window.item = item;
-    //     if (item.kind === 'file') {
-    //       var blob = item.getAsFile();
-    //       console.log("Upload blob", blob)
-    //       let nameParts = blob.name.split(".");
-    //       let newName = nameParts[0] + " pasted at " + new Date().toLocaleString() + "." + nameParts[1]
-    //       that.uploadFile({
-    //         file: blob,
-    //       }, newName)
-    //     }
-    //   }
-    // }
 
 
   }

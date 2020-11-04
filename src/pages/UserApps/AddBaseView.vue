@@ -41,7 +41,7 @@ export default {
             label: "Project tracker",
             items: [
               {
-                item_type: "table",
+                type: "table",
                 label: "project",
                 attributes: {
                   TableName: "project",
@@ -52,7 +52,7 @@ export default {
                 }
               },
               {
-                item_type: "table",
+                type: "table",
                 label: "bug",
                 attributes: {
                   TableName: "bug",
@@ -66,7 +66,7 @@ export default {
                 }
               },
               {
-                item_type: "view",
+                type: "view",
                 label: "Bugs",
                 attributes: {
                   TableName: "bug",
@@ -83,7 +83,7 @@ export default {
                 }
               },
               {
-                item_type: "summary",
+                type: "summary",
                 label: "Bug tracker",
                 target: {
                   name: "bug"

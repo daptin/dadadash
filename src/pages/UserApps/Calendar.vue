@@ -1,11 +1,7 @@
 <template>
 
-  <q-page-container>
+  <q-page-container style="padding-top: 0">
     <q-page>
-      <user-header-bar style="border-bottom: 1px solid black" :buttons="{
-        after: [],
-        }" title="Calendar"></user-header-bar>
-
       <div class="row">
         <div :class="{'col-2': showSideBar}">
           <!--          <div class="row q-pa-md">-->
@@ -228,6 +224,7 @@
       </div>
     </q-page>
   </q-page-container>
+
 
 </template>
 <style>

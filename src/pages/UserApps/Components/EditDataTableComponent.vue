@@ -1,23 +1,10 @@
 <template>
   <q-page-container style="padding-top: 0;">
 
-    <q-page style=" overflow: hidden">
+    <q-page style="overflow: hidden">
 
       <div class="row">
-        <q-bar class="bg-white">
-
-          <q-btn icon="fas fa-bars" flat>
-            <q-menu style="min-height: 150px">
-              <q-list>
-                <q-item clickable v-for="table in tablesFiltered" :key="table.table_name">
-                  <q-item-section flat @click="$router.push('/apps/workspace/' + table.table_name)"
-                  >{{ table.table_name }}
-                  </q-item-section>
-                </q-item>
-              </q-list>
-            </q-menu>
-          </q-btn>
-          <q-btn id="newTableButton" icon="fas fa-plus" flat/>
+        <q-bar style="padding-left: 0" class="bg-white">
 
 
           <q-btn size="sm" @click="showNewRowDrawer()" flat label="New row"></q-btn>
@@ -44,7 +31,9 @@
       </div>
 
       <div class="row">
-        <div id="spreadsheet" style="height: calc(100vh - 100px); width: 100vw; border-top: 1px solid black"></div>
+        <div class="col-12">
+          <div id="spreadsheet" style="height: calc(100vh - 100px); width: 100vw; border-top: 1px solid black"></div>
+        </div>
       </div>
 
     </q-page>
@@ -146,6 +135,9 @@
 /*@import "~tabulator-tables/dist/css/tabulator.min.css";*/
 @import "~tabulator-tables/dist/css/tabulator_simple.min.css";
 
+body[ data-editor='DecoupledDocumentEditor'] .row-editor {
+  width: 100%;
+}
 .tabulator-col-title input {
   margin-left: 9px;
 }
@@ -505,7 +497,7 @@ export default {
     onCancelNewRow() {
       this.newRowDrawer = false;
     },
-    ...mapActions(['loadData', 'getTableSchema', 'updateRow', 'createRow', 'deleteRow', 'executeAction', 'loadTables']),
+    ...mapActions(['loadData', 'getTableSchema', 'updateRow', 'createRow', 'deleteRow', 'executeAction']),
     refreshData() {
       const that = this;
       var assetColumns = [];
@@ -777,7 +769,7 @@ export default {
     ...mapGetters(['endpoint', 'authToken', 'tables'])
   },
   mounted() {
-    this.loadTables();
+    // this.loadTables();
     this.refreshData();
   },
   watch: {
