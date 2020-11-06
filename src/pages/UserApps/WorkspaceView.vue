@@ -167,7 +167,7 @@ export default {
             name: item.type + "-" + uuidv4() + ".json",
             type: "workspace/" + item.type,
             path: "/" + that.workspaceName + "/" + newBaseName,
-            contents: "data:workspace/" + item.item + "," + btoa(JSON.stringify(item))
+            contents: "data:workspace/" + item.type + "," + btoa(JSON.stringify(item))
           }],
         }
 
@@ -222,6 +222,9 @@ export default {
       for (var i in this.baseList) {
         var baseConfig = this.baseList[i]
         let baseName = baseConfig.document_name;
+        if (!that.workspaceSchema.workspaceItems[baseName]) {
+          that.workspaceSchema.workspaceItems[baseName] = [];
+        }
         console.log("base config ", baseName, baseConfig)
         if (!baseConfig.document_content) {
           console.log("Base has no contents ", baseName)
@@ -230,9 +233,7 @@ export default {
         var baseSchema = baseConfig.document_content[0].contents;
         var baseSchemaJson = JSON.parse(atob(baseSchema));
         console.log("Base config", baseSchemaJson);
-        if (!that.workspaceSchema.workspaceItems[baseName]) {
-          that.workspaceSchema.workspaceItems[baseName] = [];
-        }
+
         for (var j in baseSchemaJson.items) {
           var item = baseSchemaJson.items[j];
           item.baseName = baseName;

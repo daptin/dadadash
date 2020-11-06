@@ -117,7 +117,7 @@
     </q-dialog>
 
     <q-dialog v-model="showRenameBaseViewModel">
-      <q-card>
+      <q-card style="background: white">
         <q-card-section>
           <span class="h5">Rename base</span>
         </q-card-section>
@@ -131,7 +131,7 @@
     </q-dialog>
 
     <q-dialog v-model="showDeleteConfirmDialog">
-      <q-card>
+      <q-card style="background: white">
         <q-card-section>
           <span class="h5">Delete</span>
         </q-card-section>
@@ -245,6 +245,7 @@ export default {
           console.log("Updated item name", res);
           that.baseItemMap[that.newName] = that.baseItemMap[originalTitle]
           delete that.baseItemMap[originalTitle];
+          that.refreshData()
         }).catch(function (err) {
           console.log("Failed to update item name", err)
         })
@@ -587,7 +588,6 @@ export default {
         },
 
       },
-      tableMap: {},
       itemIconMap: {
         'table': 'fas fa-table',
         'view': 'fas fa-eye',

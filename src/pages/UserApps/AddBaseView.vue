@@ -68,6 +68,9 @@ export default {
               {
                 type: "view",
                 label: "Bugs",
+                target: {
+                  name: "bug"
+                },
                 attributes: {
                   TableName: "bug",
                   Columns: [{
@@ -106,7 +109,10 @@ export default {
                   }
                 }
               }
-            ]
+            ],
+            data: [{
+              TableName: "project"
+            }],
           }
         },
         {
