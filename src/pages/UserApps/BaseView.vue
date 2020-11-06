@@ -13,10 +13,37 @@
                 inline-label
               >
                 <q-route-tab
-                  :icon="itemIconMap[item.type]" :key="item.label"
+                  :key="item.reference_id"
                   v-if="item.type !== 'summary'" v-for="item in baseConfig.items"
                   :to="'/apps/workspace/' + workspaceName + '/' + baseName + '/' + item.label" exact replace
-                  :label="item.label"/>
+                >
+                  <span><q-icon :name="itemIconMap[item.type]"></q-icon> &nbsp;&nbsp;&nbsp;</span>{{ item.label }}
+                  <!--                  <span>&nbsp; &nbsp; &nbsp;-->
+                  <!--                    <q-icon name="fas fa-cog"></q-icon>-->
+
+                  <!--                  </span>-->
+                  <q-menu context-menu style="min-width: 300px">
+                    <q-list>
+
+                      <q-item clickable>
+                        <q-item-section>
+                          <q-item-label>Customise item</q-item-label>
+                        </q-item-section>
+                      </q-item>
+
+                      <q-item clickable @click="renameBaseItem(item)">
+                        <q-item-section>
+                          <q-item-label>Rename item</q-item-label>
+                        </q-item-section>
+                      </q-item>
+                      <q-item clickable @click="deleteBaseItem(item)">
+                        <q-item-section>
+                          <q-item-label>Delete item</q-item-label>
+                        </q-item-section>
+                      </q-item>
+                    </q-list>
+                  </q-menu>
+                </q-route-tab>
 
 
               </q-tabs>
@@ -51,19 +78,22 @@
 
     </q-page-container>
 
-    <user-header-bar @delete-base="deleteBase" style="border-bottom: 1px solid black" @search="searchDocuments"
+    <user-header-bar @delete-base="deleteBase"
+                     style="border-bottom: 1px solid black"
+                     @search="searchDocuments"
+                     @reload-bases="refreshBaseData"
                      :buttons="{
         before: [
             {icon: 'fas fa-search', event: 'search'},
           ],
         after: [
-            {icon: 'fas fa-sync-alt', event: 'search'},
+            {icon: 'fas fa-sync-alt', event: 'reload-bases'},
             {icon: 'fas fa-trash', event: 'delete-base'},
           ],
         }" :onBack="() => {$router.push('/apps/workspace/' + $route.params.workspaceName)}"
                      :title='"[Workspace] " + $route.params.workspaceName
                      + "&nbsp;&nbsp; › &nbsp;&nbsp;" + ($route.params.baseName)
-                     + "&nbsp;&nbsp; › &nbsp;&nbsp;" + ($route.params.itemName)'
+                     + ( $route.params.itemName ? "&nbsp;&nbsp; › &nbsp;&nbsp;" + ($route.params.itemName) : "" )  '
     ></user-header-bar>
 
 
@@ -82,6 +112,34 @@
         <q-card-actions align="right">
           <q-btn @click="confirmDeleteBaseMessage = false" class="float-left" label="Cancel"></q-btn>
           <q-btn @click="deleteBaseConfirm()" color="warning" class="float-right" label="Yes"></q-btn>
+        </q-card-actions>
+      </q-card>
+    </q-dialog>
+
+    <q-dialog v-model="showRenameBaseViewModel">
+      <q-card>
+        <q-card-section>
+          <span class="h5">Rename base</span>
+        </q-card-section>
+        <q-card-section>
+          <q-input v-model="newName"></q-input>
+        </q-card-section>
+        <q-card-actions align="right">
+          <q-btn label="Update" @click="renameBaseItem"></q-btn>
+        </q-card-actions>
+      </q-card>
+    </q-dialog>
+
+    <q-dialog v-model="showDeleteConfirmDialog">
+      <q-card>
+        <q-card-section>
+          <span class="h5">Delete</span>
+        </q-card-section>
+        <q-card-section>
+          Are you sure you want to delete this item
+        </q-card-section>
+        <q-card-actions align="right">
+          <q-btn label="Update" @click="deleteBaseItem"></q-btn>
         </q-card-actions>
       </q-card>
     </q-dialog>
@@ -134,13 +192,72 @@ export default {
   },
 
   methods: {
+    deleteBaseItem(item) {
+      console.log("Delete base item", item, this.itemBeingEdited)
+      if (!this.showDeleteConfirmDialog) {
+        this.showDeleteConfirmDialog = true;
+        this.itemBeingEdited = item;
+        return
+      }
+      this.showDeleteConfirmDialog = false;
+
+      const that = this;
+      that.deleteRow({
+        tableName: "document",
+        reference_id: that.itemBeingEdited.reference_id
+      }).then(function (res) {
+        that.$q.notify({
+          message: "Item deleted"
+        });
+        delete that.baseItemMap[that.itemBeingEdited.label];
+        var indexToDelete = -1;
+        for (var i = 0; i < that.baseConfig.items.length; i++) {
+          if (that.baseConfig.items[i].label === that.itemBeingEdited.label) {
+            indexToDelete = i;
+            break
+          }
+        }
+        console.log("Item to remove from base config", indexToDelete)
+        if (indexToDelete > -1) {
+          that.baseConfig.items.splice(indexToDelete, 1);
+        }
+      })
+    },
+    renameBaseItem(item) {
+      const that = this;
+      console.log("Rename base item", this.itemBeingEdited);
+      if (this.showRenameBaseViewModel !== true) {
+        this.itemBeingEdited = item;
+        this.newName = this.itemBeingEdited.label;
+        this.showRenameBaseViewModel = true;
+        return
+      }
+      console.log("Updated name", this.newName)
+      if (this.newName !== this.itemBeingEdited.label) {
+        console.log("Update item");
+        const originalTitle = this.itemBeingEdited.label;
+        this.itemBeingEdited.label = this.newName;
+        that.updateRow({
+          tableName: "document",
+          id: that.itemBeingEdited.reference_id,
+          document_name: that.newName,
+        }).then(function (res) {
+          console.log("Updated item name", res);
+          that.baseItemMap[that.newName] = that.baseItemMap[originalTitle]
+          delete that.baseItemMap[originalTitle];
+        }).catch(function (err) {
+          console.log("Failed to update item name", err)
+        })
+      }
+      this.showRenameBaseViewModel = false;
+    },
     addBaseItem(item) {
       const that = this;
       console.log("Add new item to base", item);
-      that.baseConfig.items.push({
+      let newItem = {
         type: item.type,
         label: "New " + item.type
-      });
+      };
 
 
       var newRow = null;
@@ -163,13 +280,20 @@ export default {
       console.log("Create base request", newRow)
 
       that.createRow(newRow).then(function (res) {
-        console.log("New workspace item created")
+        console.log("New workspace item created", res)
+        newItem.reference_id = res.data.reference_id;
+        that.baseConfig.items.push(newItem);
+        that.baseItemMap[newItem.label] = res.data
+      }).catch(function (err) {
+        that.$q.notify({
+          message: "Failed to create new item - " + JSON.stringify(err)
+        })
       })
 
 
     },
     deleteBaseConfirm() {
-      // todo: more things need to be deleted here - tables, documents and other attachments
+      // TODO: more things need to be deleted here - tables, documents and other attachments
       console.log("Delete base", this.baseName);
       const that = this;
       that.confirmDeleteBaseMessage = false;
@@ -241,6 +365,7 @@ export default {
     ...mapActions(['loadData', 'getTableSchema', 'updateRow', 'createRow', 'deleteRow', 'executeAction', 'loadModel']),
     refreshBaseData() {
       const that = this;
+      that.baseItemMap = [];
 
       const workspaceName = this.$route.params.workspaceName;
       const baseName = this.$route.params.baseName;
@@ -311,20 +436,29 @@ export default {
           included_relations: "document_content"
         }
       };
+      that.baseConfig.items = [];
+
 
       promises.push(that.loadData(queryPayload).then(function (res) {
         console.log("base items", res);
         for (var i = 0; i < res.data.length; i++) {
-          var item = res.data[i];
-          var itemConfig = JSON.parse(atob(item.document_content[0].contents))
-          itemConfig.type = item.document_extension;
-          itemConfig.label = item.document_name;
-          that.baseItemMap[item.document_name] = item;
-          that.baseConfig.items.push(itemConfig);
+          try {
+            var item = res.data[i];
+            var itemConfig = JSON.parse(atob(item.document_content[0].contents))
+            itemConfig.type = item.document_extension;
+            itemConfig.label = item.document_name;
+            itemConfig.reference_id = item.reference_id;
+            that.baseItemMap[item.document_name] = item;
+            that.baseConfig.items.push(itemConfig);
+          } catch (e) {
+            console.log("failed to parse item data", e)
+          }
         }
       }));
       return Promise.all(promises).then(function () {
         that.ensureBaseTables()
+      }).catch(function (err) {
+        console.log("Failed to refresh base data", err)
       })
 
 
@@ -383,7 +517,7 @@ export default {
             });
 
           })
-        } else{
+        } else {
         }
       })
 
@@ -393,7 +527,7 @@ export default {
       const that = this;
       that.newRowData = [];
       that.sourceMap = {};
-      console.log("Selected base item", that.selectedItem, that.selectedBaseItem);
+      console.log("Selected base item", that.selectedItem, that.baseItemMap);
       that.selectedItem = that.$route.params.itemName;
       that.baseName = that.$route.params.baseName;
       that.selectedBaseItem = that.baseItemMap[that.selectedItem]
@@ -408,6 +542,10 @@ export default {
   data() {
     return {
       baseItemMap: {},
+      showRenameBaseViewModel: false,
+      showDeleteConfirmDialog: false,
+      itemBeingEdited: null,
+      newName: null,
       baseLoaded: false,
       dataUploadFile: null,
       selectedBaseItem: null,
@@ -491,6 +629,8 @@ export default {
     this.refreshBaseData().then(function () {
       console.log("base load complete return");
       that.refreshData();
+    }).catch(function (err) {
+      console.log("Failed to complete base data refresh", err)
     });
   },
   watch: {

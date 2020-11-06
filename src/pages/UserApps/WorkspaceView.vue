@@ -41,7 +41,7 @@
              })"
              v-for="(baseItems, baseName) in workspaceSchema.workspaceItems"
         >
-          <q-card flat>
+          <q-card flat v-if="baseItems.filter(e => e.type === 'summary').length === 0">
             <q-card-section >
 
 
@@ -61,6 +61,7 @@
           </q-card>
 
           <q-card v-for="item in baseItems" v-if="item.type === 'summary'"
+                  :key="item.label"
                   style="background: white; cursor: pointer; "
                   @click="handleCardClick(item)"
                   flat>

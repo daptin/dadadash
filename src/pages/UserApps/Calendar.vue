@@ -1,7 +1,7 @@
 <template>
 
   <q-page-container style="padding-top: 0">
-    <q-page>
+    <q-page style="height:calc(100vh  - 75px);">
       <div class="row">
         <div :class="{'col-2': showSideBar}">
           <!--          <div class="row q-pa-md">-->
@@ -380,7 +380,7 @@ export default {
         that.showSideBar = false;
       }
     }
-    window.onresize()
+    window.onresize();
 
     setTimeout(function () {
       that.calendar = new Calendar(document.getElementById(that.containerId), {

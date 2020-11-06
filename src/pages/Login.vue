@@ -63,7 +63,7 @@
             }
           }
           that.setToken();
-          that.$router.push("/apps/files");
+          that.$router.push("/apps/workspace");
         }).catch(function (e) {
           that.$q.notify("Failed to sign in");
           console.log("error ", arguments)

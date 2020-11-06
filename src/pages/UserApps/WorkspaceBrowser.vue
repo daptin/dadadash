@@ -32,35 +32,8 @@
           ],
         }"></user-header-bar>
 
-        <div style="height: 100vh; overflow-y: scroll" class="row">
+        <div style="height: 100vh; overflow-y: scroll;background: white" class="row">
           <div class="col-2 col-sm-12 col-md-2 col-lg-2 col-xl-2 col-xs-12">
-            <q-card v-if="selectedFile && !selectedFile.is_dir" flat style="background: transparent;">
-              <q-card-section>
-                <span class="text-bold">{{ selectedFile.name }}</span><br/>
-              </q-card-section>
-              <q-card-section>
-                Size <span class="text-bold">{{ parseInt(selectedFile.document_content[0].size / 1024) }} Kb</span>
-                <br/>
-                Type <span class="text-bold">{{ selectedFile.mime_type }}</span>
-              </q-card-section>
-              <q-card-section>
-                <q-list separator bordered>
-                  <q-item clickable @click="fileDownload(selectedFile)">
-                    <q-item-section>Download</q-item-section>
-                  </q-item>
-                  <q-item clickable v-if="isEditable(selectedFile)"
-                          @click="openEditor(selectedFile)">
-                    <q-item-section>Open</q-item-section>
-                  </q-item>
-                  <q-item clickable v-if="isViewable(selectedFile)"
-                          @click="openViewer(selectedFile)">
-                    <q-item-section>View</q-item-section>
-                  </q-item>
-                </q-list>
-              </q-card-section>
-            </q-card>
-
-
             <q-card flat style="background: white">
               <q-card-section>
                 <q-btn style="width: 100%; height: 38px" @click="showNewWorkspace = true" color="primary"

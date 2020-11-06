@@ -59,7 +59,7 @@ text-align: center;
           </q-expansion-item>
 
           <q-item clickable
-            @click="$router.push('/apps/files')"
+                  @click="$router.push('/apps/workspace')"
           >
             <q-item-section avatar>
               <q-icon name="fas fa-briefcase"></q-icon>
@@ -382,7 +382,7 @@ export default {
           that.isUser = false;
         } else {
           that.isUser = true;
-          that.$router.push('/apps/files')
+          that.$router.push('/apps/workspace')
         }
       });
 

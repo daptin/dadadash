@@ -185,7 +185,7 @@ export default {
         luckysheet.destroy();
         if (that.contents.length > 0) {
           try {
-            console.log("set string data", that.contents)
+            // console.log("set string data", that.contents)
             var item = that.contents;
             if (!item) {
               // item = workingData
@@ -284,34 +284,16 @@ export default {
     },
     saveDocument() {
       const that = this;
-      // console.log("save document", this.document, this.contents);
-      if (!this.document) {
-        // this.newNameDialog = true;
-        return
-      }
       if (this.decodedAuthToken() === null) {
         return
       }
-      this.document.tableName = "document";
 
 
       var zip = new JSZip();
       zip.file("contents_encoded.json", encodeUnicode(this.contents));
 
       zip.generateAsync({type: "base64"}).then(function (base64) {
-
-        that.$emit("save-base-item-contents", "data:application/dspreadsheet," + base64)
-
-        that.updateRow(that.document).then(function (res) {
-          console.log("Document saved", res);
-        }).catch(function (err) {
-          console.log("errer", err)
-          that.$q.notify({
-            message: "We are offline, changes are not being stored"
-          })
-        })
-
-
+        that.$emit("save-base-item-contents", base64)
       })
 
 
@@ -336,47 +318,31 @@ export default {
       console.log("lucky loaded");
 
       that.containerId = "id-" + new Date().getMilliseconds();
-      var documentId = that.baseItem.reference_id;
-      console.log("Mounted FilesApp", that.containerId, that.$route.params.documentId);
-      if (documentId === "new") {
-        that.file = {
-          contents: "",
-          name: "New file.html"
-        }
-        that.contents = that.file.contents;
-        that.loadEditor();
-        return
-      }
+      that.file = that.baseItem.file;
 
-      that.document = that.baseItem;
-      if (that.document.document_content) {
-        that.file = that.document.document_content[0];
-      } else {
-        that.file = {
-          contents: btoa(""),
-          name: that.document.document_name,
-          type: "application/x-ddocument",
-          path: localStorage.getItem("_last_current_path") || "/"
-        }
-        that.document.document_content = [that.file]
-      }
+      try {
 
-      JSZip.loadAsync(atob(that.file.contents)).then(function (zipFile) {
-        // that.contents = atob(that.file.contents);
-        zipFile.file("contents_encoded.json").async("string").then(function (data) {
-          console.log("Loaded file: ", data)
-          that.contents = decodeUnicode(data);
-          that.loadEditor()
+
+        JSZip.loadAsync(atob(that.file)).then(function (zipFile) {
+          // that.contents = atob(that.file.contents);
+          zipFile.file("contents_encoded.json").async("string").then(function (data) {
+            // console.log("Loaded file: ", data)
+            that.contents = decodeUnicode(data);
+            that.loadEditor()
+          }).catch(function (err) {
+            console.log("Failed to open contents.html", err)
+            that.loadEditor()
+          });
+
+
         }).catch(function (err) {
-          console.log("Failed to open contents.html", err)
+          console.log("Failed to load zip file", err)
           that.loadEditor()
         });
-
-
-      }).catch(function (err) {
-        console.log("Failed to load zip file", err)
-        that.loadEditor()
-      });
+      } catch (e) {
+        console.log("Failed to read existing file contens");
+        that.loadEditor();
+      }
 
 
     }

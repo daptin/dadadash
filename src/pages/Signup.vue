@@ -51,66 +51,66 @@
 </template>
 
 <script>
-  import {mapActions} from 'vuex';
+import {mapActions} from 'vuex';
 
-  export default {
-    name: 'PageSignup',
-    methods: {
-      ...mapActions(['executeAction']),
-      onSubmit() {
-        var that = this;
+export default {
+  name: 'PageSignup',
+  methods: {
+    ...mapActions(['executeAction']),
+    onSubmit() {
+      var that = this;
+      that.executeAction({
+        tableName: 'user_account',
+        actionName: 'signup',
+        params: {
+          email: this.email,
+          password: this.password,
+          name: this.email,
+          passwordConfirm: this.passwordConfirm,
+        }
+      }).then(function (responses) {
+        for (var i = 0; i < responses.length; i++) {
+          var response = responses[i];
+          if (response.ResponseType == "client.notify") {
+            if (response.Attributes.type == "success") {
+              that.$q.notify(response.Attributes);
+              break;
+            } else {
+              that.$q.notify(response.Attributes);
+              return;
+            }
+          }
+        }
+
         that.executeAction({
           tableName: 'user_account',
-          actionName: 'signup',
+          actionName: 'signin',
           params: {
-            email: this.email,
-            password: this.password,
-            name: this.email,
-            passwordConfirm: this.passwordConfirm,
+            email: that.email,
+            password: that.password,
           }
-        }).then(function (responses) {
-          for (var i = 0; i < responses.length; i++) {
-            var response = responses[i];
-            if (response.ResponseType == "client.notify") {
-              if (response.Attributes.type == "success") {
-                that.$q.notify(response.Attributes);
-                break;
-              } else {
-                that.$q.notify(response.Attributes);
-                return;
-              }
-            }
-          }
-
-          that.executeAction({
-            tableName: 'user_account',
-            actionName: 'signin',
-            params: {
-              email: that.email,
-              password: that.password,
-            }
-          }).then(function (e) {
-            console.log("Sign in successful", arguments);
-            that.$router.push('/tables')
-          }).catch(function (e) {
-            console.log("Failed to sign in", arguments);
-            that.$q.notify("Error", "Failed to login");
-            that.$router.push('/login');
-          })
-        }).catch(function (responses) {
-          that.$q.notify("Error", "Failed to signup");
-          console.log("Failed to register", responses)
+        }).then(function (e) {
+          console.log("Sign in successful", arguments);
+          that.$router.push('/apps/workspace')
+        }).catch(function (e) {
+          console.log("Failed to sign in", arguments);
+          that.$q.notify("Error", "Failed to login");
+          that.$router.push('/login');
         })
-      },
+      }).catch(function (responses) {
+        that.$q.notify("Error", "Failed to signup");
+        console.log("Failed to register", responses)
+      })
     },
-    data() {
-      return {
-        email: null,
-        password: null,
-        passwordConfirm: null,
-      }
-    },
-    mounted() {
+  },
+  data() {
+    return {
+      email: null,
+      password: null,
+      passwordConfirm: null,
     }
+  },
+  mounted() {
   }
+}
 </script>

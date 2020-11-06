@@ -138,6 +138,7 @@
 body[ data-editor='DecoupledDocumentEditor'] .row-editor {
   width: 100%;
 }
+
 .tabulator-col-title input {
   margin-left: 9px;
 }
@@ -254,7 +255,7 @@ Tabulator.prototype.extendModule("format", "formatters", {
 
 export default {
   name: "EditDataTableComponent",
-  props: ["tableName", "config"],
+  props: ["baseItem"],
   // todo use the config property to show only configured columns for this view and not all columns
   methods: {
     searchDocuments(searchQuery) {
@@ -504,6 +505,9 @@ export default {
       that.newRowData = [];
       var tableName = this.tableName;
       console.log("loaded data editor", tableName);
+      if (!tableName) {
+        return
+      }
       that.getTableSchema(tableName).then(function (res) {
         that.tableSchema = res;
         console.log("Schema", that.tableSchema);
@@ -737,6 +741,7 @@ export default {
     return {
       dataUploadFile: null,
       searchQuery: null,
+      tableName: null,
       tablePermissionDrawer: false,
       currentPage: 1,
       tabulatorOptions: {
@@ -769,14 +774,12 @@ export default {
     ...mapGetters(['endpoint', 'authToken', 'tables'])
   },
   mounted() {
-    // this.loadTables();
+    this.tableName = this.baseItem.targetTable.TableName
     this.refreshData();
   },
   watch: {
-    '$route.params.tableName': function () {
-      this.refreshData();
-    },
-    'tableName': function () {
+    'baseItem': function () {
+      this.tableName = this.baseItem.targetTable.TableName
       this.refreshData();
     }
   },

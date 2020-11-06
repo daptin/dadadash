@@ -6,7 +6,7 @@ import TableSideBar from '../pages/TableSideBar'
 import TableEditor from '../pages/TableEditor'
 import TablePermissions from '../pages/Permissions'
 import HelpPage from '../pages/HelpPage'
-import FileBrowser from 'pages/FileBrowserComponent';
+import FileBrowser from 'pages/UserApps/FileBrowser.vue';
 import DaptinDocumentUploader from 'pages/UserApps/Components/DaptinDocumentUploader.vue';
 import UserHeaderBar from "pages/UserApps/UserHeaderBar";
 

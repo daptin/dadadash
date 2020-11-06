@@ -1,10 +1,8 @@
 <template>
   <div>
-
-    <component :is="baseItemComponentMap[baseItemConfig.type]"
-               v-if="baseItem && baseItemComponentMap[baseItemConfig.type]"
-               :tableName="baseItemConfig.targetTable ? baseItemConfig.targetTable.TableName : null"
-               :baseItem="baseItem"
+    <component :is="baseItemComponentMap[baseItem.document_extension]"
+               v-if="baseItemConfig && baseItemComponentMap[baseItem.document_extension]"
+               :baseItem="baseItemConfig"
                @save-base-item-contents="saveBaseItemContents"
     ></component>
   </div>
@@ -21,8 +19,10 @@ export default {
     saveBaseItemContents(baseEncodedFileItem) {
 
       const that = this;
-      console.log("Save contents for base", baseEncodedFileItem);
-      that.baseItem.document_content[0].contents = baseEncodedFileItem;
+      console.log("Save contents for base", that.baseItem, baseEncodedFileItem.length);
+
+      that.baseItemConfig.file = baseEncodedFileItem;
+      that.baseItem.document_content[0].contents = "application/json," + btoa(JSON.stringify(that.baseItemConfig));
       that.baseItem.tableName = "document";
       that.updateRow(that.baseItem).then(function (res) {
         console.log("base item content updated")
@@ -38,11 +38,12 @@ export default {
 
   data() {
     return {
-      baseItemConfig: {},
+      baseItemConfig: null,
       baseItemComponentMap: {
         'view': 'edit-data-table',
         'table': 'edit-data-table',
         'document': 'document-editor',
+        'folder': 'file-browser',
         'spreadsheet': 'spreadsheet-editor',
         'calendar': 'calendar-view',
       },
@@ -50,21 +51,24 @@ export default {
     }
   },
   mounted() {
-    console.log("Mounted base view router", this.baseItem);
+    console.log("Mounted base view router", this.baseItem, this.baseConfig);
     const that = this;
-    // if (this.baseItem.document_extension === "view") {
-    //   var targetTable = this.baseConfig.items.filter(function (e) {
-    //     return e.type === "table" && e.label === that.baseItemConfig.attributes.TableName
-    //   })[0]
-    //   console.log("Table for data editor", targetTable)
-    //   that.targetTable = targetTable;
-    // }
+    if (!that.baseItem) {
+      that.baseItemConfig = {}
+      return
+    }
+    that.baseItemConfig = JSON.parse(atob(that.baseItem.document_content[0].contents))
+    console.log("Base item config", that.baseItemConfig)
 
   },
   watch: {
     'baseItem': function (e) {
       const that = this;
       console.log("Base item changed", that.baseItem)
+      if (!that.baseItem.document_content) {
+        that.baseItemConfig = that.baseItem;
+        return;
+      }
       that.baseItemConfig = JSON.parse(atob(that.baseItem.document_content[0].contents))
       console.log("Base item config", that.baseItemConfig)
     }

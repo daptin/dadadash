@@ -424,90 +424,14 @@ export default {
     },
     saveDocument() {
       const that = this;
-      if (!this.document) {
-        this.newNameDialog = true;
-        return;
-      }
-      if (this.decodedAuthToken() === null) {
-        return
-      }
-      this.document.tableName = "document";
 
       var zip = new JSZip();
       zip.file("contents.html", this.contents);
       zip.file("page-setting.json", JSON.stringify(this.pageSetting));
 
-      if (that.document.document_content == null || that.document.document_content.length < 0) {
-        that.document.document_content = [{
-          name: this.document.document_name,
-          type: "application/x-ddocument",
-          path: localStorage.getItem("_last_current_path")
-        }]
-      }
 
       zip.generateAsync({type: "base64"}).then(function (base64) {
-        that.document.document_content[0].contents = "data:application/x-ddocument," + base64
-
-        if (that.document.reference_id) {
-
-          if (that.document.permission === 2097027) {
-            that.loadData({
-              tableName: "world",
-              params: {
-                query: JSON.stringify([{
-                  column: "table_name",
-                  operator: "is",
-                  value: "document"
-                }]),
-                page: {
-                  size: 1,
-                }
-              }
-            }).then(function (res) {
-              console.log("Document", res);
-              var documentTable = res.data[0];
-              if (documentTable.permission != that.document.permission) {
-                that.updateRow({
-                  tableName: "world",
-                  id: documentTable.reference_id,
-                  permission: that.document.permission
-                }).then(function (res) {
-                  console.log("Updated permission")
-                }).catch(function (res) {
-                  console.log("Failed to get table document", res)
-                  that.$q.notify({
-                    message: "Failed to check table permissions, share link might not be working"
-                  })
-                })
-              }
-            }).catch(function (res) {
-              console.log("Failed to get table document", res)
-              that.$q.notify({
-                message: "Failed to check table permissions, share link might not be working"
-              })
-            })
-          }
-
-          that.updateRow(that.document).then(function (res) {
-            console.log("Document saved", res);
-          }).catch(function (err) {
-            console.log("error", err)
-            that.$q.notify({
-              message: "We are offline, changes are not being stored"
-            })
-          })
-        } else {
-          that.createRow(that.document).then(function (res) {
-            that.document = res.data;
-            console.log("Document created", res);
-            that.$router.push('/apps/document/' + that.document.reference_id)
-          }).catch(function (err) {
-            console.log("errer", err)
-            that.$q.notify({
-              message: "We are offline, changes are not being stored"
-            })
-          })
-        }
+        that.$emit("save-base-item-contents", base64)
       });
 
 
@@ -517,47 +441,14 @@ export default {
   mounted() {
     const that = this;
     this.containerId = "id-" + new Date().getMilliseconds();
-    var documentId = this.$route.params.documentId;
-    console.log("Mounted FilesApp", this.containerId, this.$route.params.documentId);
-    if (documentId === "new") {
-      this.file = {
-        contents: "",
-        name: "New file.html"
-      }
-      this.newNameDialog = true;
-      this.contents = "";
-      that.loadEditor();
-      return
-    }
 
 
-    that.loadData({
-      tableName: 'document',
-      params: {
-        query: JSON.stringify([
-          {
-            column: "reference_id",
-            operator: "is",
-            value: documentId
-          }
-        ]),
-        included_relations: "document_content"
-      }
-    }).then(function (res) {
-      console.log("Loaded document", res.data)
-      that.document = res.data[0];
-      if (!that.document || !that.document.document_content) {
-        that.loadEditor();
-        return;
-      }
+    console.log("Loaded document", that.baseItem)
+    that.file = that.baseItem.file;
+    try {
 
-      if (that.document.document_content.length > 0) {
-        that.file = that.document.document_content[0];
-      } else {
-        that.loadEditor();
-        return;
-      }
-      JSZip.loadAsync(atob(that.file.contents)).then(function (zipFile) {
+
+      JSZip.loadAsync(atob(that.file)).then(function (zipFile) {
         // that.contents = atob(that.file.contents);
         zipFile.file("contents.html").async("string").then(function (data) {
           // data is "Hello World\n"
@@ -574,9 +465,10 @@ export default {
         console.log("Failed to load zip file", err)
         that.loadEditor()
       });
-
-
-    })
+    } catch (e) {
+      console.log("Failed to read existing contents");
+      that.loadEditor();
+    }
 
 
   }

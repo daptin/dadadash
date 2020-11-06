@@ -554,7 +554,7 @@
     mounted() {
       const that = this;
 
-      this.$router.push('/apps/files')
+      this.$router.push('/apps/workspace')
       return
       this.$q.loadingBar.start();
       that.loadTables().then(function () {
