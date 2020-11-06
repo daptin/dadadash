@@ -119,7 +119,7 @@
     <q-dialog v-model="showRenameBaseViewModel">
       <q-card style="background: white">
         <q-card-section>
-          <span class="h5">Rename base</span>
+          <span class="h5">Rename</span>
         </q-card-section>
         <q-card-section>
           <q-input v-model="newName"></q-input>
@@ -243,9 +243,12 @@ export default {
           document_name: that.newName,
         }).then(function (res) {
           console.log("Updated item name", res);
-          that.baseItemMap[that.newName] = that.baseItemMap[originalTitle]
+          that.baseItemMap[that.newName] = that.baseItemMap[originalTitle];
           delete that.baseItemMap[originalTitle];
-          that.refreshData()
+          if (originalTitle === that.selectedItem) {
+            that.$router.push('/apps/workspace/' + that.workspaceName + "/" + that.baseName + "/" + that.newName)
+          }
+          // that.refreshData()
         }).catch(function (err) {
           console.log("Failed to update item name", err)
         })
@@ -324,10 +327,14 @@ export default {
         for (var i = 0; i < that.baseConfig.items.length; i++) {
           var item = that.baseConfig.items[i];
           if (item.type === "table") {
-            promises.push(that.executeActions({
-              tableName: "world",
-              actionName: ""
-            }))
+            console.log("target table details,", item)
+            // promises.push(that.executeAction({
+            //   tableName: "world",
+            //   actionName: "remove_table",
+            //   params: {
+            //     world_id: ""
+            //   }
+            // }))
           }
         }
         Promise.all(promises).then(function (res) {

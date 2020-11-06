@@ -1,10 +1,10 @@
 <template>
-  <q-page-container style="padding-top: 0;">
+  <q-page-container style="padding-top: 0; background: rgb(242, 241, 249)">
 
     <q-page style="overflow: hidden">
 
-      <div class="row">
-        <q-bar style="padding-left: 0" class="bg-white">
+      <div class="row" style="">
+        <q-bar style="padding-left: 0; width: 100% ; background: white">
 
 
           <q-btn size="sm" @click="showNewRowDrawer()" flat label="New row"></q-btn>
@@ -31,7 +31,7 @@
       </div>
 
       <div class="row">
-        <div class="col-12">
+        <div class="col-12" style="background: rgb(242, 241, 249)">
           <div id="spreadsheet" style="height: calc(100vh - 100px); width: 100vw; border-top: 1px solid black"></div>
         </div>
       </div>
@@ -135,6 +135,30 @@
 /*@import "~tabulator-tables/dist/css/tabulator.min.css";*/
 @import "~tabulator-tables/dist/css/tabulator_simple.min.css";
 
+.row-selection-checkbox {
+
+}
+
+.tabulator-header {
+  background: rgb(242, 241, 249);
+}
+
+.add-new-cell {
+  background: rgb(242, 241, 249);
+  width: 100%;
+  height: 100%;
+  border-bottom: 1px solid rgb(242, 241, 249);
+}
+
+.add-new-cell:hover {
+  background: white;
+  cursor: pointer;
+}
+
+.tabulator {
+  background: rgb(242, 241, 249);
+}
+
 body[ data-editor='DecoupledDocumentEditor'] .row-editor {
   width: 100%;
 }
@@ -158,9 +182,12 @@ body[ data-editor='DecoupledDocumentEditor'] .row-editor {
 .tabulator .tabulator-header {
 }
 
+.tabulator .tabulator-header {
+  background: rgb(242, 241, 249);
+}
+
 .tabulator .tabulator-header .tabulator-col {
-  background: #FAFAF9;
-  border-right: none;
+  background: rgb(242, 241, 249);
   height: 32px;
 
 }
@@ -579,19 +606,55 @@ export default {
 
 
         console.log("Table columns", columns);
+
         columns.unshift({
           formatter: "rowSelection",
+          cssClass: "row-selection-checkbox",
           titleFormatter: "rowSelection",
           align: "center",
+          vertAlign: "middle",
           headerSort: false
         });
+
+        columns.push({
+          formatter: function (cell, formatterParams, onRendered) {
+            //cell - the cell component
+            //formatterParams - parameters set for the column
+            //onRendered - function to call when the formatter has been rendered
+
+            return "<div class='add-new-container'></div>"; //return the contents of the cell;
+          },
+          titleFormatter: function (cell, formatterParams, onRendered) {
+            //cell - the cell component
+            //formatterParams - parameters set for the column
+            //onRendered - function to call when the formatter has been rendered
+
+            return "<i class='fas fa-plus'>"; //return the contents of the cell;
+          },
+          click: function () {
+            console.log("Title clicked")
+          },
+          cssClass: "add-new-cell",
+          width: 200,
+          headerHozAlign: "center",
+          print: false,
+          clipboard: false,
+          headerClick: function (e, column) {
+            console.log("Add new cell header click")
+          },
+          cellClick: function (e, cell) {
+            console.log("Add new cell row click")
+          },
+          headerSort: false
+        });
+
         that.spreadsheet = new Tabulator("#spreadsheet", {
           data: [],
           columns: columns,
           // pagination: "remote",
           tooltips: true,
           ajaxSorting: true,
-          layout: "fitDataFill",
+          layout: "fitData",
           ajaxFiltering: true,
           paginationSizeSelector: true,
           ajaxProgressiveLoad: "scroll",
@@ -613,21 +676,40 @@ export default {
             const newValue = cell._cell.value;
             //cell - cell component
             console.log("cell edited", reference_id, arguments);
-            const obj = {
+            var obj = {
               tableName: that.tableName,
               id: reference_id,
             };
             obj[field] = newValue;
-            that.updateRow(obj).then(function () {
-              that.$q.notify({
-                message: "Saved"
+            if (reference_id) {
+              that.updateRow(obj).then(function () {
+                that.$q.notify({
+                  message: "Saved"
+                });
+              }).catch(function (e) {
+                console.log("Failed to save", e)
+                that.$q.notify({
+                  message: "Failed to save"
+                });
+                that.spreadsheet.undo();
               });
-            }).catch(function (e) {
-              that.$q.notify({
-                message: "Failed to save"
+            } else {
+              obj = cell._cell.row.data;
+              console.log("Create new row with data", obj);
+              that.spreadsheet.addData([{}])
+              obj["tableName"] = that.tableName;
+              that.createRow(obj).then(function () {
+                that.$q.notify({
+                  message: "Saved"
+                });
+              }).catch(function (e) {
+                console.log("Failed to save", e)
+                that.$q.notify({
+                  message: "Failed to save"
+                });
+                // that.spreadsheet.undo();
               });
-              that.spreadsheet.undo();
-            });
+            }
           },
           ajaxURL: that.endpoint + "/api/" + tableName, //set url for ajax request
           ajaxURLGenerator: function (url, config, params) {
@@ -696,11 +778,13 @@ export default {
             //params - the parameters passed with the request
             //response - the JSON object returned in the body of the response.
 
+            let responseList = response.data.map(function (e) {
+              return e.attributes
+            });
+            responseList.push({})
             return {
               last_page: response.links.last_page,
-              data: response.data.map(function (e) {
-                return e.attributes
-              })
+              data: responseList
             }; //return the response data to tabulator
           },
         });

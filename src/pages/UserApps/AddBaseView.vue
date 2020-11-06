@@ -97,7 +97,6 @@ export default {
                   color: "green",
                 },
                 attributes: {
-
                   source: {
                     type: "aggregate",
                     attributes: {
@@ -111,7 +110,14 @@ export default {
               }
             ],
             data: [{
-              TableName: "project"
+              TableName: "project",
+              rows: [
+                {"project_name": "Project AB", "reference_id": "a"},
+                {"project_name": "Mahindra", "reference_id": "b"},
+                {"project_name": "Lonavala", "reference_id": "c"},
+                {"project_name": "Guide Project", "reference_id": "d"},
+                {"project_name": "Millennium", "reference_id": "e"},
+              ],
             }],
           }
         },
