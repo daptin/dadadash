@@ -379,6 +379,8 @@ export default {
       const baseName = this.$route.params.baseName;
       that.selectedItem = this.$route.params.itemName;
       that.baseName = baseName;
+      that.baseConfig = {};
+
       that.workspaceName = workspaceName;
 
       let queryPayload = {
@@ -408,7 +410,7 @@ export default {
       console.log("Query data")
       var promises = [];
 
-      promises.push(that.loadData(queryPayload).then(function (res) {
+      that.loadData(queryPayload).then(function (res) {
         console.log("base load complete", res)
         var baseRow = res.data[0];
         if (!baseRow.document_content) {
@@ -418,53 +420,55 @@ export default {
         that.baseRow = baseRow
         var baseConfigString = baseRow.document_content[0].contents;
         that.baseConfig = JSON.parse(atob(baseConfigString));
-        that.selectedBaseItem = that.baseItemMap[that.selectedItem];
-        // that.selectedBaseItem = that.baseConfig.items.filter(function (e) {
-        //   return e.label === that.selectedItem
-        // })[0];
+
         console.log("selected base item 1", that.selectedItem, that.baseConfig, that.baseItemMap, that.selectedBaseItem)
-      }));
 
 
-      queryPayload = {
-        tableName: "document",
-        params: {
-          query: JSON.stringify([{
-            column: "document_path",
-            operator: "is",
-            value: "/" + workspaceName + "/" + baseName
-          }, {
-            column: "mime_type",
-            operator: "like",
-            value: "workspace/%"
-          }]),
-          page: {
-            size: 100,
-          },
-          included_relations: "document_content"
-        }
-      };
-      that.baseConfig.items = [];
-
-
-      promises.push(that.loadData(queryPayload).then(function (res) {
-        console.log("base items", res);
-        for (var i = 0; i < res.data.length; i++) {
-          try {
-            var item = res.data[i];
-            var itemConfig = JSON.parse(atob(item.document_content[0].contents))
-            itemConfig.type = item.document_extension;
-            itemConfig.label = item.document_name;
-            itemConfig.reference_id = item.reference_id;
-            that.baseItemMap[item.document_name] = item;
-            that.baseConfig.items.push(itemConfig);
-          } catch (e) {
-            console.log("failed to parse item data", e)
+        queryPayload = {
+          tableName: "document",
+          params: {
+            query: JSON.stringify([{
+              column: "document_path",
+              operator: "is",
+              value: "/" + workspaceName + "/" + baseName
+            }, {
+              column: "mime_type",
+              operator: "like",
+              value: "workspace/%"
+            }]),
+            page: {
+              size: 100,
+            },
+            included_relations: "document_content"
           }
-        }
-      }));
+        };
+        that.baseConfig.items = [];
+
+
+        that.loadData(queryPayload).then(function (res) {
+          console.log("base items", res);
+          for (var i = 0; i < res.data.length; i++) {
+            try {
+              var item = res.data[i];
+              var itemConfig = JSON.parse(atob(item.document_content[0].contents))
+              itemConfig.type = item.document_extension;
+              itemConfig.label = item.document_name;
+              itemConfig.reference_id = item.reference_id;
+              that.baseItemMap[item.document_name] = item;
+              that.baseConfig.items.push(itemConfig);
+            } catch (e) {
+              console.log("failed to parse item data", e)
+            }
+          }
+          that.selectedBaseItem = that.baseItemMap[that.selectedItem];
+          that.ensureBaseTables()
+        });
+
+      })
+
+
       return Promise.all(promises).then(function () {
-        that.ensureBaseTables()
+        console.log("Base reload complete")
       }).catch(function (err) {
         console.log("Failed to refresh base data", err)
       })
@@ -517,7 +521,27 @@ export default {
             console.log("Tables created", res);
             that.$q.notify({
               message: "Base created"
-            })
+            });
+
+            setTimeout(function () {
+              console.log("Try to create random data for the new base")
+              updateSchema.Tables.map(function (table) {
+                console.log("Create random data for ", table.TableName)
+                that.executeAction({
+                  tableName: "world",
+                  actionName: "generate_random_data",
+                  params: {
+                    "table_name": table.TableName,
+                    "count": 10,
+                  }
+                }).then(function (res) {
+                  console.log("Random data generated for table", table.TableName)
+                }).catch(function (err) {
+                  console.log("Failed to generate random data for ", table.TableName, err)
+                })
+              })
+            }, 6000)
+
           }).catch(function (err) {
             console.log("Failed to create table", err)
             that.$q.notify({

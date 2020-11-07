@@ -669,13 +669,13 @@ export default {
             //data - array of data objects for the selected rows in order of selection
             that.selectedRows = data;
           },
-          paginationSize: 100,
+          paginationSize: 10,
           cellEdited: function (cell) {
             const reference_id = cell._cell.row.data.reference_id;
             const field = cell._cell.column.field;
             const newValue = cell._cell.value;
             //cell - cell component
-            console.log("cell edited", reference_id, arguments);
+            // console.log("cell edited", reference_id, arguments);
             var obj = {
               tableName: that.tableName,
               id: reference_id,
@@ -695,8 +695,10 @@ export default {
               });
             } else {
               obj = cell._cell.row.data;
-              console.log("Create new row with data", obj);
-              that.spreadsheet.addData([{}])
+              // console.log("Create new row with data", obj, Object.values(obj));
+              if (Object.values(obj).filter(e => !!e && e !== "").length === 1) {
+                that.spreadsheet.addData([{}])
+              }
               obj["tableName"] = that.tableName;
               that.createRow(obj).then(function () {
                 that.$q.notify({
