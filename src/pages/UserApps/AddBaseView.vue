@@ -66,6 +66,11 @@ export default {
                       ColumnName: "project_rating",
                       ColumnType: "rating",
                     },
+                    {
+                      ColumnName: "project_logo",
+                      ColumnType: "file.png|jpg",
+                      IsNullable: true,
+                    },
                   ]
                 }
               },
@@ -153,8 +158,12 @@ export default {
                 }
               },
               {
-                type: "doucment",
+                type: "document",
                 label: "Legal note for end user"
+              },
+              {
+                type: "spreadsheet",
+                label: "Tax Projections By Merchant"
               },
               {
                 type: "calendar",

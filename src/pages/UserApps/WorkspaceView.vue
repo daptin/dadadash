@@ -42,7 +42,7 @@
              v-for="(baseItems, baseName) in workspaceSchema.workspaceItems"
         >
           <q-card flat v-if="baseItems.filter(e => e.type === 'summary').length === 0">
-            <q-card-section >
+            <q-card-section>
 
 
               <div style="border-radius: 8px">
@@ -150,8 +150,23 @@ export default {
       for (var itemIndex in schema.items) {
         const item = schema.items[itemIndex];
 
-        if (item.type  === "summary") {
+        if (item.type === "summary") {
           baseSchema.items.push(item);
+        }
+        if (item.type === "table") {
+          var cols = item.attributes.Columns;
+          for (var i in cols) {
+            var col = cols[i]
+            if (col.ColumnType.startsWith("file.")) {
+              col.IsForeignKey = true;
+              col.ForeignKeyData = {
+                DataSource: 'cloud_store',
+                Namespace: 'localstore',
+                KeyName: col.ColumnName,
+              }
+            }
+          }
+
         }
 
 

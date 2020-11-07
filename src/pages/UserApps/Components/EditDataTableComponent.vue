@@ -149,6 +149,10 @@
 /*@import "~tabulator-tables/dist/css/tabulator.min.css";*/
 @import "~tabulator-tables/dist/css/tabulator_simple.min.css";
 
+.tabulator .tabulator-header .tabulator-col .tabulator-col-content .tabulator-col-sorter {
+  display: none;
+}
+
 .row-selection-checkbox {
 
 }
@@ -558,6 +562,16 @@ export default {
       if (!tableName) {
         return
       }
+
+      var headerContextMenu = [
+        {
+          label: "Hide Column",
+          action: function (e, column) {
+            column.hide();
+          }
+        },
+      ]
+
       that.getTableSchema(tableName).then(function (res) {
         that.tableSchema = res;
         console.log("Schema", that.tableSchema);
@@ -567,9 +581,11 @@ export default {
         let columns = Object.keys(that.tableSchema.ColumnModel).map(function (columnName) {
           var col = that.tableSchema.ColumnModel[columnName];
           // console.log("Make column ", col);
+
           if (col.jsonApi || col.ColumnName === "__type" || that.defaultColumns.indexOf(col.ColumnName) > -1) {
             return null;
           }
+          col.headerContextMenu = headerContextMenu;
           if (col.ColumnType.startsWith('file.')) {
             assetColumns.push(col.ColumnName)
             that.newRowData.push({
@@ -611,7 +627,8 @@ export default {
             formatter: formatter,
             width: width,
             hozAlign: col.ColumnType === "truefalse" ? "center" : "left",
-            sorter: col.ColumnType === "measurement" ? "number" : null,
+            sorter: col.ColumnType === "measurement" ? "number" : false,
+            headerSort: false,
           };
 
           if (col.ColumnType.startsWith("file.") && col.ColumnType.indexOf('jpg') > -1) {
@@ -661,6 +678,7 @@ export default {
           },
           headerSort: false
         });
+
 
         that.spreadsheet = new Tabulator("#spreadsheet", {
           data: [],

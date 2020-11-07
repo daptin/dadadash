@@ -6,12 +6,12 @@
       <q-toolbar-title  v-if="title && $q.screen.gt.md" style="text-transform: capitalize" v-html="title">
       </q-toolbar-title>
 
-      <form v-if="$q.screen.gt.xs" @submit="emitSearch" class="col-2 col-xs-0">
-        <input id="searchInput"
-               placeholder="Search"
-               style=" height:32px; font-size: 15px; border: 1px solid black; border-radius: 4px; padding-left: 10px; width: 100%"
-               type="text" v-model="searchQuery"/>
-      </form>
+<!--      <form v-if="$q.screen.gt.xs" @submit="emitSearch" class="col-2 col-xs-0">-->
+<!--        <input id="searchInput"-->
+<!--               placeholder="Search"-->
+<!--               style=" height:32px; font-size: 15px; border: 1px solid black; border-radius: 4px; padding-left: 10px; width: 100%"-->
+<!--               type="text" v-model="searchQuery"/>-->
+<!--      </form>-->
       <q-btn :key="btn.icon" v-for="btn in buttons.before" flat @click="buttonClicked(btn)" :icon="btn.icon"></q-btn>
       <q-btn :key="btn.icon" v-for="btn in buttons.after" flat @click="buttonClicked(btn)" :label="btn.label"
              :icon="btn.icon"></q-btn>

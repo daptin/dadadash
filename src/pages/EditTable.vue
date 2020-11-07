@@ -123,7 +123,6 @@ When you add a new column to the table, either a set default value or the set th
             var parts = col.ColumnType.split(" - ");
             col.ColumnType = parts[0];
             col.DataType = parts[1];
-            table.ColumnModel[i] = col;
             if (col.ColumnType.startsWith("file.")) {
               col.IsForeignKey = true;
               col.ForeignKeyData = {
@@ -132,6 +131,7 @@ When you add a new column to the table, either a set default value or the set th
                 KeyName: col.ColumnName,
               }
             }
+            table.ColumnModel[i] = col;
           }
         }
 
