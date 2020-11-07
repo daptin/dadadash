@@ -45,10 +45,28 @@ export default {
                 label: "project",
                 attributes: {
                   TableName: "project",
-                  Columns: [{
-                    ColumnName: "project_name",
-                    ColumnType: "label",
-                  }]
+                  Columns: [
+                    {
+                      ColumnName: "project_name",
+                      ColumnType: "label",
+                    },
+                    {
+                      ColumnName: "project_start_date",
+                      ColumnType: "datetime",
+                    },
+                    {
+                      ColumnName: "project_end_date",
+                      ColumnType: "datetime",
+                    },
+                    {
+                      ColumnName: "project_cost",
+                      ColumnType: "measurement",
+                    },
+                    {
+                      ColumnName: "project_rating",
+                      ColumnType: "rating",
+                    },
+                  ]
                 }
               },
               {
@@ -56,13 +74,39 @@ export default {
                 label: "bug",
                 attributes: {
                   TableName: "bug",
-                  Columns: [{
-                    ColumnName: "bug_title",
-                    ColumnType: "label",
-                  }, {
-                    ColumnName: "status",
-                    ColumnType: "label",
-                  }]
+                  Columns: [
+                    {
+                      ColumnName: "bug_title",
+                      ColumnType: "label",
+                    },
+                    {
+                      ColumnName: "status",
+                      ColumnType: "label",
+                    },
+                    {
+                      ColumnName: "blocker_count",
+                      ColumnType: "measurement",
+                    },
+                    {
+                      ColumnName: "eta_resolve",
+                      ColumnType: "datetime",
+                    },
+                    {
+                      ColumnName: "bug_description",
+                      ColumnType: "content",
+                      DataType: "text",
+                    },
+                    {
+                      ColumnName: "confirmed",
+                      ColumnType: "truefalse",
+                      DataType: "int(1)",
+                    },
+                    {
+                      ColumnName: "locked",
+                      ColumnType: "truefalse",
+                      DataType: "int(1)",
+                    }
+                  ]
                 }
               },
               {
@@ -107,18 +151,16 @@ export default {
                     }
                   }
                 }
-              }
+              },
+              {
+                type: "doucment",
+                label: "Legal note for end user"
+              },
+              {
+                type: "calendar",
+                label: "Holiday Calender 2020"
+              },
             ],
-            data: [{
-              TableName: "project",
-              rows: [
-                {"project_name": "Project AB", "reference_id": "a"},
-                {"project_name": "Mahindra", "reference_id": "b"},
-                {"project_name": "Lonavala", "reference_id": "c"},
-                {"project_name": "Guide Project", "reference_id": "d"},
-                {"project_name": "Millennium", "reference_id": "e"},
-              ],
-            }],
           }
         },
         {

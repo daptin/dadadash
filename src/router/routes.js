@@ -103,7 +103,7 @@ const routes = [
       },
       {
         path: 'workspace/:workspaceName/:baseName',
-        component: () => import('pages/UserApps/BaseView.vue'),
+        component: () => import('pages/UserApps/BaseViewContainer.vue'),
         children: [
           {
             path: ":itemName",

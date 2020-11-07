@@ -379,9 +379,14 @@ export default {
       const baseName = this.$route.params.baseName;
       that.selectedItem = this.$route.params.itemName;
       that.baseName = baseName;
-      that.baseConfig = {};
+      that.baseConfig = {name: baseName};
 
       that.workspaceName = workspaceName;
+
+      that.$q.notify({
+        message: "Refreshing base"
+      });
+
 
       let queryPayload = {
         tableName: "document",
@@ -420,7 +425,7 @@ export default {
         that.baseRow = baseRow
         var baseConfigString = baseRow.document_content[0].contents;
         that.baseConfig = JSON.parse(atob(baseConfigString));
-
+        that.baseConfig.name = that.baseName;
         console.log("selected base item 1", that.selectedItem, that.baseConfig, that.baseItemMap, that.selectedBaseItem)
 
 
@@ -508,6 +513,11 @@ export default {
 
       return Promise.all(promises).then(function () {
         if (updateSchema.Tables.length > 0) {
+
+          that.$q.notify({
+            message: "Creating " + updateSchema.Tables.length + " tables"
+          });
+
           that.executeAction({
             tableName: "world",
             actionName: "upload_system_schema",
@@ -524,9 +534,15 @@ export default {
             });
 
             setTimeout(function () {
-              console.log("Try to create random data for the new base")
+              console.log("Try to create random data for the new base");
+              that.$q.notify({
+                message: "Generating random data for " + updateSchema.Tables.length + " tables"
+              });
+
+
               updateSchema.Tables.map(function (table) {
-                console.log("Create random data for ", table.TableName)
+                console.log("Create random data for ", table.TableName);
+
                 that.executeAction({
                   tableName: "world",
                   actionName: "generate_random_data",

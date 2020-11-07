@@ -15,6 +15,13 @@ import {mapActions} from "vuex";
 export default {
   name: "BaseViewRouter",
   props: ["baseItem", "baseConfig"],
+  meta() {
+    return {
+      // this accesses the "title" property in your Vue "data";
+      // whenever "title" prop changes, your meta will automatically update
+      title:('[' + this.baseConfig.name + '] ') +  (this.baseItem ? this.baseItem.document_name : 'New file') + " - " + this.baseItem.document_extension
+    }
+  },
   methods: {
     reloadBaseItem() {
       const that = this;

@@ -1,7 +1,7 @@
 <template>
   <q-page-container style="padding-top: 0;">
 
-    <q-page style="overflow: hidden; height:calc(100vh  - 80px); min-height: 0">
+    <q-page style="overflow: hidden; height:calc(100vh  - 40px); min-height: 0">
       <div id="luckysheet"
            style="margin:0px;padding:0px;position:absolute;width:100%; height:calc(100vh - 30px); left: 0px; top: -21px"></div>
 
@@ -128,15 +128,7 @@ function decodeUnicode(str) {
 export default {
 
   name: "SpreadsheetEditorApp",
-  props: ["baseItem", "baseConfig"],
-  meta() {
-    return {
-      // this accesses the "title" property in your Vue "data";
-      // whenever "title" prop changes, your meta will automatically update
-      title: (this.document ? this.document.document_name : 'New file') + " - Spreadsheet"
-    }
-  },
-
+  props: ["baseItem"],
 
   data() {
     return {

@@ -128,6 +128,20 @@
       </q-scroll-area>
     </q-drawer>
 
+    <q-dialog v-model="showAddNewColumnDialog">
+      <q-card style="background: white; min-width: 400px">
+        <q-card-section>
+          <q-list>
+            <q-item clickable @click="addNewColumn(item)" v-for="item in columnTypes">
+              <q-item-section avatar>
+                <q-icon :name="item.icon"></q-icon>
+              </q-item-section>
+              <q-item-label style="text-transform: capitalize; color: rgb(80, 52, 164)">{{ item.name }}</q-item-label>
+            </q-item>
+          </q-list>
+        </q-card-section>
+      </q-card>
+    </q-dialog>
 
   </q-page-container>
 </template>
@@ -285,6 +299,15 @@ export default {
   props: ["baseItem"],
   // todo use the config property to show only configured columns for this view and not all columns
   methods: {
+    addNewColumn(columnDef) {
+      console.log("Add column to table", columnDef)
+      const that = this;
+      if (!columnDef && !that.showAddNewColumnDialog) {
+        that.showAddNewColumnDialog = true;
+        return
+      }
+      that.showAddNewColumnDialog = false;
+    },
     searchDocuments(searchQuery) {
       console.log("search data", arguments)
       this.searchQuery = searchQuery;
@@ -611,28 +634,17 @@ export default {
           formatter: "rowSelection",
           cssClass: "row-selection-checkbox",
           titleFormatter: "rowSelection",
-          align: "center",
+          hozAlign: "center",
           vertAlign: "middle",
           headerSort: false
         });
 
         columns.push({
           formatter: function (cell, formatterParams, onRendered) {
-            //cell - the cell component
-            //formatterParams - parameters set for the column
-            //onRendered - function to call when the formatter has been rendered
-
             return "<div class='add-new-container'></div>"; //return the contents of the cell;
           },
           titleFormatter: function (cell, formatterParams, onRendered) {
-            //cell - the cell component
-            //formatterParams - parameters set for the column
-            //onRendered - function to call when the formatter has been rendered
-
             return "<i class='fas fa-plus'>"; //return the contents of the cell;
-          },
-          click: function () {
-            console.log("Title clicked")
           },
           cssClass: "add-new-cell",
           width: 200,
@@ -641,9 +653,11 @@ export default {
           clipboard: false,
           headerClick: function (e, column) {
             console.log("Add new cell header click")
+            that.addNewColumn();
           },
           cellClick: function (e, cell) {
             console.log("Add new cell row click")
+            that.addNewColumn();
           },
           headerSort: false
         });
@@ -825,7 +839,75 @@ export default {
   },
   data() {
     return {
+      columnTypes: [
+        {
+          name: "label",
+          icon: "fas fa-tag",
+          columnDef: {
+            ColumnName: "label",
+            ColumnType: "label",
+            DataType: "varchar(500)",
+            IsIndexed: true
+          }
+        },
+        {
+          name: "small text",
+          icon: "fas fa-grip-lines",
+          columnDef: {
+            ColumnName: "label",
+            ColumnType: "label",
+            DataType: "varchar(2000)",
+          }
+        },
+        {
+          name: "rich text",
+          icon: "fas fa-align-justify",
+          columnDef: {
+            ColumnName: "text",
+            ColumnType: "content",
+            DataType: "text",
+          }
+        },
+        {
+          name: "number",
+          icon: "fas fa-sort-numeric-down",
+          columnDef: {
+            ColumnName: "number",
+            ColumnType: "measurement",
+            DataType: "int(11)",
+          }
+        },
+        {
+          name: "date",
+          icon: "fas fa-calendar-alt",
+          columnDef: {
+            ColumnName: "date",
+            ColumnType: "datetime",
+            DataType: "timestamp",
+          }
+        },
+        {
+          name: "checkbox",
+          icon: "fas fa-check-square",
+          columnDef: {
+            ColumnName: "checkbox",
+            ColumnType: "truefalse",
+            DataType: "int(1)",
+            DefaultValue: '0'
+          }
+        },
+        {
+          name: "file",
+          icon: "fas fa-file",
+          columnDef: {
+            ColumnName: "file",
+            ColumnType: "file.*",
+            DataType: "blob",
+          }
+        },
+      ],
       dataUploadFile: null,
+      showAddNewColumnDialog: false,
       searchQuery: null,
       tableName: null,
       tablePermissionDrawer: false,
