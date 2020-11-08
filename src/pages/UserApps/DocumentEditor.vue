@@ -1,12 +1,10 @@
 <template>
   <q-page-container style="padding-top: 0; overflow: hidden;">
-    <q-page style="min-height: 0 ; height:calc(100vh  - 75px);">
+    <q-page style="min-height: 0 ; height:calc(100vh  - 50px); ">
       <div class="document-editor__toolbar"></div>
-      <div class="row" style=" overflow: scroll; ">
-        <div class="col-12">
+      <div class="row" style=" overflow: hidden; ">
 
-        </div>
-        <div class="col-12">
+        <div class="col-12" style="height:calc(100vh  - 90px); overflow-y: scroll">
           <div class="row-editor" v-for="page in pages">
             <div v-html="page.html" :id="page.id" class="editor"
                  :style="{

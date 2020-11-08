@@ -177,12 +177,8 @@
   background: rgb(242, 241, 249);
 }
 
-body[ data-editor='DecoupledDocumentEditor'] .row-editor {
-  width: 100%;
-}
-
 .tabulator-col-title input {
-  margin-left: 9px;
+  /*margin-left: 9px;*/
 }
 
 
@@ -212,8 +208,12 @@ body[ data-editor='DecoupledDocumentEditor'] .row-editor {
 
 .tabulator .tabulator-header .tabulator-col .tabulator-col-content .tabulator-col-title {
   font-weight: 700;
-  padding-top: 4px;
   padding-left: 3px;
+}
+
+.tabulator-col-title input[type=checkbox] {
+ margin-top: 5px;
+ margin-left: 5px;
 }
 
 div.tabulator-col:nth-child(1) > div:nth-child(1) > div:nth-child(1) > div:nth-child(1) > input:nth-child(1) {
@@ -251,15 +251,15 @@ window.XLSX = XLSX;
 const assetEndpoint = window.location.hostname === "site.daptin.com" && window.location.port === "8080" ? "http://localhost:" + window.location.port : window.location.protocol + "//" + window.location.hostname + (window.location.port === "80" ? "" : ':' + window.location.port);
 
 import Tabulator from 'tabulator-tables';
-
+import moment from 'moment';
 
 Tabulator.prototype.extendModule("format", "formatters", {
   image: function (cell, formatterParams) {
-    console.log("format image cell", cell);
+    // console.log("format image cell", cell);
     var column = cell._cell.column;
     var row = cell._cell.row;
     if (!row.data[column.field] || row.data[column.field].length < 1) {
-      return "null"
+      return "No image uploaded"
     }
     var field = row.data[column.field][0];
 
@@ -298,19 +298,182 @@ Tabulator.prototype.extendModule("format", "formatters", {
   },
 });
 
+Tabulator.prototype.extendModule("edit", "editors", {
+  dateEditor: function (cell, onRendered, success, cancel, editorParams) {
+    //cell - the cell component for the editable cell
+    //onRendered - function to call when the editor has been rendered
+    //success - function to call to pass the successfuly updated value to Tabulator
+    //cancel - function to call to abort the edit and return to a normal cell
+    //editorParams - params object passed into the editorParams column definition property
+
+    //create and style editor
+    var editor = document.createElement("input");
+
+    editor.setAttribute("type", "date");
+
+    //create and style input
+    editor.style.padding = "3px";
+    editor.style.width = "100%";
+    editor.style.boxSizing = "border-box";
+
+    //Set value of editor to the current value of the cell
+    console.log("Current date value", cell.getValue())
+    editor.value = moment(cell.getValue()).format("YYYY-MM-DD")
+    console.log("Value set for date", editor.value);
+
+    //set focus on the select box when the editor is selected (timeout allows for editor to be added to DOM)
+    onRendered(function () {
+      editor.focus();
+      editor.style.css = "100%";
+    });
+
+    //when the value has been set, trigger the cell to update
+    function successFunc() {
+      console.log("value from update", editor.value, moment(editor.value).format())
+      success(moment(editor.value).format("YYYY-MM-DD"));
+    }
+
+    editor.addEventListener("change", successFunc);
+    editor.addEventListener("blur", successFunc);
+
+    //return the editor element
+    return editor;
+
+  },
+});
+
+
+var headerContextMenu = [
+  {
+    label: "Rename Column",
+    action: function (e, column) {
+      console.log("Rename column", e, column)
+      column.updateDefinition({editableTitle: true})
+    }
+  },
+  {
+    label: "Hide Column",
+    action: function (e, column) {
+      column.hide();
+    }
+  },
+]
+
+//Create Date Editor
+var dateEditor = function (cell, onRendered, success, cancel) {
+  //cell - the cell component for the editable cell
+  //onRendered - function to call when the editor has been rendered
+  //success - function to call to pass the successfuly updated value to Tabulator
+  //cancel - function to call to abort the edit and return to a normal cell
+
+  //create and style input
+  var cellValue = moment(cell.getValue(), "DD/MM/YYYY").format("YYYY-MM-DD"),
+    input = document.createElement("input");
+
+  input.setAttribute("type", "date");
+
+  input.style.padding = "4px";
+  input.style.width = "100%";
+  input.style.boxSizing = "border-box";
+
+  input.value = cellValue;
+
+  onRendered(function () {
+    input.focus();
+    input.style.height = "100%";
+  });
+
+  function onChange() {
+    if (input.value != cellValue) {
+      success(moment(input.value, "YYYY-MM-DD").format("DD/MM/YYYY"));
+    } else {
+      cancel();
+    }
+  }
+
+  //submit new value on blur or change
+  input.addEventListener("blur", onChange);
+
+  //submit new value on enter
+  input.addEventListener("keydown", function (e) {
+    if (e.keyCode == 13) {
+      onChange();
+    }
+
+    if (e.keyCode == 27) {
+      cancel();
+    }
+  });
+
+  return input;
+};
+
+
 export default {
   name: "EditDataTableComponent",
   props: ["baseItem"],
   // todo use the config property to show only configured columns for this view and not all columns
   methods: {
-    addNewColumn(columnDef) {
-      console.log("Add column to table", columnDef)
+    addNewColumn(selectedColumn) {
+      console.log("Add column to table", selectedColumn)
       const that = this;
-      if (!columnDef && !that.showAddNewColumnDialog) {
+      if (!selectedColumn && !that.showAddNewColumnDialog) {
         that.showAddNewColumnDialog = true;
         return
       }
+      const col = selectedColumn.columnDef;
       that.showAddNewColumnDialog = false;
+      var newColumnName = "new_column"
+      var i = 1;
+      while (Object.keys(that.tableSchema.ColumnModel).indexOf(newColumnName) > -1) {
+        i = i + 1;
+        newColumnName = "new_column_" + i
+      }
+      console.log("new column name", that.spreadsheet.getColumns());
+      var columns = that.spreadsheet.getColumns();
+
+
+      let formatter = col.ColumnType === "truefalse" ? "tickCross" : null;
+
+      let width = 200
+      if (col.ColumnType === "content" || col.ColumnType === "json") {
+        formatter = "textarea"
+        width = 300
+      }
+      if (col.ColumnType === "truefalse") {
+        width = 100
+      }
+
+
+      let newColumnDefinition = {
+        title: newColumnName,
+        field: newColumnName,
+        editor: col.ColumnType === "datetime" ? "dateEditor" : true,
+        headerContextMenu: headerContextMenu,
+        headerFilter: that.tabulatorOptions.headerFilter,
+        editable: !col.ColumnType.startsWith('file.'),
+        formatter: formatter,
+        width: width,
+        editableTitle: true,
+        hozAlign: col.ColumnType === "truefalse" ? "center" : "left",
+        sorter: col.ColumnType === "measurement" ? "number" : false,
+        headerSort: false,
+      };
+      var promise = null;
+      if (columns.length > 3) {
+        var secondLastColumn = columns[columns.length - 2]
+        promise = that.spreadsheet.addColumn(newColumnDefinition, false, secondLastColumn._column.field);
+      } else {
+        promise = that.spreadsheet.addColumn(newColumnDefinition, false, "rowSelection");
+      }
+      promise.then(function (column) {
+        console.log("Column created", document.getElementsByClassName("tabulator-title-editor"))
+        document.getElementsByClassName("tabulator-title-editor")[0].focus()
+        document.getElementsByClassName("tabulator-title-editor")[0].setSelectionRange(0, document.getElementsByClassName("tabulator-title-editor")[0].value.length)
+      })
+        .catch(function (error) {
+          //handle error adding column
+        });
     },
     searchDocuments(searchQuery) {
       console.log("search data", arguments)
@@ -563,14 +726,6 @@ export default {
         return
       }
 
-      var headerContextMenu = [
-        {
-          label: "Hide Column",
-          action: function (e, column) {
-            column.hide();
-          }
-        },
-      ]
 
       that.getTableSchema(tableName).then(function (res) {
         that.tableSchema = res;
@@ -585,7 +740,6 @@ export default {
           if (col.jsonApi || col.ColumnName === "__type" || that.defaultColumns.indexOf(col.ColumnName) > -1) {
             return null;
           }
-          col.headerContextMenu = headerContextMenu;
           if (col.ColumnType.startsWith('file.')) {
             assetColumns.push(col.ColumnName)
             that.newRowData.push({
@@ -621,7 +775,8 @@ export default {
           var tableColumn = {
             title: col.Name,
             field: col.ColumnName,
-            editor: true,
+            editor: col.ColumnType === "datetime" ? "dateEditor" : true,
+            headerContextMenu: headerContextMenu,
             headerFilter: that.tabulatorOptions.headerFilter,
             editable: !col.ColumnType.startsWith('file.'),
             formatter: formatter,
@@ -651,6 +806,7 @@ export default {
           formatter: "rowSelection",
           cssClass: "row-selection-checkbox",
           titleFormatter: "rowSelection",
+          title: "rowSelection",
           hozAlign: "center",
           vertAlign: "middle",
           headerSort: false
@@ -663,6 +819,7 @@ export default {
           titleFormatter: function (cell, formatterParams, onRendered) {
             return "<i class='fas fa-plus'>"; //return the contents of the cell;
           },
+          title: "addnewcolumn",
           cssClass: "add-new-cell",
           width: 200,
           headerHozAlign: "center",
@@ -686,19 +843,26 @@ export default {
           // pagination: "remote",
           tooltips: true,
           ajaxSorting: true,
+          columnTitleChanged: function (columnComponent) {
+            console.log("Title updated for column", columnComponent);
+            columnComponent.updateDefinition({editableTitle: false})
+            var column = columnComponent._column;
+            var columnDefinition = column.definition;
+            var columnField = column.field;
+            var columnTitle = column.title;
+            //column - the column component for the changed column
+          },
           layout: "fitData",
           ajaxFiltering: true,
           paginationSizeSelector: true,
           ajaxProgressiveLoad: "scroll",
           ajaxProgressiveLoadDelay: 200,
           ajaxProgressiveLoadScrollMargin: 600,
-          index: 'reference_id',
+          index: "reference_id",
           history: true,
           movableColumns: true,
           rowSelectionChanged: function (data, rows) {
             console.log("row selection changed", data, rows);
-            //rows - array of row components for the selected rows in order of selection
-            //data - array of data objects for the selected rows in order of selection
             that.selectedRows = data;
           },
           paginationSize: 10,
@@ -822,7 +986,6 @@ export default {
             }; //return the response data to tabulator
           },
         });
-        // })
       });
 
       that.loadData({
