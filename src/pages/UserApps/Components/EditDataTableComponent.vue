@@ -132,7 +132,7 @@
       <q-card style="background: white; min-width: 400px">
         <q-card-section>
           <q-list>
-            <q-item clickable @click="addNewColumn(item)" v-for="item in columnTypes">
+            <q-item clickable @click="addNewColumn(item)" v-for="item in columnTypes" :key="item.name">
               <q-item-section avatar>
                 <q-icon :name="item.icon"></q-icon>
               </q-item-section>
@@ -212,8 +212,8 @@
 }
 
 .tabulator-col-title input[type=checkbox] {
- margin-top: 5px;
- margin-left: 5px;
+  margin-top: 5px;
+  margin-left: 5px;
 }
 
 div.tabulator-col:nth-child(1) > div:nth-child(1) > div:nth-child(1) > div:nth-child(1) > input:nth-child(1) {
@@ -408,6 +408,14 @@ var dateEditor = function (cell, onRendered, success, cancel) {
   return input;
 };
 
+const toSnakeCase = (str = '') => {
+  const strArr = str.split(' ');
+  const snakeArr = strArr.reduce((acc, val) => {
+    return acc.concat(val.toLowerCase());
+  }, []);
+  return snakeArr.join('_');
+};
+
 
 export default {
   name: "EditDataTableComponent",
@@ -450,6 +458,7 @@ export default {
         field: newColumnName,
         editor: col.ColumnType === "datetime" ? "dateEditor" : true,
         headerContextMenu: headerContextMenu,
+        headerMenu: headerContextMenu,
         headerFilter: that.tabulatorOptions.headerFilter,
         editable: !col.ColumnType.startsWith('file.'),
         formatter: formatter,
@@ -459,6 +468,7 @@ export default {
         sorter: col.ColumnType === "measurement" ? "number" : false,
         headerSort: false,
       };
+      that.newColumnTypeToBeAdded = col;
       var promise = null;
       if (columns.length > 3) {
         var secondLastColumn = columns[columns.length - 2]
@@ -715,7 +725,7 @@ export default {
     onCancelNewRow() {
       this.newRowDrawer = false;
     },
-    ...mapActions(['loadData', 'getTableSchema', 'updateRow', 'createRow', 'deleteRow', 'executeAction']),
+    ...mapActions(['loadData', 'getTableSchema', 'loadModel', 'updateRow', 'createRow', 'deleteRow', 'executeAction']),
     refreshData() {
       const that = this;
       var assetColumns = [];
@@ -844,13 +854,65 @@ export default {
           tooltips: true,
           ajaxSorting: true,
           columnTitleChanged: function (columnComponent) {
-            console.log("Title updated for column", columnComponent);
-            columnComponent.updateDefinition({editableTitle: false})
+            console.log("Title updated for column", columnComponent, that.newColumnTypeToBeAdded);
             var column = columnComponent._column;
             var columnDefinition = column.definition;
-            var columnField = column.field;
-            var columnTitle = column.title;
-            //column - the column component for the changed column
+
+            var columnTitle = columnDefinition.title;
+            var columnField = toSnakeCase(columnTitle);
+
+
+            if (columnField !== columnDefinition.field && Object.keys(that.tableSchema.ColumnModel).indexOf(columnField) > -1) {
+              that.$q.notify({
+                message: "Column title is clashing with another column: " + columnField
+              });
+              return
+            }
+
+
+            if (columnDefinition.field === "new_column") {
+
+
+              var newColumn = that.newColumnTypeToBeAdded;
+              newColumn.Name = columnTitle;
+              newColumn.ColumnName = columnField;
+              newColumn.IsNullable = true;
+              console.log("New column added to the table", newColumn);
+
+
+              that.executeAction({
+                tableName: "world",
+                actionName: "upload_system_schema",
+                params: {
+                  schema_file: [{
+                    contents: "application/json," + btoa(JSON.stringify({
+                      Tables: [{
+                        TableName: that.tableName,
+                        Columns: [newColumn]
+                      }]
+                    })),
+                    name: "add_column_" + columnField + ".json",
+                  }]
+                }
+              }).then(function (res) {
+                columnComponent.updateDefinition({field: columnField})
+                that.$q.notify({
+                  message: "Column " + columnTitle + " created"
+                });
+                setTimeout(function () {
+                  console.log("Reload model for ", that.tableName)
+                  that.loadModel(that.tableName, true).then(function () {
+                    console.log("Model refreshed, reload data", that.tableName)
+                    that.spreadsheet.getData()
+                  })
+                }, 6000)
+              })
+            } else {
+              // TODO
+              console.log("Existing column rename")
+            }
+
+            columnComponent.updateDefinition({editableTitle: false})
           },
           layout: "fitData",
           ajaxFiltering: true,
@@ -1020,6 +1082,7 @@ export default {
   },
   data() {
     return {
+      newColumnTypeToBeAdded: null,
       columnTypes: [
         {
           name: "label",

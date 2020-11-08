@@ -1,7 +1,7 @@
 <template>
 
 
-    <router-view @logout="logout()" v-if="loaded"/>
+  <router-view @logout="logout()" v-if="loaded"/>
 
 </template>
 <style>
@@ -81,6 +81,7 @@ export default {
         });
         that.setDecodedAuthToken(null);
         that.logout();
+        this.$router.push("/login");
         return
       }
     }
