@@ -70,6 +70,7 @@ export default {
                       ColumnName: "project_logo",
                       ColumnType: "file.png|jpg",
                       IsNullable: true,
+                      DataType: "blob",
                     },
                   ]
                 }

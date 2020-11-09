@@ -254,71 +254,6 @@ const assetEndpoint = window.location.hostname === "site.daptin.com" && window.l
 import Tabulator from 'tabulator-tables';
 import moment from 'moment';
 
-Tabulator.prototype.extendModule("format", "formatters", {
-  image: function (cell, formatterParams) {
-    // console.log("format image cell", cell);
-    var column = cell._cell.column;
-    var row = cell._cell.row;
-    if (!row.data[column.field] || row.data[column.field].length < 1) {
-      var addNewItem = document.createElement("div");
-      addNewItem.setAttribute("title", "Add new");
-      addNewItem.setAttribute("style", "" +
-        "width: 100px; " +
-        "height: 100px; " +
-        "cursor: pointer; " +
-        "background: #fff; " +
-        "border: 2px solid #eee; " +
-        "text-align: center; " +
-        "vertical-align: middle; " +
-        "padding-top: 40px; " +
-        "border-radius: 4px;" +
-        "")
-
-      addNewItem.innerHTML = "<span class='fas fa-plus'></span>";
-      addNewItem.onclick = function (e){
-        // alert("adf");
-        document.getElementById("fileUpload").click()
-      }
-      return addNewItem
-    }
-
-    var field = row.data[column.field][0];
-
-    console.log("Image data", field);
-    return "<img style='width: 150px; height: 100px' class='fileicon' src='data:" + field.type + ";base64," + field.contents + "'/>";
-  },
-  audio: function (cell, formatterParams) {
-    console.log("format audio cell", cell);
-    var column = cell._cell.column;
-    var row = cell._cell.row;
-    if (!row.data[column.field] || row.data[column.field].length < 1) {
-      return "null"
-    }
-    var field = row.data[column.field][0];
-    return "<audio controls class='audio' src='data:" + field.type + ";base64," + field.contents + "'/>";
-  },
-  video: function (cell, formatterParams) {
-    console.log("format video cell", cell);
-    var column = cell._cell.column;
-    var row = cell._cell.row;
-    if (!row.data[column.field] || row.data[column.field].length < 1) {
-      return "null"
-    }
-    var field = row.data[column.field][0];
-    return "<video controls style='width: 300px; height: 200px' class='video' src='data:" + field.type + ";base64," + field.contents + "'/>";
-  },
-  file: function (cell, formatterParams) {
-    console.log("format video cell", cell);
-    var column = cell._cell.column;
-    var row = cell._cell.row;
-    if (!row.data[column.field] || row.data[column.field].length < 1) {
-      return "null"
-    }
-    var field = row.data[column.field][0];
-    return "<a href='" + assetEndpoint + "/asset/" + row.data.__type + "/" + row.data.reference_id + "/" + column.field + ".'" + field.type.split("/")[1] + "></a>";
-  },
-});
-
 Tabulator.prototype.extendModule("edit", "editors", {
   dateEditor: function (cell, onRendered, success, cancel, editorParams) {
     //cell - the cell component for the editable cell
@@ -443,6 +378,149 @@ const tableComponent = {
   props: ["baseItem"],
   // todo use the config property to show only configured columns for this view and not all columns
   methods: {
+    updateTabulatorPrototype() {
+
+      const that = this;
+      Tabulator.prototype.extendModule("format", "formatters", {
+        image: function (cell, formatterParams) {
+          var column = cell._cell.column;
+          var row = cell._cell.row;
+          console.log("format image cell", cell, row, row.data);
+          var reference_id = row.data["reference_id"];
+          if (!row.data[column.field] || row.data[column.field].length < 1) {
+            var addNewItem = document.createElement("div");
+            addNewItem.setAttribute("title", "Add new");
+            addNewItem.setAttribute("style", "" +
+              "width: 100px; " +
+              "height: 100px; " +
+              "cursor: pointer; " +
+              "background: #fff; " +
+              "border: 2px solid #eee; " +
+              "text-align: center; " +
+              "vertical-align: middle; " +
+              "padding-top: 40px; " +
+              "border-radius: 4px;" +
+              "")
+
+            addNewItem.innerHTML = "<span class='fas fa-plus'></span>";
+            addNewItem.onclick = function (e) {
+              // alert("adf");
+              let fileUploadElement = document.getElementById("fileUpload");
+              fileUploadElement.click()
+              fileUploadElement.onchange = function (file) {
+                console.log("Upload file selected", reference_id, fileUploadElement.files, fileUploadElement.value);
+                (function (file) {
+                  console.log("File to read", file);
+                  return new Promise(function (resolve, reject) {
+                    const name = file.name;
+                    const type = file.type;
+                    const reader = new FileReader();
+                    reader.onload = function (fileResult) {
+                      console.log("File loaded", fileResult);
+
+
+                      var obj = {
+                        tableName: that.tableName,
+                        id: reference_id,
+                      };
+                      obj[column.field] = [{
+                        name: name,
+                        contents: fileResult.target.result,
+                        type: type,
+                      }];
+                      if (reference_id) {
+                        that.updateRow(obj).then(function () {
+                          that.$q.notify({
+                            message: "Saved"
+                          });
+                          let tUpdateObj = {reference_id: reference_id};
+                          obj[column.field][0].contents = obj[column.field][0].contents.split(",")[1]
+                          tUpdateObj[column.field] = obj[column.field]
+                          that.spreadsheet.updateData([tUpdateObj]).then(function (res) {
+                            console.log("Image upload complete")
+                          }).catch(function (err) {
+                            console.log("Failed to update image data in local rows", err)
+                          })
+                        }).catch(function (e) {
+                          console.log("Failed to save", e)
+                          that.$q.notify({
+                            message: "Failed to save"
+                          });
+                          that.spreadsheet.undo();
+                        });
+                      } else {
+                        obj = cell._cell.row.data;
+                        // console.log("Create new row with data", obj, Object.values(obj));
+                        if (Object.values(obj).filter(e => !!e && e !== "").length === 1) {
+                          that.spreadsheet.addData([{}])
+                        }
+                        obj["tableName"] = that.tableName;
+                        that.createRow(obj).then(function () {
+                          that.$q.notify({
+                            message: "Saved"
+                          });
+                        }).catch(function (e) {
+                          console.log("Failed to save", e)
+                          that.$q.notify({
+                            message: "Failed to save"
+                          });
+                          // that.spreadsheet.undo();
+                        });
+                      }
+
+
+                      resolve();
+                    };
+                    reader.onerror = function () {
+                      console.log("Failed to load file onerror", e, arguments);
+                      reject(name);
+                    };
+                    reader.readAsDataURL(file);
+                  })
+                })(fileUploadElement.files[0])
+              }
+            }
+            return addNewItem
+          }
+
+          var field = row.data[column.field][0];
+
+          console.log("Image data", field);
+          return "<img style='width: 150px; height: 100px' class='fileicon' src='data:" + field.type + ";base64," + field.contents + "'/>";
+        },
+        audio: function (cell, formatterParams) {
+          console.log("format audio cell", cell);
+          var column = cell._cell.column;
+          var row = cell._cell.row;
+          if (!row.data[column.field] || row.data[column.field].length < 1) {
+            return "null"
+          }
+          var field = row.data[column.field][0];
+          return "<audio controls class='audio' src='data:" + field.type + ";base64," + field.contents + "'/>";
+        },
+        video: function (cell, formatterParams) {
+          console.log("format video cell", cell);
+          var column = cell._cell.column;
+          var row = cell._cell.row;
+          if (!row.data[column.field] || row.data[column.field].length < 1) {
+            return "null"
+          }
+          var field = row.data[column.field][0];
+          return "<video controls style='width: 300px; height: 200px' class='video' src='data:" + field.type + ";base64," + field.contents + "'/>";
+        },
+        file: function (cell, formatterParams) {
+          console.log("format video cell", cell);
+          var column = cell._cell.column;
+          var row = cell._cell.row;
+          if (!row.data[column.field] || row.data[column.field].length < 1) {
+            return "null"
+          }
+          var field = row.data[column.field][0];
+          return "<a href='" + assetEndpoint + "/asset/" + row.data.__type + "/" + row.data.reference_id + "/" + column.field + ".'" + field.type.split("/")[1] + "></a>";
+        },
+      });
+
+    },
     addNewColumn(selectedColumn) {
       console.log("Add column to table", selectedColumn)
       const that = this;
@@ -1208,6 +1286,7 @@ const tableComponent = {
   },
   mounted() {
     this.tableName = this.baseItem.targetTable.TableName
+    this.updateTabulatorPrototype();
     this.refreshData();
   },
   watch: {

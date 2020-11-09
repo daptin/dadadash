@@ -498,6 +498,20 @@ export default {
           if (!targetTable) {
             var targetTableConfig = item.attributes;
             targetTableConfig.TableName = "tab_" + makeid(7)
+
+            for (var j = 0; j < targetTableConfig.Columns.length; j++) {
+              var column = targetTableConfig.Columns[j];
+              if (column.ColumnType.startsWith("file.")) {
+                column.DataType = "blob"
+                column.IsForeignKey = true
+                column.ForeignKeyData = {
+                  DataSource: "cloud_store",
+                  Namespace: "localstore",
+                  KeyName: column.ColumnName,
+                }
+              }
+            }
+
             console.log("No target table exists for this item, creating one", item.label, targetTableConfig.TableName);
             updateSchema.Tables.push(targetTableConfig);
             item.targetTable = targetTableConfig;
