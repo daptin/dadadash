@@ -142,6 +142,7 @@
         </q-card-section>
       </q-card>
     </q-dialog>
+    <input type="file" id="fileUpload" style="display: none">
 
   </q-page-container>
 </template>
@@ -259,12 +260,32 @@ Tabulator.prototype.extendModule("format", "formatters", {
     var column = cell._cell.column;
     var row = cell._cell.row;
     if (!row.data[column.field] || row.data[column.field].length < 1) {
-      return "No image uploaded"
+      var addNewItem = document.createElement("div");
+      addNewItem.setAttribute("title", "Add new");
+      addNewItem.setAttribute("style", "" +
+        "width: 100px; " +
+        "height: 100px; " +
+        "cursor: pointer; " +
+        "background: #fff; " +
+        "border: 2px solid #eee; " +
+        "text-align: center; " +
+        "vertical-align: middle; " +
+        "padding-top: 40px; " +
+        "border-radius: 4px;" +
+        "")
+
+      addNewItem.innerHTML = "<span class='fas fa-plus'></span>";
+      addNewItem.onclick = function (e){
+        // alert("adf");
+        document.getElementById("fileUpload").click()
+      }
+      return addNewItem
     }
+
     var field = row.data[column.field][0];
 
     console.log("Image data", field);
-    return "<img style='width: 300px; height: 200px' class='fileicon' src='data:" + field.type + ";base64," + field.contents + "'/>";
+    return "<img style='width: 150px; height: 100px' class='fileicon' src='data:" + field.type + ";base64," + field.contents + "'/>";
   },
   audio: function (cell, formatterParams) {
     console.log("format audio cell", cell);
@@ -417,7 +438,7 @@ const toSnakeCase = (str = '') => {
 };
 
 
-export default {
+const tableComponent = {
   name: "EditDataTableComponent",
   props: ["baseItem"],
   // todo use the config property to show only configured columns for this view and not all columns
@@ -1196,6 +1217,8 @@ export default {
     }
   },
 }
+
+export default tableComponent
 </script>
 
 <style scoped>
