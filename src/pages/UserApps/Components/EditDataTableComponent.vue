@@ -1,6 +1,5 @@
 <template>
   <q-page-container style="padding-top: 0; background: rgb(242, 241, 249)">
-
     <q-page style="overflow: hidden">
 
       <div class="row" style="">
@@ -254,138 +253,149 @@ div.tabulator-col:nth-child(1) > div:nth-child(1) > div:nth-child(1) > div:nth-c
 </style>
 
 <script>
-import {mapActions, mapGetters, mapState} from 'vuex';
+import {mapActions, mapGetters} from 'vuex';
 
 import XLSX from 'xlsx';
+import Tabulator from 'tabulator-tables';
+import moment from 'moment';
 
 window.XLSX = XLSX;
 const assetEndpoint = window.location.hostname === "site.daptin.com" && window.location.port === "8080" ? "http://localhost:" + window.location.port : window.location.protocol + "//" + window.location.hostname + (window.location.port === "80" ? "" : ':' + window.location.port);
 
-import Tabulator from 'tabulator-tables';
-import moment from 'moment';
-
-Tabulator.prototype.extendModule("edit", "editors", {
-  dateEditor: function (cell, onRendered, success, cancel, editorParams) {
-    //cell - the cell component for the editable cell
-    //onRendered - function to call when the editor has been rendered
-    //success - function to call to pass the successfuly updated value to Tabulator
-    //cancel - function to call to abort the edit and return to a normal cell
-    //editorParams - params object passed into the editorParams column definition property
-
-    //create and style editor
-    var editor = document.createElement("input");
-
-    editor.setAttribute("type", "date");
-
-    //create and style input
-    editor.style.padding = "3px";
-    editor.style.width = "100%";
-    editor.style.boxSizing = "border-box";
-
-    //Set value of editor to the current value of the cell
-    console.log("Current date value", cell.getValue())
-    editor.value = moment(cell.getValue()).format("YYYY-MM-DD")
-    console.log("Value set for date", editor.value);
-
-    //set focus on the select box when the editor is selected (timeout allows for editor to be added to DOM)
-    onRendered(function () {
-      editor.focus();
-      editor.style.css = "100%";
-    });
-
-    //when the value has been set, trigger the cell to update
-    function successFunc() {
-      console.log("value from update", editor.value, moment(editor.value).format())
-      success(moment(editor.value).format("YYYY-MM-DD"));
-    }
-
-    editor.addEventListener("change", successFunc);
-    editor.addEventListener("blur", successFunc);
-
-    //return the editor element
-    return editor;
-
-  },
-});
-
-
-var headerContextMenu = [
+Tabulator.prototype.extendModule("edit", "editors",
   {
-    label: "Rename Column",
-    action: function (e, column) {
-      console.log("Rename column", e, column)
-      column.updateDefinition({editableTitle: true})
-    }
-  },
-  {
-    label: "Hide Column",
-    action: function (e, column) {
-      column.hide();
-    }
-  },
-  {
-    label: "Filter",
-    action: function (e, column) {
-      column.updateDefinition({headerFilter: true})
-    }
-  },
-  {
-    label: "Delete Column",
-    action: function (e, column) {
-      column.hide();
-      tableComponent.methods.deleteColumn(column)
-    }
-  },
-]
+    dateEditor: function (cell, onRendered, success, cancel, editorParams) {
+      //cell - the cell component for the editable cell
+      //onRendered - function to call when the editor has been rendered
+      //success - function to call to pass the successfully updated value to Tabulator
+      //cancel - function to call to abort the edit and return to a normal cell
+      //editorParams - params object passed into the editorParams column definition property
 
-//Create Date Editor
-var dateEditor = function (cell, onRendered, success, cancel) {
-  //cell - the cell component for the editable cell
-  //onRendered - function to call when the editor has been rendered
-  //success - function to call to pass the successfuly updated value to Tabulator
-  //cancel - function to call to abort the edit and return to a normal cell
+      //create and style editor
+      var editor = document.createElement("input");
 
-  //create and style input
-  var cellValue = moment(cell.getValue(), "DD/MM/YYYY").format("YYYY-MM-DD"),
-    input = document.createElement("input");
+      editor.setAttribute("type", "date");
 
-  input.setAttribute("type", "date");
+      //create and style input
+      editor.style.padding = "3px";
+      editor.style.width = "100%";
+      editor.style.boxSizing = "border-box";
 
-  input.style.padding = "4px";
-  input.style.width = "100%";
-  input.style.boxSizing = "border-box";
+      //Set value of editor to the current value of the cell
+      // console.log("Current date value", cell.getValue())
+      editor.value = moment(cell.getValue()).format("YYYY-MM-DD")
+      // console.log("Value set for date", editor.value);
 
-  input.value = cellValue;
+      //set focus on the select box when the editor is selected (timeout allows for editor to be added to DOM)
+      onRendered(function () {
+        editor.focus();
+        editor.style.css = "100%";
+      });
 
-  onRendered(function () {
-    input.focus();
-    input.style.height = "100%";
-  });
+      //when the value has been set, trigger the cell to update
+      function successFunc() {
+        console.log("value from update", editor.value, moment(editor.value).format())
+        success(moment(editor.value).format("YYYY-MM-DD"));
+      }
 
-  function onChange() {
-    if (input.value != cellValue) {
-      success(moment(input.value, "YYYY-MM-DD").format("DD/MM/YYYY"));
-    } else {
-      cancel();
-    }
+      editor.addEventListener("change", successFunc);
+      editor.addEventListener("blur", successFunc);
+
+      //return the editor element
+      return editor;
+
+    },
+    mediaEditor: function (cell, onRendered, success, cancel, editorParams) {
+      //cell - the cell component for the editable cell
+      //onRendered - function to call when the editor has been rendered
+      //success - function to call to pass the successfuly updated value to Tabulator
+      //cancel - function to call to abort the edit and return to a normal cell
+      //editorParams - params object passed into the editorParams column definition property
+      console.log("Render editor for media", cell, cell.getValue(), editorParams)
+
+      const column = cell._cell.column;
+      const columnName = column.field;
+      var reference_id = cell._cell.row.data.reference_id;
+      var classContainer = document.createElement("div")
+      classContainer.append(cell)
+      var addNewItem = document.createElement("div");
+      addNewItem.setAttribute("title", "Add new");
+      addNewItem.setAttribute("style", "" +
+        "width: 100px; " +
+        "height: 100px; " +
+        "cursor: pointer; " +
+        "background: #fff; " +
+        "border: 2px solid #eee; " +
+        "text-align: center; " +
+        "vertical-align: middle; " +
+        "padding-top: 40px; " +
+        "border-radius: 4px;" +
+        "")
+      let fileUploadElement = document.getElementById("fileUpload");
+      fileUploadElement.style.display = "none";
+      fileUploadElement.onchange = function (file) {
+        console.log("Upload file selected", reference_id, fileUploadElement.files, fileUploadElement.value);
+        (function (file) {
+          console.log("File to read", file);
+          if (!file) {
+            cancel();
+            return
+          }
+          const name = file.name;
+          const type = file.type;
+          const reader = new FileReader();
+          reader.onload = function (fileResult) {
+            console.log("File loaded in media editor tabulator column", fileResult);
+
+            var originalValue = cell.getValue()
+            if (!originalValue) {
+              originalValue = [];
+            }
+            originalValue.push({
+              name: name,
+              contents: fileResult.target.result,
+              type: type,
+            })
+
+
+            console.log("Callback value for column", success, columnName, originalValue)
+            // success(originalValue);
+            let update = {id: reference_id};
+            update[columnName] = originalValue
+            cell.setValue(originalValue, true);
+            // cancel();
+          };
+          reader.onerror = function () {
+            console.log("Failed to load file onerror", e, arguments);
+            cancel();
+          };
+          reader.readAsDataURL(file);
+        })(fileUploadElement.files[0])
+      }
+
+      addNewItem.innerHTML = "<span class='fas fa-plus'></span>";
+      addNewItem.onclick = function (e) {
+        console.log("add new file");
+        fileUploadElement.click()
+        e.preventDefault();
+        e.stopPropagation();
+
+      }
+
+      //set focus on the select box when the editor is selected (timeout allows for editor to be added to DOM)
+      onRendered(function () {
+        fileUploadElement.click()
+        // editor.focus();
+        // editor.style.css = "100%";
+      });
+      classContainer.appendChild(addNewItem)
+
+      return classContainer;
+
+    },
   }
+);
 
-  //submit new value on blur or change
-  input.addEventListener("blur", onChange);
-
-  //submit new value on enter
-  input.addEventListener("keydown", function (e) {
-    if (e.keyCode == 13) {
-      onChange();
-    }
-
-    if (e.keyCode == 27) {
-      cancel();
-    }
-  });
-
-  return input;
-};
 
 const toSnakeCase = (str = '') => {
   const strArr = str.split(' ');
@@ -411,141 +421,108 @@ const tableComponent = {
         image: function (cell, formatterParams) {
           var column = cell._cell.column;
           var row = cell._cell.row;
-          console.log("format image cell", cell, row, row.data);
+          // console.log("format image cell", cell, row, row.data);
           var reference_id = row.data["reference_id"];
           if (!row.data[column.field] || row.data[column.field].length < 1) {
-            var addNewItem = document.createElement("div");
-            addNewItem.setAttribute("title", "Add new");
-            addNewItem.setAttribute("style", "" +
-              "width: 100px; " +
-              "height: 100px; " +
-              "cursor: pointer; " +
-              "background: #fff; " +
-              "border: 2px solid #eee; " +
-              "text-align: center; " +
-              "vertical-align: middle; " +
-              "padding-top: 40px; " +
-              "border-radius: 4px;" +
-              "")
-
-            addNewItem.innerHTML = "<span class='fas fa-plus'></span>";
-            addNewItem.onclick = function (e) {
-              // alert("adf");
-              let fileUploadElement = document.getElementById("fileUpload");
-              fileUploadElement.click()
-              fileUploadElement.onchange = function (file) {
-                console.log("Upload file selected", reference_id, fileUploadElement.files, fileUploadElement.value);
-                (function (file) {
-                  console.log("File to read", file);
-                  return new Promise(function (resolve, reject) {
-                    const name = file.name;
-                    const type = file.type;
-                    const reader = new FileReader();
-                    reader.onload = function (fileResult) {
-                      console.log("File loaded", fileResult);
-
-
-                      var obj = {
-                        tableName: that.tableName,
-                        id: reference_id,
-                      };
-                      obj[column.field] = [{
-                        name: name,
-                        contents: fileResult.target.result,
-                        type: type,
-                      }];
-                      if (reference_id) {
-                        that.updateRow(obj).then(function () {
-                          that.$q.notify({
-                            message: "Saved"
-                          });
-                          let tUpdateObj = {reference_id: reference_id};
-                          obj[column.field][0].contents = obj[column.field][0].contents.split(",")[1]
-                          tUpdateObj[column.field] = obj[column.field]
-                          that.spreadsheet.updateData([tUpdateObj]).then(function (res) {
-                            console.log("Image upload complete")
-                          }).catch(function (err) {
-                            console.log("Failed to update image data in local rows", err)
-                          })
-                        }).catch(function (e) {
-                          console.log("Failed to save", e)
-                          that.$q.notify({
-                            message: "Failed to save"
-                          });
-                          that.spreadsheet.undo();
-                        });
-                      } else {
-                        obj = cell._cell.row.data;
-                        // console.log("Create new row with data", obj, Object.values(obj));
-                        if (Object.values(obj).filter(e => !!e && e !== "").length === 1) {
-                          that.spreadsheet.addData([{}])
-                        }
-                        obj["tableName"] = that.tableName;
-                        that.createRow(obj).then(function () {
-                          that.$q.notify({
-                            message: "Saved"
-                          });
-                        }).catch(function (e) {
-                          console.log("Failed to save", e)
-                          that.$q.notify({
-                            message: "Failed to save"
-                          });
-                          // that.spreadsheet.undo();
-                        });
-                      }
-
-
-                      resolve();
-                    };
-                    reader.onerror = function () {
-                      console.log("Failed to load file onerror", e, arguments);
-                      reject(name);
-                    };
-                    reader.readAsDataURL(file);
-                  })
-                })(fileUploadElement.files[0])
-              }
-            }
-            return addNewItem
+            return "N/A"
           }
 
           var field = row.data[column.field][0];
 
-          console.log("Image data", field);
-          return "<img style='width: 150px; height: 100px' class='fileicon' src='data:" + field.type + ";base64," + field.contents + "'/>";
+          // console.log("Image data", field);
+          let sourceContents = field.contents;
+          if (!sourceContents.startsWith("data:")) {
+            sourceContents = "data:" + field.type + ";base64," + sourceContents;
+          }
+          return "<img style='width: 150px; height: 100px' class='fileicon' src='" + sourceContents + "'/>";
         },
         audio: function (cell, formatterParams) {
-          console.log("format audio cell", cell);
+          // console.log("format audio cell", cell);
           var column = cell._cell.column;
           var row = cell._cell.row;
           if (!row.data[column.field] || row.data[column.field].length < 1) {
             return "null"
           }
           var field = row.data[column.field][0];
-          return "<audio controls class='audio' src='data:" + field.type + ";base64," + field.contents + "'/>";
+          let sourceContents = field.contents;
+          if (!sourceContents.startsWith("data:")) {
+            sourceContents = "data:" + field.type + ";base64," + sourceContents;
+          }
+
+          return "<audio controls class='audio' src='" + sourceContents + "'/>";
         },
         video: function (cell, formatterParams) {
-          console.log("format video cell", cell);
+          // console.log("format video cell", cell);
           var column = cell._cell.column;
           var row = cell._cell.row;
           if (!row.data[column.field] || row.data[column.field].length < 1) {
             return "null"
           }
           var field = row.data[column.field][0];
-          return "<video controls style='width: 300px; height: 200px' class='video' src='data:" + field.type + ";base64," + field.contents + "'/>";
+          let sourceContents = field.contents;
+          if (!sourceContents.startsWith("data:")) {
+            sourceContents = "data:" + field.type + ";base64," + sourceContents;
+          }
+
+          return "<video controls style='width: 300px; height: 200px' class='video' src='" + sourceContents + "'/>";
         },
         file: function (cell, formatterParams) {
-          console.log("format video cell", cell);
+          // console.log("format video cell", cell);
           var column = cell._cell.column;
           var row = cell._cell.row;
           if (!row.data[column.field] || row.data[column.field].length < 1) {
             return "null"
           }
           var field = row.data[column.field][0];
+
+
           return "<a href='" + assetEndpoint + "/asset/" + row.data.__type + "/" + row.data.reference_id + "/" + column.field + ".'" + field.type.split("/")[1] + "></a>";
         },
       });
 
+    },
+    createColumnFromDefinition(col) {
+      const that = this;
+
+      let formatter = col.ColumnType === "truefalse" ? "tickCross" : null;
+      let editor = col.ColumnType === "datetime" ? "dateEditor" : true;
+
+      let width = 200
+      if (col.ColumnType === "content" || col.ColumnType === "json") {
+        formatter = "textarea"
+        width = 300
+      }
+      if (col.ColumnType === "truefalse") {
+        width = 100
+      }
+
+      if (col.ColumnType.startsWith("file.") && col.ColumnType.indexOf('jpg') > -1) {
+        formatter = "image";
+        editor = "mediaEditor";
+      } else if (col.ColumnType.startsWith("file.") && col.ColumnType.indexOf('mp4') > -1) {
+        formatter = "video";
+        editor = "mediaEditor";
+      } else if (col.ColumnType.startsWith("file.") && col.ColumnType.indexOf('mp3') > -1) {
+        formatter = "audio";
+        editor = "mediaEditor";
+      } else if (col.ColumnType.startsWith("file.")) {
+        formatter = "file";
+        editor = "mediaEditor";
+      }
+
+
+      return {
+        "title": col.Name,
+        "field": col.ColumnName,
+        "editor": editor,
+        "editable": false,
+        "headerContextMenu": that.columnHeaderContextMenu,
+        "formatter": formatter,
+        "width": width,
+        "hozAlign": col.ColumnType === "truefalse" ? "center" : "left",
+        "sorter": col.ColumnType === "measurement" ? "number" : false,
+        "headerSort": false,
+      }
     },
     addNewColumn(selectedColumn) {
       console.log("Add column to table", selectedColumn)
@@ -564,34 +541,10 @@ const tableComponent = {
       }
       console.log("new column name", that.spreadsheet.getColumns());
 
+      col.Name = newColumnName;
+      col.ColumnName = newColumnName;
 
-      let formatter = col.ColumnType === "truefalse" ? "tickCross" : null;
-
-      let width = 200
-      if (col.ColumnType === "content" || col.ColumnType === "json") {
-        formatter = "textarea"
-        width = 300
-      }
-      if (col.ColumnType === "truefalse") {
-        width = 100
-      }
-
-
-      let newColumnDefinition = {
-        title: newColumnName,
-        field: newColumnName,
-        editor: col.ColumnType === "datetime" ? "dateEditor" : true,
-        headerContextMenu: headerContextMenu,
-        headerMenu: headerContextMenu,
-        headerFilter: that.tabulatorOptions.headerFilter,
-        editable: !col.ColumnType.startsWith('file.'),
-        formatter: formatter,
-        width: width,
-        editableTitle: true,
-        hozAlign: col.ColumnType === "truefalse" ? "center" : "left",
-        sorter: col.ColumnType === "measurement" ? "number" : false,
-        headerSort: false,
-      };
+      let newColumnDefinition = that.createColumnFromDefinition(col);
       that.newColumnTypeToBeAdded = col;
       var promise = null;
       var columns = that.spreadsheet.getColumns();
@@ -607,7 +560,9 @@ const tableComponent = {
         document.getElementsByClassName("tabulator-title-editor")[0].setSelectionRange(0, document.getElementsByClassName("tabulator-title-editor")[0].value.length)
       })
         .catch(function (error) {
-          //handle error adding column
+          that.$q.notify({
+            message: "Failed to add new column to the table, please try later - " + JSON.stringify(error)
+          })
         });
     },
     searchDocuments(searchQuery) {
@@ -896,41 +851,7 @@ const tableComponent = {
             );
           }
 
-          let formatter = col.ColumnType === "truefalse" ? "tickCross" : null;
-
-          let width = 200
-          if (col.ColumnType === "content" || col.ColumnType === "json") {
-            formatter = "textarea"
-            width = 300
-          }
-          if (col.ColumnType === "truefalse") {
-            width = 100
-          }
-
-          var tableColumn = {
-            title: col.Name,
-            field: col.ColumnName,
-            editor: col.ColumnType === "datetime" ? "dateEditor" : true,
-            headerContextMenu: headerContextMenu,
-            editable: !col.ColumnType.startsWith('file.'),
-            formatter: formatter,
-            width: width,
-            hozAlign: col.ColumnType === "truefalse" ? "center" : "left",
-            sorter: col.ColumnType === "measurement" ? "number" : false,
-            headerSort: false,
-          };
-
-          if (col.ColumnType.startsWith("file.") && col.ColumnType.indexOf('jpg') > -1) {
-            tableColumn.formatter = "image";
-          }
-          if (col.ColumnType.startsWith("file.") && col.ColumnType.indexOf('mp4') > -1) {
-            tableColumn.formatter = "video";
-          }
-          if (col.ColumnType.startsWith("file.") && col.ColumnType.indexOf('mp3') > -1) {
-            tableColumn.formatter = "audio";
-          }
-
-          return tableColumn;
+          return that.createColumnFromDefinition(col);
         }).filter(e => !!e);
 
 
@@ -1068,13 +989,20 @@ const tableComponent = {
             console.log("row selection changed", data, rows);
             that.selectedRows = data;
           },
+          cellDblClick: function (e, cell) {
+            // e - the click event object
+            // cell - cell component
+            // cell.updateData()
+            var column = cell._cell.column;
+            cell.edit(true);
+          },
           paginationSize: 10,
           cellEdited: function (cell) {
             const reference_id = cell._cell.row.data.reference_id;
             const field = cell._cell.column.field;
             const newValue = cell._cell.value;
             //cell - cell component
-            // console.log("cell edited", reference_id, arguments);
+            console.log("cell edited", reference_id, arguments);
             var obj = {
               tableName: that.tableName,
               id: reference_id,
@@ -1168,11 +1096,6 @@ const tableComponent = {
             console.log("Request url ", requestUrl);
             return requestUrl; //encode parameters as a json object
           },
-
-          rowUpdated: function (row) {
-            console.log("Row edited", row);
-            //row - row component
-          },
           ajaxResponse: function (url, params, response) {
             console.log("ajax call complete", url, params, response);
             //url - the URL of the request
@@ -1224,6 +1147,7 @@ const tableComponent = {
   data() {
     return {
       newColumnTypeToBeAdded: null,
+      columnHeaderContextMenu: null,
       columnTypes: [
         {
           name: "label",
@@ -1354,6 +1278,36 @@ const tableComponent = {
     ...mapGetters(['endpoint', 'authToken', 'tables'])
   },
   mounted() {
+    const that = this;
+    that.columnHeaderContextMenu = [
+      {
+        label: "Rename Column",
+        action: function (e, column) {
+          console.log("Rename column", e, column)
+          column.updateDefinition({editableTitle: true})
+        }
+      },
+      {
+        label: "Hide Column",
+        action: function (e, column) {
+          column.hide();
+        }
+      },
+      {
+        label: "Filter",
+        action: function (e, column) {
+          column.updateDefinition({headerFilter: true})
+        }
+      },
+      {
+        label: "Delete Column",
+        action: function (e, column) {
+          column.hide();
+          that.deleteColumn(column)
+        }
+      },
+    ]
+
     this.tableName = this.baseItem.targetTable.TableName
     this.updateTabulatorPrototype();
     this.refreshData();

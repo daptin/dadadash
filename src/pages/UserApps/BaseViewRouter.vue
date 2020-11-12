@@ -31,7 +31,8 @@ export default {
         that.baseItemConfig = that.baseItem;
       } else {
         try {
-          that.baseItemConfig = JSON.parse(atob(that.baseItem.document_content[0].contents))
+          var extendConfig = JSON.parse(atob(that.baseItem.document_content[0].contents))
+          that.baseItemConfig = {...that.baseItem, ...extendConfig};
         } catch (e) {
           console.log("Failed to read contents of item", that.baseItem)
           that.baseItemConfig = that.baseItem;
