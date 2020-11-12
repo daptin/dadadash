@@ -235,6 +235,7 @@ div.tabulator-col:nth-child(1) > div:nth-child(1) > div:nth-child(1) > div:nth-c
   height: 127px;
   border-right: none;
   padding: 7px;
+  overflow: auto;
 }
 
 .tabulator-row.tabulator-selectable:hover {
@@ -260,6 +261,7 @@ import Tabulator from 'tabulator-tables';
 import moment from 'moment';
 
 window.XLSX = XLSX;
+window.moment = moment;
 const assetEndpoint = window.location.hostname === "site.daptin.com" && window.location.port === "8080" ? "http://localhost:" + window.location.port : window.location.protocol + "//" + window.location.hostname + (window.location.port === "80" ? "" : ':' + window.location.port);
 
 Tabulator.prototype.extendModule("edit", "editors",
@@ -311,26 +313,14 @@ Tabulator.prototype.extendModule("edit", "editors",
       //success - function to call to pass the successfuly updated value to Tabulator
       //cancel - function to call to abort the edit and return to a normal cell
       //editorParams - params object passed into the editorParams column definition property
-      console.log("Render editor for media", cell, cell.getValue(), editorParams)
+      // console.log("Render editor for media", cell, cell.getValue(), editorParams)
 
       const column = cell._cell.column;
       const columnName = column.field;
       var reference_id = cell._cell.row.data.reference_id;
       var classContainer = document.createElement("div")
       classContainer.append(cell)
-      var addNewItem = document.createElement("div");
-      addNewItem.setAttribute("title", "Add new");
-      addNewItem.setAttribute("style", "" +
-        "width: 100px; " +
-        "height: 100px; " +
-        "cursor: pointer; " +
-        "background: #fff; " +
-        "border: 2px solid #eee; " +
-        "text-align: center; " +
-        "vertical-align: middle; " +
-        "padding-top: 40px; " +
-        "border-radius: 4px;" +
-        "")
+
       let fileUploadElement = document.getElementById("fileUpload");
       fileUploadElement.style.display = "none";
       fileUploadElement.onchange = function (file) {
@@ -348,22 +338,18 @@ Tabulator.prototype.extendModule("edit", "editors",
             console.log("File loaded in media editor tabulator column", fileResult);
 
             var originalValue = cell.getValue()
-            if (!originalValue) {
-              originalValue = [];
+            var newValue = [];
+
+            if (originalValue && originalValue.length > 0) {
+              originalValue.map(e => newValue.push(e))
             }
-            originalValue.push({
+            newValue.push({
               name: name,
               contents: fileResult.target.result,
               type: type,
             })
-
-
             console.log("Callback value for column", success, columnName, originalValue)
-            // success(originalValue);
-            let update = {id: reference_id};
-            update[columnName] = originalValue
-            cell.setValue(originalValue, true);
-            // cancel();
+            cell.setValue(newValue, true);
           };
           reader.onerror = function () {
             console.log("Failed to load file onerror", e, arguments);
@@ -373,22 +359,13 @@ Tabulator.prototype.extendModule("edit", "editors",
         })(fileUploadElement.files[0])
       }
 
-      addNewItem.innerHTML = "<span class='fas fa-plus'></span>";
-      addNewItem.onclick = function (e) {
-        console.log("add new file");
-        fileUploadElement.click()
-        e.preventDefault();
-        e.stopPropagation();
-
-      }
-
       //set focus on the select box when the editor is selected (timeout allows for editor to be added to DOM)
       onRendered(function () {
         fileUploadElement.click()
         // editor.focus();
         // editor.style.css = "100%";
       });
-      classContainer.appendChild(addNewItem)
+      classContainer
 
       return classContainer;
 
@@ -405,6 +382,76 @@ const toSnakeCase = (str = '') => {
   return snakeArr.join('_');
 };
 
+const AddNewMediaElement = function (icon) {
+  if (!icon) {
+    icon = "fas fa-plus"
+  }
+  var addNewItem = document.createElement("div");
+  addNewItem.innerHTML = "<span class='fas fa-plus'></span>";
+  addNewItem.setAttribute("title", "Add new");
+  addNewItem.setAttribute("style", "" +
+    "width: 100px; " +
+    "height: 100px; " +
+    "cursor: pointer; " +
+    "background: #fff; " +
+    "border: 2px solid #eee; " +
+    "text-align: center; " +
+    "vertical-align: middle; " +
+    "padding-top: 40px; " +
+    "border-radius: 4px;" +
+    "")
+  return addNewItem;
+}
+
+
+const CreateMediaContainers = function (type, field) {
+  var element = document.createElement(type)
+  element.controls = true
+  element.style.padding = "5px"
+  element.style.border = "1px solid #eee"
+  element.style.borderRadius = "4px"
+  let sourceContents = field.contents;
+
+  if (!sourceContents) {
+    return AddNewMediaElement("fas fa-sync-alt")
+  }
+
+  if (!sourceContents.startsWith("data:")) {
+    sourceContents = "data:" + field.type + ";base64," + sourceContents;
+  }
+  element.src = sourceContents;
+  element.setAttribute("style", "width:100%; clear: both;")
+  element.setAttribute("class", "fileicon")
+  return element;
+}
+
+const NewMediaContainerElement = function (elementType) {
+  return function (cell, formatterParams) {
+    const column = cell._cell.column;
+    const row = cell._cell.row;
+    const container = document.createElement("div");
+    container.style.overflowX = "auto"
+    container.style.overflowY = "auto"
+    container.style.width = "100%"
+    if (!row.data[column.field]) {
+      row.data[column.field] = [];
+    }
+    row.data[column.field].map(function (e) {
+      return CreateMediaContainers(elementType, e)
+    }).map(function (e) {
+      container.append(e)
+      container.append(document.createElement("br"))
+    });
+    if (container.children.length === 0) {
+      let addNewElement = AddNewMediaElement();
+      addNewElement.onclick = function () {
+        cell.edit(true);
+      }
+      container.appendChild(addNewElement)
+    }
+    return container;
+  }
+}
 
 const tableComponent = {
   name: "EditDataTableComponent",
@@ -417,65 +464,19 @@ const tableComponent = {
     updateTabulatorPrototype() {
 
       const that = this;
+      const fileUploaderCell = NewMediaContainerElement("a")
       Tabulator.prototype.extendModule("format", "formatters", {
-        image: function (cell, formatterParams) {
-          var column = cell._cell.column;
-          var row = cell._cell.row;
-          // console.log("format image cell", cell, row, row.data);
-          var reference_id = row.data["reference_id"];
-          if (!row.data[column.field] || row.data[column.field].length < 1) {
-            return "N/A"
-          }
-
-          var field = row.data[column.field][0];
-
-          // console.log("Image data", field);
-          let sourceContents = field.contents;
-          if (!sourceContents.startsWith("data:")) {
-            sourceContents = "data:" + field.type + ";base64," + sourceContents;
-          }
-          return "<img style='width: 150px; height: 100px' class='fileicon' src='" + sourceContents + "'/>";
-        },
-        audio: function (cell, formatterParams) {
-          // console.log("format audio cell", cell);
-          var column = cell._cell.column;
-          var row = cell._cell.row;
-          if (!row.data[column.field] || row.data[column.field].length < 1) {
-            return "null"
-          }
-          var field = row.data[column.field][0];
-          let sourceContents = field.contents;
-          if (!sourceContents.startsWith("data:")) {
-            sourceContents = "data:" + field.type + ";base64," + sourceContents;
-          }
-
-          return "<audio controls class='audio' src='" + sourceContents + "'/>";
-        },
-        video: function (cell, formatterParams) {
-          // console.log("format video cell", cell);
-          var column = cell._cell.column;
-          var row = cell._cell.row;
-          if (!row.data[column.field] || row.data[column.field].length < 1) {
-            return "null"
-          }
-          var field = row.data[column.field][0];
-          let sourceContents = field.contents;
-          if (!sourceContents.startsWith("data:")) {
-            sourceContents = "data:" + field.type + ";base64," + sourceContents;
-          }
-
-          return "<video controls style='width: 300px; height: 200px' class='video' src='" + sourceContents + "'/>";
-        },
+        image: NewMediaContainerElement("img"),
+        audio: NewMediaContainerElement("audio"),
+        video: NewMediaContainerElement("video"),
         file: function (cell, formatterParams) {
           // console.log("format video cell", cell);
           var column = cell._cell.column;
           var row = cell._cell.row;
           if (!row.data[column.field] || row.data[column.field].length < 1) {
-            return "null"
+            return fileUploaderCell(cell, formatterParams);
           }
           var field = row.data[column.field][0];
-
-
           return "<a href='" + assetEndpoint + "/asset/" + row.data.__type + "/" + row.data.reference_id + "/" + column.field + ".'" + field.type.split("/")[1] + "></a>";
         },
       });
@@ -484,19 +485,21 @@ const tableComponent = {
     createColumnFromDefinition(col) {
       const that = this;
 
-      let formatter = col.ColumnType === "truefalse" ? "tickCross" : null;
-      let editor = col.ColumnType === "datetime" ? "dateEditor" : true;
-
+      let formatter = null;
+      let editor = true;
       let width = 200
       if (col.ColumnType === "content" || col.ColumnType === "json") {
         formatter = "textarea"
         width = 300
-      }
-      if (col.ColumnType === "truefalse") {
+      } else if (col.ColumnType === "truefalse") {
         width = 100
-      }
-
-      if (col.ColumnType.startsWith("file.") && col.ColumnType.indexOf('jpg') > -1) {
+        formatter = "tickCross";
+      } else if (col.ColumnType === "datetime") {
+        editor = "dateEditor"
+        formatter = "datetime"
+      } else if (col.ColumnType === "rating") {
+        editor = "star"
+      } else if (col.ColumnType.startsWith("file.") && col.ColumnType.indexOf('jpg') > -1) {
         formatter = "image";
         editor = "mediaEditor";
       } else if (col.ColumnType.startsWith("file.") && col.ColumnType.indexOf('mp4') > -1) {
@@ -1090,9 +1093,6 @@ const tableComponent = {
               }
 
             }
-            if (assetColumns.length > 0) {
-              requestUrl = requestUrl + "included_relations=" + assetColumns.join(",") + "&"
-            }
             console.log("Request url ", requestUrl);
             return requestUrl; //encode parameters as a json object
           },
@@ -1103,6 +1103,48 @@ const tableComponent = {
             //response - the JSON object returned in the body of the response.
 
             let responseList = response.data.map(function (e) {
+              if (assetColumns.length > 0) {
+                new Promise(function (resolve, reject) {
+
+                  var columnsToLoad = assetColumns.filter(function (columnName) {
+                    return !!e.attributes[columnName]
+                  })
+
+                  that.loadData({
+                    tableName: that.tableName,
+                    params: {
+                      query: JSON.stringify([
+                        {
+                          column: 'reference_id',
+                          operator: 'is',
+                          value: e.attributes["reference_id"]
+                        }
+                      ]),
+                      fields: columnsToLoad.join(","),
+                      included_relations: columnsToLoad.join(",")
+                    }
+                  }).then(function (res) {
+                    var assetsRow = res.data[0];
+                    let updateData = {};
+                    for (var i in columnsToLoad) {
+                      var columnName = columnsToLoad[i]
+                      if (assetsRow[columnName]) {
+                        updateData[columnName] = assetsRow[columnName]
+                      }
+                    }
+
+                    if (Object.keys(updateData).length > 0) {
+                      that.spreadsheet.updateRow(assetsRow["reference_id"], updateData).then(function () {
+                      }).catch(function (err) {
+                        console.log("Failed to update asset data", err)
+                      })
+                    }
+
+                  }).catch(function (err) {
+                    console.log("Failed to load asset ", err)
+                  })
+                })
+              }
               return e.attributes
             });
             responseList.push({})
