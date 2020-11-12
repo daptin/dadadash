@@ -19,7 +19,7 @@ export default {
     return {
       // this accesses the "title" property in your Vue "data";
       // whenever "title" prop changes, your meta will automatically update
-      title:('[' + this.baseConfig.name + '] ') +  (this.baseItem ? this.baseItem.document_name : 'New file') + " - " + this.baseItem.document_extension
+      title: ('[' + this.baseConfig.name + '] ') + (this.baseItem ? this.baseItem.document_name : 'New file') + " - " + this.baseItem.document_extension
     }
   },
   methods: {
@@ -49,6 +49,9 @@ export default {
       console.log("Base item config 2", that.baseItemConfig)
       that.$nextTick().then(function () {
         that.showComponent = true;
+        // setTimeout(function (){
+        //   document.getElementsByClassName("q-page-container")[1].scrollIntoView()
+        // }, 2000)
       })
     },
     saveBaseItemContents(baseEncodedFileItem) {

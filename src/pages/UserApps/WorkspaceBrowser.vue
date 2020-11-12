@@ -23,7 +23,6 @@
 
       <q-page>
 
-
         <div style="height: 100vh; overflow-y: scroll;background: white" class="row">
           <div class="col-2 col-sm-12 col-md-2 col-lg-2 col-xl-2 col-xs-12">
             <q-card flat style="background: white">
@@ -76,17 +75,14 @@
 
           </div>
         </div>
-        <!--      <q-page-sticky :offset="[10, 10]" v-if="showUploadComponent">-->
-        <!--        -->
-        <!--      </q-page-sticky>-->
       </q-page>
       <user-header-bar style="border-bottom: 1px solid black" @search="searchDocuments" @show-uploader="showUploader"
                        :buttons="{
         before: [
-            {icon: 'fas fa-search', event: 'search'},
+            // {icon: 'fas fa-search', event: 'search'},
           ],
         after: [
-            {icon: 'fas fa-sync-alt', event: 'search'},
+            // {icon: 'fas fa-sync-alt', event: 'search'},
           ],
         }"></user-header-bar>
 

@@ -150,7 +150,7 @@ export default {
       if (this.loading) {
         return
       }
-      console.log("Contents changed", arguments)
+      // console.log("Contents changed", arguments)
       if (this.saveDebounced === null) {
         this.saveDebounced = debounce(this.saveDocument, 3000, true)
       }

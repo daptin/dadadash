@@ -21,6 +21,17 @@
           color="primary" icon="fas fa-times"
           label="Cancel" @click="showAddBase = false" v-if="showAddBase">
         </q-btn>
+        <q-btn
+          class="float-right text-black"
+          color="white" flat icon="fas fa-cogs">
+          <q-menu>
+            <q-list style="min-width: 200px">
+              <q-item @click="showDeleteWorkspaceDialog = true" clickable>
+                <q-item-section>Delete workspace</q-item-section>
+              </q-item>
+            </q-list>
+          </q-menu>
+        </q-btn>
       </span>
         </q-card-section>
         <q-card-section style="margin-top: -15px">
@@ -35,30 +46,10 @@
       <div class="row q-pa-md" v-if="!showAddBase && workspaceSchema">
 
         <div class="col-4 q-pa-md"
-             @click="handleCardClick({
-              baseName: baseName,
 
-             })"
              v-for="(baseItems, baseName) in workspaceSchema.workspaceItems"
         >
-          <q-card flat v-if="baseItems.filter(e => e.type === 'summary').length === 0">
-            <q-card-section>
 
-
-              <div style="border-radius: 8px">
-                <q-item>
-                  <q-item-section>
-                    <q-item-label>{{ baseName }}</q-item-label>
-                  </q-item-section>
-
-
-                </q-item>
-
-              </div>
-
-
-            </q-card-section>
-          </q-card>
 
           <q-card v-for="item in baseItems" v-if="item.type === 'summary'"
                   :key="item.label"
@@ -81,13 +72,35 @@
               </q-item>
 
 
-              <q-item>
-                <q-item-section>
-                  <q-item-label caption>Summary from {{ baseName }}</q-item-label>
-                </q-item-section>
-              </q-item>
-
             </div>
+          </q-card>
+
+          <q-card @click="handleCardClick({
+              baseName: baseName,
+
+             })" flat v-if="baseItems.filter(e => e.type === 'summary').length === 0">
+            <q-card-section>
+
+
+              <div style="border-radius: 8px">
+                <q-item>
+                  <q-item-section>
+                    <q-item-label>{{ baseName }}</q-item-label>
+                  </q-item-section>
+
+
+                </q-item>
+
+                <q-item>
+                  <q-item-section>
+                    <q-item-label caption>Summary from {{ baseName }}</q-item-label>
+                  </q-item-section>
+                </q-item>
+              </div>
+
+
+            </q-card-section>
+
           </q-card>
         </div>
 
@@ -96,6 +109,19 @@
 
 
     </div>
+    <q-dialog v-model="showDeleteWorkspaceDialog">
+      <q-card class="bg-white">
+        <q-card-section>
+          <span class="text-h4">Delete workspace</span>
+        </q-card-section>
+        <q-card-section>
+          Do you want to delete all the items is this base ?
+        </q-card-section>
+        <q-card-actions align="right">
+          <q-btn label="Delete" color="negative" @click="deleteWorkspace"></q-btn>
+        </q-card-actions>
+      </q-card>
+    </q-dialog>
   </div>
 </template>
 
@@ -121,11 +147,124 @@ export default {
   data() {
     return {
       showAddBase: false,
+      showDeleteWorkspaceDialog: false,
       workspaceDocument: null,
       workspaceSchema: null,
     }
   },
   methods: {
+    deleteWorkspace() {
+      const that = this;
+      that.$q.loadingBar.start()
+      that.showDeleteWorkspaceDialog = false;
+      console.log("Delete workspace", that.baseList);
+      var listPromises = [], deletePromises = [];
+      for (var i = 0; i < that.baseList.length; i++) {
+        var baseItem = that.baseList[i];
+        console.log("To delete items from base {} - {}", i, baseItem)
+
+
+        var queryPayload = {
+          tableName: "document",
+          params: {
+            query: JSON.stringify([{
+              column: "document_path",
+              operator: "is",
+              value: "/" + that.workspaceName + "/" + baseItem.document_name
+            }, {
+              column: "mime_type",
+              operator: "like",
+              value: "workspace/%"
+            }]),
+            page: {
+              size: 100,
+            }
+          }
+        };
+
+        deletePromises.push(that.deleteRow({
+          tableName: "document",
+          reference_id: baseItem.reference_id
+        }))
+
+
+        listPromises.push(that.loadData(queryPayload).then(function (res) {
+          console.log("Deleting %s items in base %s", res.data.length, baseItem.document_name);
+          for (var i = 0; i < res.data.length; i++) {
+            try {
+              var item = res.data[i];
+              deletePromises.push(that.deleteRow({
+                tableName: "document",
+                reference_id: item.reference_id
+              }))
+            } catch (e) {
+              console.log("failed to parse item data", e)
+            }
+          }
+        }));
+      }
+
+      Promise.all(listPromises).then(function () {
+        that.$q.loadingBar.increment(30)
+
+        Promise.all(deletePromises).then(function () {
+          that.$q.loadingBar.increment(30)
+
+          that.$q.notify({
+            message: "Deleted all items in bases"
+          })
+          that.$q.notify({
+            message: "Deleting workspace"
+          });
+          that.loadData({
+            tableName: "document",
+            params: {
+              query: JSON.stringify([
+                {
+                  "column": "document_name",
+                  "operator": "is",
+                  "value": that.workspaceName,
+                },
+                {
+                  "column": "document_path",
+                  "operator": "is",
+                  "value": "/",
+                },
+                {
+                  "column": "mime_type",
+                  "operator": "is",
+                  "value": "workspace/root",
+                },
+              ]),
+              page: {
+                size: 1,
+              },
+            }
+          }).then(function (res) {
+            console.log("Delete workspace", res.data);
+            that.$q.loadingBar.increment(10)
+
+            that.deleteRow({
+              tableName: "document",
+              reference_id: res.data[0].id
+            }).then(function (res) {
+              that.$q.loadingBar.increment(30)
+              that.$q.loadingBar.stop()
+
+              that.$q.notify({
+                message: "Deleted workspace"
+              });
+              that.$router.push('/apps/workspace')
+            }).catch(function (err) {
+              that.$q.notify({
+                message: "Failed to delete workspace - " + JSON.stringify(err)
+              })
+            })
+          })
+        })
+      })
+
+    },
     handleCardClick(item) {
       console.log("Summary item ", item);
       if (item.target && item.target.name) {
@@ -224,7 +363,7 @@ export default {
 
 
     },
-    ...mapActions(['loadData', 'createRow', 'updateRow', 'executeAction']),
+    ...mapActions(['loadData', 'createRow', 'updateRow', 'executeAction', 'deleteRow']),
     handleDataLoad(data) {
       const that = this;
       console.log("Configuration for workspace", data);
@@ -240,14 +379,14 @@ export default {
         if (!that.workspaceSchema.workspaceItems[baseName]) {
           that.workspaceSchema.workspaceItems[baseName] = [];
         }
-        console.log("base config ", baseName, baseConfig)
+        // console.log("base config ", baseName, baseConfig)
         if (!baseConfig.document_content) {
           console.log("Base has no contents ", baseName)
           continue
         }
         var baseSchema = baseConfig.document_content[0].contents;
         var baseSchemaJson = JSON.parse(atob(baseSchema));
-        console.log("Base config", baseSchemaJson);
+        // console.log("Base config", baseSchemaJson);
 
         for (var j in baseSchemaJson.items) {
           var item = baseSchemaJson.items[j];
@@ -257,6 +396,7 @@ export default {
           }
         }
       }
+      that.$q.loadingBar.stop()
 
 
     },
@@ -334,6 +474,7 @@ export default {
       that.files = [];
       console.log("Query data")
 
+      that.$q.loadingBar.start()
       that.loadData(queryPayload).then(function (res) {
         console.log("base list load complete", res)
         that.handleDataLoad(res)

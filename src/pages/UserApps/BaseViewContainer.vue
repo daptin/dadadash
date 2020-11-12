@@ -84,7 +84,7 @@
                      @reload-bases="refreshBaseData"
                      :buttons="{
         before: [
-            {icon: 'fas fa-search', event: 'search'},
+            // {icon: 'fas fa-search', event: 'search'},
           ],
         after: [
             {icon: 'fas fa-sync-alt', event: 'reload-bases'},
@@ -102,16 +102,15 @@
         <q-card-section>
           <q-item>
             <q-item-label>
-              <span class="text-h5">Delete {{ baseName }}</span>
+              <span class="text-h4">Delete</span>
             </q-item-label>
           </q-item>
         </q-card-section>
         <q-card-section class="q-pa-md">
-          <span>Are you sure you want to delete this base ?</span>
+          <span>Are you sure you want to delete all the items in this base ?</span>
         </q-card-section>
         <q-card-actions align="right">
-          <q-btn @click="confirmDeleteBaseMessage = false" class="float-left" label="Cancel"></q-btn>
-          <q-btn @click="deleteBaseConfirm()" color="warning" class="float-right" label="Yes"></q-btn>
+          <q-btn @click="deleteBaseConfirm()" color="negative" class="float-right" label="Delete"></q-btn>
         </q-card-actions>
       </q-card>
     </q-dialog>
@@ -139,7 +138,7 @@
           Are you sure you want to delete this item
         </q-card-section>
         <q-card-actions align="right">
-          <q-btn label="Update" @click="deleteBaseItem"></q-btn>
+          <q-btn label="Delete" color="danger" @click="deleteBaseItem"></q-btn>
         </q-card-actions>
       </q-card>
     </q-dialog>
@@ -178,6 +177,20 @@ function makeid(length) {
 }
 
 window.XLSX = XLSX;
+
+const DEFAULT_ITEM_MAP = {
+  "table": {
+    "attributes": {
+      "TableName": "New table",
+      "Columns": [
+        {
+          "Name": "name",
+          "ColumnType": "label"
+        }
+      ]
+    }
+  }
+}
 
 
 export default {
@@ -262,6 +275,11 @@ export default {
         type: item.type,
         label: "New " + item.type
       };
+      if (DEFAULT_ITEM_MAP[item.type]) {
+        newItem = DEFAULT_ITEM_MAP[item.type]
+        newItem.type = item.type;
+        newItem.label = "New " + item.type;
+      }
 
 
       var newRow = null;
@@ -373,109 +391,108 @@ export default {
     ...mapActions(['loadData', 'getTableSchema', 'updateRow', 'createRow', 'deleteRow', 'executeAction', 'loadModel']),
     refreshBaseData() {
       const that = this;
-      that.baseItemMap = [];
+      that.baseItemMap = {};
 
-      const workspaceName = this.$route.params.workspaceName;
-      const baseName = this.$route.params.baseName;
-      that.selectedItem = this.$route.params.itemName;
-      that.baseName = baseName;
-      that.baseConfig = {name: baseName};
-
-      that.workspaceName = workspaceName;
-
-      that.$q.notify({
-        message: "Refreshing base"
-      });
+      return new Promise(function (resolve, reject) {
 
 
-      let queryPayload = {
-        tableName: "document",
-        params: {
-          query: JSON.stringify([{
-            column: "document_path",
-            operator: "is",
-            value: "/" + workspaceName
-          }, {
-            column: "mime_type",
-            operator: "is",
-            value: "workspace/base"
-          }, {
-            column: "document_name",
-            operator: "is",
-            value: baseName
-          }]),
-          page: {
-            size: 1,
-          },
-          included_relations: "document_content"
-        }
-      };
+        const workspaceName = that.$route.params.workspaceName;
+        const baseName = that.$route.params.baseName;
+        that.selectedItem = that.$route.params.itemName;
+        that.baseName = baseName;
+        that.baseConfig = {name: baseName};
 
-      that.files = [];
-      console.log("Query data")
-      var promises = [];
+        that.workspaceName = workspaceName;
 
-      that.loadData(queryPayload).then(function (res) {
-        console.log("base load complete", res)
-        var baseRow = res.data[0];
-        if (!baseRow.document_content) {
-          alert("Base configuration is empty - " + baseRow)
-          return
-        }
-        that.baseRow = baseRow
-        var baseConfigString = baseRow.document_content[0].contents;
-        that.baseConfig = JSON.parse(atob(baseConfigString));
-        that.baseConfig.name = that.baseName;
-        console.log("selected base item 1", that.selectedItem, that.baseConfig, that.baseItemMap, that.selectedBaseItem)
+        that.$q.notify({
+          message: "Refreshing base"
+        });
 
 
-        queryPayload = {
+        let queryPayload = {
           tableName: "document",
           params: {
             query: JSON.stringify([{
               column: "document_path",
               operator: "is",
-              value: "/" + workspaceName + "/" + baseName
+              value: "/" + workspaceName
             }, {
               column: "mime_type",
-              operator: "like",
-              value: "workspace/%"
+              operator: "is",
+              value: "workspace/base"
+            }, {
+              column: "document_name",
+              operator: "is",
+              value: baseName
             }]),
             page: {
-              size: 100,
+              size: 1,
             },
             included_relations: "document_content"
           }
         };
-        that.baseConfig.items = [];
 
+        that.files = [];
+        console.log("Query base content document")
 
         that.loadData(queryPayload).then(function (res) {
-          console.log("base items", res);
-          for (var i = 0; i < res.data.length; i++) {
-            try {
-              var item = res.data[i];
-              var itemConfig = JSON.parse(atob(item.document_content[0].contents))
-              itemConfig.type = item.document_extension;
-              itemConfig.label = item.document_name;
-              itemConfig.reference_id = item.reference_id;
-              that.baseItemMap[item.document_name] = item;
-              that.baseConfig.items.push(itemConfig);
-            } catch (e) {
-              console.log("failed to parse item data", e)
-            }
+          console.log("loaded base document", res)
+          var baseRow = res.data[0];
+          if (!baseRow.document_content) {
+            alert("Base configuration is empty - " + baseRow)
+            return
           }
-          that.selectedBaseItem = that.baseItemMap[that.selectedItem];
-          that.ensureBaseTables()
-        });
+          that.baseRow = baseRow
+          var baseConfigString = baseRow.document_content[0].contents;
+          that.baseConfig = JSON.parse(atob(baseConfigString));
+          that.baseConfig.name = that.baseName;
+          console.log("selected base item 1", that.selectedItem, that.baseConfig, that.baseItemMap, that.selectedBaseItem)
 
-      })
+
+          queryPayload = {
+            tableName: "document",
+            params: {
+              query: JSON.stringify([{
+                column: "document_path",
+                operator: "is",
+                value: "/" + workspaceName + "/" + baseName
+              }, {
+                column: "mime_type",
+                operator: "like",
+                value: "workspace/%"
+              }]),
+              page: {
+                size: 100,
+              },
+              included_relations: "document_content"
+            }
+          };
+          that.baseConfig.items = [];
 
 
-      return Promise.all(promises).then(function () {
-        console.log("Base reload complete")
-      }).catch(function (err) {
-        console.log("Failed to refresh base data", err)
+          that.loadData(queryPayload).then(function (res) {
+            console.log("loaded base item documents", res);
+            for (var i = 0; i < res.data.length; i++) {
+              try {
+                var item = res.data[i];
+                var itemConfig = JSON.parse(atob(item.document_content[0].contents))
+                itemConfig.type = item.document_extension;
+                itemConfig.label = item.document_name;
+                itemConfig.reference_id = item.reference_id;
+                that.baseItemMap[item.document_name] = item;
+                that.baseConfig.items.push(itemConfig);
+              } catch (e) {
+                console.log("failed to parse item data", e)
+              }
+            }
+            that.selectedBaseItem = that.baseItemMap[that.selectedItem];
+            that.ensureBaseTables().then(function () {
+              resolve()
+            }).catch(reject)
+          });
+        })
+
+
       })
 
 
@@ -524,63 +541,70 @@ export default {
         }
       }
 
+      return new Promise(function (resolve, reject) {
+        Promise.all(promises).then(function () {
+          if (updateSchema.Tables.length > 0) {
 
-      return Promise.all(promises).then(function () {
-        if (updateSchema.Tables.length > 0) {
-
-          that.$q.notify({
-            message: "Creating " + updateSchema.Tables.length + " tables"
-          });
-
-          that.executeAction({
-            tableName: "world",
-            actionName: "upload_system_schema",
-            params: {
-              schema_file: [{
-                contents: "application/json," + btoa(JSON.stringify(updateSchema)),
-                name: that.baseName + ".json"
-              }]
-            }
-          }).then(function (res) {
-            console.log("Tables created", res);
             that.$q.notify({
-              message: "Base created"
+              message: "Creating " + updateSchema.Tables.length + " tables"
             });
 
-            setTimeout(function () {
-              console.log("Try to create random data for the new base");
+            that.executeAction({
+              tableName: "world",
+              actionName: "upload_system_schema",
+              params: {
+                schema_file: [{
+                  contents: "application/json," + btoa(JSON.stringify(updateSchema)),
+                  name: that.baseName + ".json"
+                }]
+              }
+            }).then(function (res) {
+              console.log("Tables created", res);
               that.$q.notify({
-                message: "Generating random data for " + updateSchema.Tables.length + " tables"
+                message: "Base tables created, please wait while we generate random data to begin"
               });
 
+              setTimeout(function () {
+                console.log("Try to create random data for the new base");
+                that.$q.notify({
+                  message: "Generating random data for " + updateSchema.Tables.length + " tables"
+                });
+                that.$q.loadingBar.start(10);
+                var randomDataPromises = []
+                randomDataPromises = updateSchema.Tables.map(function (table) {
+                  console.log("Create random data for ", table.TableName);
 
-              updateSchema.Tables.map(function (table) {
-                console.log("Create random data for ", table.TableName);
-
-                that.executeAction({
-                  tableName: "world",
-                  actionName: "generate_random_data",
-                  params: {
-                    "table_name": table.TableName,
-                    "count": 10,
-                  }
-                }).then(function (res) {
-                  console.log("Random data generated for table", table.TableName)
-                }).catch(function (err) {
-                  console.log("Failed to generate random data for ", table.TableName, err)
+                  return that.executeAction({
+                    tableName: "world",
+                    actionName: "generate_random_data",
+                    params: {
+                      "table_name": table.TableName,
+                      "count": 10,
+                    }
+                  }).then(function (res) {
+                    console.log("Random data generated for table", table.TableName)
+                  }).catch(function (err) {
+                    console.log("Failed to generate random data for ", table.TableName, err)
+                  })
                 })
-              })
-            }, 6000)
+                Promise.all(randomDataPromises).then(function () {
+                  that.$q.loadingBar.stop();
+                  resolve()
 
-          }).catch(function (err) {
-            console.log("Failed to create table", err)
-            that.$q.notify({
-              message: "Failed to create tables for the base"
-            });
+                }).catch(reject)
+              }, 5000)
 
-          })
-        } else {
-        }
+            }).catch(function (err) {
+              console.log("Failed to create table", err)
+              that.$q.notify({
+                message: "Failed to create tables for the base"
+              });
+
+            })
+          } else {
+            resolve();
+          }
+        })
       })
 
 
@@ -589,11 +613,13 @@ export default {
       const that = this;
       that.newRowData = [];
       that.sourceMap = {};
-      console.log("Selected base item", that.selectedItem, that.baseItemMap);
+      console.log("Refresh daata, update the selected item", that.selectedItem, that.baseItemMap);
+      console.log("Updated base ", that.selectedItem, that.baseName, that.selectedBaseItem);
+
       that.selectedItem = that.$route.params.itemName;
       that.baseName = that.$route.params.baseName;
       that.selectedBaseItem = that.baseItemMap[that.selectedItem]
-      console.log("Updated base ", that.selectedItem, that.baseName, that.selectedBaseItem);
+
 
       that.baseLoaded = true;
       return Promise.resolve();
@@ -684,6 +710,8 @@ export default {
   },
   computed: {
     ...mapGetters(['endpoint', 'authToken', 'tables'])
+  },
+  updated() {
   },
   mounted() {
     const that = this;

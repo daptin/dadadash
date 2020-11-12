@@ -150,6 +150,16 @@
 /*@import "~tabulator-tables/dist/css/tabulator.min.css";*/
 @import "~tabulator-tables/dist/css/tabulator_simple.min.css";
 
+
+.tabulator-menu {
+  border: 2px solid #999;
+  border-radius: 4px;
+}
+
+.tabulator-menu .tabulator-menu-item:not(.tabulator-menu-item-disabled):hover {
+  background: rgb(242, 241, 249);
+}
+
 .tabulator .tabulator-header .tabulator-col .tabulator-col-content .tabulator-col-sorter {
   display: none;
 }
@@ -313,6 +323,19 @@ var headerContextMenu = [
       column.hide();
     }
   },
+  {
+    label: "Filter",
+    action: function (e, column) {
+      column.updateDefinition({headerFilter: true})
+    }
+  },
+  {
+    label: "Delete Column",
+    action: function (e, column) {
+      column.hide();
+      tableComponent.methods.deleteColumn(column)
+    }
+  },
 ]
 
 //Create Date Editor
@@ -378,6 +401,9 @@ const tableComponent = {
   props: ["baseItem"],
   // todo use the config property to show only configured columns for this view and not all columns
   methods: {
+    deleteColumn(column) {
+      console.log("Delete column", column, this, this.$q)
+    },
     updateTabulatorPrototype() {
 
       const that = this;
@@ -537,7 +563,6 @@ const tableComponent = {
         newColumnName = "new_column_" + i
       }
       console.log("new column name", that.spreadsheet.getColumns());
-      var columns = that.spreadsheet.getColumns();
 
 
       let formatter = col.ColumnType === "truefalse" ? "tickCross" : null;
@@ -569,6 +594,7 @@ const tableComponent = {
       };
       that.newColumnTypeToBeAdded = col;
       var promise = null;
+      var columns = that.spreadsheet.getColumns();
       if (columns.length > 3) {
         var secondLastColumn = columns[columns.length - 2]
         promise = that.spreadsheet.addColumn(newColumnDefinition, false, secondLastColumn._column.field);
@@ -886,7 +912,6 @@ const tableComponent = {
             field: col.ColumnName,
             editor: col.ColumnType === "datetime" ? "dateEditor" : true,
             headerContextMenu: headerContextMenu,
-            headerFilter: that.tabulatorOptions.headerFilter,
             editable: !col.ColumnType.startsWith('file.'),
             formatter: formatter,
             width: width,
@@ -969,13 +994,24 @@ const tableComponent = {
             }
 
 
-            if (columnDefinition.field === "new_column") {
+            if (columnDefinition.field.startsWith("new_column") && columnField !== columnDefinition.field) {
 
+              var columns = that.spreadsheet.getColumns();
+              var secondLastColumn = columns[columns.length - 2]
 
               var newColumn = that.newColumnTypeToBeAdded;
               newColumn.Name = columnTitle;
               newColumn.ColumnName = columnField;
               newColumn.IsNullable = true;
+              if (newColumn.ColumnType.startsWith("file.")) {
+                newColumn.DataType = "blob"
+                newColumn.IsForeignKey = true;
+                newColumn.ForeignKeyData = {
+                  DataSource: "cloud_store",
+                  Namespace: "localstore",
+                  KeyName: newColumn.ColumnName,
+                }
+              }
               console.log("New column added to the table", newColumn);
 
 
@@ -994,7 +1030,13 @@ const tableComponent = {
                   }]
                 }
               }).then(function (res) {
-                columnComponent.updateDefinition({field: columnField})
+                console.log("Update field definition for column", columnComponent, columnField);
+
+                that.spreadsheet.updateColumnDefinition(columnDefinition.field, {field: columnField})
+
+                // that.newColumnTypeToBeAdded.field = columnField;
+                // that.spreadsheet.addColumn(that.newColumnTypeToBeAdded, false, secondLastColumn._column.field)
+
                 that.$q.notify({
                   message: "Column " + columnTitle + " created"
                 });
@@ -1237,6 +1279,33 @@ const tableComponent = {
             ColumnType: "truefalse",
             DataType: "int(1)",
             DefaultValue: '0'
+          }
+        },
+        {
+          name: "image",
+          icon: "fas fa-image",
+          columnDef: {
+            ColumnName: "file",
+            ColumnType: "file.jpg|jpeg|png|gif|ico",
+            DataType: "blob",
+          }
+        },
+        {
+          name: "audio",
+          icon: "fas fa-file-audio",
+          columnDef: {
+            ColumnName: "file",
+            ColumnType: "file.mp3|wav|aac",
+            DataType: "blob",
+          }
+        },
+        {
+          name: "video",
+          icon: "fas fa-video",
+          columnDef: {
+            ColumnName: "file",
+            ColumnType: "file.mkv|mp4",
+            DataType: "blob",
           }
         },
         {
