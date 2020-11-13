@@ -25,12 +25,11 @@
                   <q-menu context-menu style="min-width: 300px">
                     <q-list>
 
-                      <q-item clickable>
+                      <q-item clickable disable>
                         <q-item-section>
                           <q-item-label>Customise item</q-item-label>
                         </q-item-section>
                       </q-item>
-
                       <q-item clickable @click="renameBaseItem(item)">
                         <q-item-section>
                           <q-item-label>Rename item</q-item-label>
@@ -116,15 +115,15 @@
     </q-dialog>
 
     <q-dialog v-model="showRenameBaseViewModel">
-      <q-card style="background: white">
+      <q-card style="background: white; min-width: 400px;">
         <q-card-section>
-          <span class="h5">Rename</span>
+          <span class="text-h5">Rename item</span>
         </q-card-section>
         <q-card-section>
           <q-input v-model="newName"></q-input>
         </q-card-section>
         <q-card-actions align="right">
-          <q-btn label="Update" @click="renameBaseItem"></q-btn>
+          <q-btn label="Update" @click="renameBaseItem" color="primary"></q-btn>
         </q-card-actions>
       </q-card>
     </q-dialog>
@@ -311,15 +310,13 @@ export default {
           message: "Failed to create new item - " + JSON.stringify(err)
         })
       })
-
-
     },
     deleteBaseConfirm() {
       // TODO: more things need to be deleted here - tables, documents and other attachments
       console.log("Delete base", this.baseName);
       const that = this;
       that.confirmDeleteBaseMessage = false;
-      var baseItems = that.loadData({
+      that.loadData({
         tableName: "document",
         params: {
           query: JSON.stringify([{
@@ -544,11 +541,11 @@ export default {
       return new Promise(function (resolve, reject) {
         Promise.all(promises).then(function () {
           if (updateSchema.Tables.length > 0) {
+            that.$q.loadingBar.start();
 
             that.$q.notify({
               message: "Creating " + updateSchema.Tables.length + " tables"
             });
-
             that.executeAction({
               tableName: "world",
               actionName: "upload_system_schema",
@@ -563,44 +560,72 @@ export default {
               that.$q.notify({
                 message: "Base tables created, please wait while we generate random data to begin"
               });
+              that.$q.loadingBar.stop();
+              that.$q.loadingBar.start(5);
 
-              setTimeout(function () {
-                console.log("Try to create random data for the new base");
-                that.$q.notify({
-                  message: "Generating random data for " + updateSchema.Tables.length + " tables"
-                });
-                that.$q.loadingBar.start(10);
-                var randomDataPromises = []
-                randomDataPromises = updateSchema.Tables.map(function (table) {
-                  console.log("Create random data for ", table.TableName);
 
-                  return that.executeAction({
-                    tableName: "world",
-                    actionName: "generate_random_data",
-                    params: {
-                      "table_name": table.TableName,
-                      "count": 10,
-                    }
-                  }).then(function (res) {
-                    console.log("Random data generated for table", table.TableName)
-                  }).catch(function (err) {
-                    console.log("Failed to generate random data for ", table.TableName, err)
-                  })
+              console.log("Try to create random data for the new base");
+              that.$q.notify({
+                message: "Generating random data for " + updateSchema.Tables.length + " tables"
+              });
+              var randomDataPromises = []
+              randomDataPromises = updateSchema.Tables.map(function (table) {
+                console.log("Create random data for ", table.TableName);
+
+                return new Promise(function (resolve, reject) {
+                  var generateRandomDataAndLoad = function () {
+
+                    setTimeout(function () {
+                      that.executeAction({
+                        tableName: "world",
+                        actionName: "generate_random_data",
+                        params: {
+                          "table_name": table.TableName,
+                          "count": 10,
+                        }
+                      }).then(function (res) {
+                        console.log("Generate random data response", res)
+                        if (!res || res === "") {
+                          console.log("data generate failed, try again", res)
+                          that.$q.loadingBar.increment(1000 / updateSchema.Tables.length);
+                          generateRandomDataAndLoad()
+                          return
+                        }
+                        that.$q.loadingBar.increment(100 / updateSchema.Tables.length);
+                        console.log("Random data generated for table", table.TableName)
+                        resolve();
+
+                      }).catch(function (err) {
+                        generateRandomDataAndLoad()
+                        console.log("Failed to generate random data for ", table.TableName, err)
+                      })
+                    }, 5000)
+
+
+                  }
+                  generateRandomDataAndLoad()
+
                 })
-                Promise.all(randomDataPromises).then(function () {
-                  that.$q.loadingBar.stop();
-                  resolve()
 
-                }).catch(reject)
-              }, 5000)
+
+              })
+              Promise.all(randomDataPromises).then(function () {
+                that.$q.loadingBar.stop();
+                resolve()
+              }).catch(function (err) {
+                console.log("Failed to create random data", err)
+              })
+
 
             }).catch(function (err) {
               console.log("Failed to create table", err)
               that.$q.notify({
                 message: "Failed to create tables for the base"
               });
-
+              reject()
             })
+
+
           } else {
             resolve();
           }

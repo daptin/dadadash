@@ -155,6 +155,18 @@
   border-radius: 4px;
 }
 
+.tabulator-row:hover .row-selection-checkbox input {
+  display: block;
+}
+
+.tabulator-row .row-selection-checkbox input:checked {
+  display: block;
+}
+
+.tabulator-row .row-selection-checkbox input {
+  display: none;
+}
+
 .tabulator-menu .tabulator-menu-item:not(.tabulator-menu-item-disabled):hover {
   background: rgb(242, 241, 249);
 }
@@ -383,21 +395,23 @@ const toSnakeCase = (str = '') => {
 };
 
 const AddNewMediaElement = function (icon) {
+  var title = "File missing from storage"
   if (!icon) {
     icon = "fas fa-plus"
+    title = "Add new"
   }
   var addNewItem = document.createElement("div");
-  addNewItem.innerHTML = "<span class='fas fa-plus'></span>";
-  addNewItem.setAttribute("title", "Add new");
+  addNewItem.innerHTML = "<span class='" + icon + "'></span>";
+  addNewItem.setAttribute("title", title);
   addNewItem.setAttribute("style", "" +
-    "width: 100px; " +
-    "height: 100px; " +
+    "width: 80px; " +
+    "height: 80px; " +
     "cursor: pointer; " +
     "background: #fff; " +
     "border: 2px solid #eee; " +
     "text-align: center; " +
     "vertical-align: middle; " +
-    "padding-top: 40px; " +
+    "padding-top: 30px; " +
     "border-radius: 4px;" +
     "")
   return addNewItem;
@@ -413,7 +427,7 @@ const CreateMediaContainers = function (type, field) {
   let sourceContents = field.contents;
 
   if (!sourceContents) {
-    return AddNewMediaElement("fas fa-sync-alt")
+    return AddNewMediaElement("fas fa-question")
   }
 
   if (!sourceContents.startsWith("data:")) {
@@ -549,6 +563,7 @@ const tableComponent = {
 
       let newColumnDefinition = that.createColumnFromDefinition(col);
       that.newColumnTypeToBeAdded = col;
+      newColumnDefinition.editableTitle = true;
       var promise = null;
       var columns = that.spreadsheet.getColumns();
       if (columns.length > 3) {
@@ -558,11 +573,16 @@ const tableComponent = {
         promise = that.spreadsheet.addColumn(newColumnDefinition, false, "rowSelection");
       }
       promise.then(function (column) {
-        console.log("Column created", document.getElementsByClassName("tabulator-title-editor"))
-        document.getElementsByClassName("tabulator-title-editor")[0].focus()
-        document.getElementsByClassName("tabulator-title-editor")[0].setSelectionRange(0, document.getElementsByClassName("tabulator-title-editor")[0].value.length)
+
+        that.$nextTick().then(function () {
+          console.log("Column created", document.getElementsByClassName("tabulator-title-editor"))
+
+          document.getElementsByClassName("tabulator-title-editor")[0].focus()
+          document.getElementsByClassName("tabulator-title-editor")[0].setSelectionRange(0, document.getElementsByClassName("tabulator-title-editor")[0].value.length)
+        })
       })
         .catch(function (error) {
+          console.log("Failed to create element")
           that.$q.notify({
             message: "Failed to add new column to the table, please try later - " + JSON.stringify(error)
           })
@@ -870,6 +890,11 @@ const tableComponent = {
           headerSort: false
         });
 
+        columns.unshift({
+          title: "", hozAlign: "center",
+          formatter: "rownum"
+        });
+
         columns.push({
           formatter: function (cell, formatterParams, onRendered) {
             return "<div class='add-new-container'></div>"; //return the contents of the cell;
@@ -933,7 +958,7 @@ const tableComponent = {
                 newColumn.ForeignKeyData = {
                   DataSource: "cloud_store",
                   Namespace: "localstore",
-                  KeyName: newColumn.ColumnName,
+                  KeyName: that.tableName + "-" + newColumn.ColumnName,
                 }
               }
               console.log("New column added to the table", newColumn);
@@ -992,6 +1017,10 @@ const tableComponent = {
             console.log("row selection changed", data, rows);
             that.selectedRows = data;
           },
+          rowClick: function (e, row) {
+            console.log("Row clicked", row);
+            row.toggleSelect();
+          },
           cellDblClick: function (e, cell) {
             // e - the click event object
             // cell - cell component
@@ -1037,7 +1066,7 @@ const tableComponent = {
               }).catch(function (e) {
                 console.log("Failed to save", e)
                 that.$q.notify({
-                  message: "Failed to save"
+                  message: "Failed to save - " + e[0].title
                 });
                 // that.spreadsheet.undo();
               });

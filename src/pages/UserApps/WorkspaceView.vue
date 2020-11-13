@@ -15,7 +15,7 @@
             &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
         <q-btn
           color="primary" icon="add"
-          label="Add Base" @click="showAddBase = true" v-if="!showAddBase">
+          label="Add Base" size="sm" @click="showAddBase = true" v-if="!showAddBase">
         </q-btn>
         <q-btn
           color="primary" icon="fas fa-times"

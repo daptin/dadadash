@@ -116,23 +116,123 @@ export default {
                 }
               },
               {
-                type: "view",
-                label: "Bugs",
+                type: "summary",
+                label: "Bug tracker",
                 target: {
                   name: "bug"
                 },
+                title: {
+                  icon: "fas fa-bug",
+                  label: "Bug tracker",
+                  color: "green",
+                },
+                attributes: {
+                  source: {
+                    type: "aggregate",
+                    attributes: {
+                      tableName: "bug",
+                      group: "date(updated_at)",
+                      column: "count(*)",
+                      filter: ["eq(status, fixed)"]
+                    }
+                  }
+                }
+              },
+              {
+                type: "document",
+                label: "Legal note for end user"
+              },
+              {
+                type: "spreadsheet",
+                label: "Tax Projections By Merchant"
+              },
+              {
+                type: "calendar",
+                label: "Holiday Calender 2020"
+              },
+            ],
+          }
+        },
+        {
+          label: "Log ML Experiments",
+          icon: "fas fa-train",
+          schema: {
+            icon: "fas fa-wrench",
+            label: "Project tracker",
+            items: [
+              {
+                type: "table",
+                label: "project",
+                attributes: {
+                  TableName: "project",
+                  Columns: [
+                    {
+                      ColumnName: "project_name",
+                      ColumnType: "label",
+                    },
+                    {
+                      ColumnName: "project_start_date",
+                      ColumnType: "datetime",
+                    },
+                    {
+                      ColumnName: "project_end_date",
+                      ColumnType: "datetime",
+                    },
+                    {
+                      ColumnName: "project_cost",
+                      ColumnType: "measurement",
+                    },
+                    {
+                      ColumnName: "project_rating",
+                      ColumnType: "rating",
+                    },
+                    {
+                      ColumnName: "project_logo",
+                      ColumnType: "file.png|jpg",
+                      IsNullable: true,
+                      DataType: "blob",
+                    },
+                  ]
+                }
+              },
+              {
+                type: "table",
+                label: "bug",
                 attributes: {
                   TableName: "bug",
-                  Columns: [{
-                    ColumnName: "bug_title",
-                    ColumnType: "label",
-                  }, {
-                    ColumnName: "status",
-                    ColumnType: "label",
-                  }, {
-                    ColumnName: "created_at",
-                    ColumnType: "datetime",
-                  }]
+                  Columns: [
+                    {
+                      ColumnName: "bug_title",
+                      ColumnType: "label",
+                    },
+                    {
+                      ColumnName: "status",
+                      ColumnType: "label",
+                    },
+                    {
+                      ColumnName: "blocker_count",
+                      ColumnType: "measurement",
+                    },
+                    {
+                      ColumnName: "eta_resolve",
+                      ColumnType: "datetime",
+                    },
+                    {
+                      ColumnName: "bug_description",
+                      ColumnType: "content",
+                      DataType: "text",
+                    },
+                    {
+                      ColumnName: "confirmed",
+                      ColumnType: "truefalse",
+                      DataType: "int(1)",
+                    },
+                    {
+                      ColumnName: "locked",
+                      ColumnType: "truefalse",
+                      DataType: "int(1)",
+                    }
+                  ]
                 }
               },
               {
@@ -174,16 +274,245 @@ export default {
           }
         },
         {
-          label: "Log ML Experiments",
-          icon: "fas fa-train"
-        },
-        {
           label: "Bug tracker",
-          icon: "fas fa-bug"
-        },
+          icon: "fas fa-bug",
+          schema: {
+            icon: "fas fa-wrench",
+            label: "Project tracker",
+            items: [
+              {
+                type: "table",
+                label: "project",
+                attributes: {
+                  TableName: "project",
+                  Columns: [
+                    {
+                      ColumnName: "project_name",
+                      ColumnType: "label",
+                    },
+                    {
+                      ColumnName: "project_start_date",
+                      ColumnType: "datetime",
+                    },
+                    {
+                      ColumnName: "project_end_date",
+                      ColumnType: "datetime",
+                    },
+                    {
+                      ColumnName: "project_cost",
+                      ColumnType: "measurement",
+                    },
+                    {
+                      ColumnName: "project_rating",
+                      ColumnType: "rating",
+                    },
+                    {
+                      ColumnName: "project_logo",
+                      ColumnType: "file.png|jpg",
+                      IsNullable: true,
+                      DataType: "blob",
+                    },
+                  ]
+                }
+              },
+              {
+                type: "table",
+                label: "bug",
+                attributes: {
+                  TableName: "bug",
+                  Columns: [
+                    {
+                      ColumnName: "bug_title",
+                      ColumnType: "label",
+                    },
+                    {
+                      ColumnName: "status",
+                      ColumnType: "label",
+                    },
+                    {
+                      ColumnName: "blocker_count",
+                      ColumnType: "measurement",
+                    },
+                    {
+                      ColumnName: "eta_resolve",
+                      ColumnType: "datetime",
+                    },
+                    {
+                      ColumnName: "bug_description",
+                      ColumnType: "content",
+                      DataType: "text",
+                    },
+                    {
+                      ColumnName: "confirmed",
+                      ColumnType: "truefalse",
+                      DataType: "int(1)",
+                    },
+                    {
+                      ColumnName: "locked",
+                      ColumnType: "truefalse",
+                      DataType: "int(1)",
+                    }
+                  ]
+                }
+              },
+              {
+                type: "summary",
+                label: "Bug tracker",
+                target: {
+                  name: "bug"
+                },
+                title: {
+                  icon: "fas fa-bug",
+                  label: "Bug tracker",
+                  color: "green",
+                },
+                attributes: {
+                  source: {
+                    type: "aggregate",
+                    attributes: {
+                      tableName: "bug",
+                      group: "date(updated_at)",
+                      column: "count(*)",
+                      filter: ["eq(status, fixed)"]
+                    }
+                  }
+                }
+              },
+              {
+                type: "document",
+                label: "Legal note for end user"
+              },
+              {
+                type: "spreadsheet",
+                label: "Tax Projections By Merchant"
+              },
+              {
+                type: "calendar",
+                label: "Holiday Calender 2020"
+              },
+            ],
+          }
+        }
+        ,
         {
           label: "Feedback collection",
-          icon: "fas fa-comment-dots"
+          icon: "fas fa-comment-dots",
+          schema: {
+            icon: "fas fa-wrench",
+            label: "Project tracker",
+            items: [
+              {
+                type: "table",
+                label: "project",
+                attributes: {
+                  TableName: "project",
+                  Columns: [
+                    {
+                      ColumnName: "project_name",
+                      ColumnType: "label",
+                    },
+                    {
+                      ColumnName: "project_start_date",
+                      ColumnType: "datetime",
+                    },
+                    {
+                      ColumnName: "project_end_date",
+                      ColumnType: "datetime",
+                    },
+                    {
+                      ColumnName: "project_cost",
+                      ColumnType: "measurement",
+                    },
+                    {
+                      ColumnName: "project_rating",
+                      ColumnType: "rating",
+                    },
+                    {
+                      ColumnName: "project_logo",
+                      ColumnType: "file.png|jpg",
+                      IsNullable: true,
+                      DataType: "blob",
+                    },
+                  ]
+                }
+              },
+              {
+                type: "table",
+                label: "bug",
+                attributes: {
+                  TableName: "bug",
+                  Columns: [
+                    {
+                      ColumnName: "bug_title",
+                      ColumnType: "label",
+                    },
+                    {
+                      ColumnName: "status",
+                      ColumnType: "label",
+                    },
+                    {
+                      ColumnName: "blocker_count",
+                      ColumnType: "measurement",
+                    },
+                    {
+                      ColumnName: "eta_resolve",
+                      ColumnType: "datetime",
+                    },
+                    {
+                      ColumnName: "bug_description",
+                      ColumnType: "content",
+                      DataType: "text",
+                    },
+                    {
+                      ColumnName: "confirmed",
+                      ColumnType: "truefalse",
+                      DataType: "int(1)",
+                    },
+                    {
+                      ColumnName: "locked",
+                      ColumnType: "truefalse",
+                      DataType: "int(1)",
+                    }
+                  ]
+                }
+              },
+              {
+                type: "summary",
+                label: "Bug tracker",
+                target: {
+                  name: "bug"
+                },
+                title: {
+                  icon: "fas fa-bug",
+                  label: "Bug tracker",
+                  color: "green",
+                },
+                attributes: {
+                  source: {
+                    type: "aggregate",
+                    attributes: {
+                      tableName: "bug",
+                      group: "date(updated_at)",
+                      column: "count(*)",
+                      filter: ["eq(status, fixed)"]
+                    }
+                  }
+                }
+              },
+              {
+                type: "document",
+                label: "Legal note for end user"
+              },
+              {
+                type: "spreadsheet",
+                label: "Tax Projections By Merchant"
+              },
+              {
+                type: "calendar",
+                label: "Holiday Calender 2020"
+              },
+            ],
+          }
         },
       ]
     }
