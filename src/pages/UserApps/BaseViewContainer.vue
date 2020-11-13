@@ -50,7 +50,8 @@
                 <q-menu>
                   <q-list style="min-width: 280px">
 
-                    <q-item clickable @click="addBaseItem(item)" v-close-popup v-for="item in baseItemTypes"
+                    <q-item :disable="item.disabled" clickable @click="addBaseItem(item)" v-close-popup
+                            v-for="item in baseItemTypes"
                             :key="item.label">
                       <q-item-section>{{ item.label }}</q-item-section>
                       <q-item-section avatar>
@@ -696,7 +697,8 @@ export default {
         "mailbox": {
           label: "Mailbox",
           type: "mailbox",
-          icon: 'all_inbox'
+          icon: 'all_inbox',
+          disabled: true
         },
 
       },

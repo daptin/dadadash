@@ -6,13 +6,31 @@
         <q-bar style="padding-left: 0; width: 100% ; background: white">
 
 
+<!--          <q-btn size="sm" flat icon="fas fa-bars">-->
+<!--            <q-menu>-->
+<!--              <q-card style="background: white; min-width: 300px">-->
+<!--                <q-card-section>-->
+<!--                  <q-list>-->
+<!--                    <q-item clickable v-for="column in newRowData">-->
+<!--                      <q-item-section>-->
+<!--                        <q-checkbox v-model="column.meta.IsHidden"></q-checkbox>-->
+<!--                      </q-item-section>-->
+<!--                      <q-item-section>-->
+<!--                        {{ column.meta.ColumnName }}-->
+<!--                      </q-item-section>-->
+<!--                    </q-item>-->
+<!--                  </q-list>-->
+<!--                </q-card-section>-->
+<!--              </q-card>-->
+<!--            </q-menu>-->
+<!--          </q-btn>-->
           <q-btn size="sm" @click="showNewRowDrawer()" flat label="New row"></q-btn>
           <q-btn size="sm" @click="showPermissionsDrawer()" color="primary" flat label="Table Permissions"></q-btn>
           <q-btn size="sm" flat label="Table Options">
             <q-menu anchor="bottom left" self="top left">
               <q-item clickable>
                 <q-item-section>
-                  <q-checkbox size="xs" @input="refreshData()" label="Show column filters"
+                  <q-checkbox size="xs" @change="refreshData()" label="Show column filters"
                               v-model="tabulatorOptions.headerFilter"></q-checkbox>
                 </q-item-section>
               </q-item>
@@ -920,7 +938,7 @@ const tableComponent = {
         });
 
 
-        that.spreadsheet = new Tabulator("#spreadsheet", {
+        let TABULATOR_DEFAULT_OPTIONS = {
           data: [],
           columns: columns,
           // pagination: "remote",
@@ -1182,7 +1200,11 @@ const tableComponent = {
               data: responseList
             }; //return the response data to tabulator
           },
-        });
+        };
+
+        let tabulatorOptions = {...TABULATOR_DEFAULT_OPTIONS, ...that.tabulatorOptions}
+        console.log("Tabulator options", tabulatorOptions)
+        that.spreadsheet = new Tabulator("#spreadsheet", tabulatorOptions);
       });
 
       that.loadData({

@@ -117,13 +117,13 @@ export default {
               },
               {
                 type: "summary",
-                label: "Bug tracker",
+                label: "Project tracker",
                 target: {
                   name: "bug"
                 },
                 title: {
-                  icon: "fas fa-bug",
-                  label: "Bug tracker",
+                  icon: "fas fa-wrench",
+                  label: "Project tracker",
                   color: "green",
                 },
                 attributes: {
@@ -157,8 +157,8 @@ export default {
           label: "Log ML Experiments",
           icon: "fas fa-train",
           schema: {
-            icon: "fas fa-wrench",
-            label: "Project tracker",
+            icon: "fas fa-train",
+            label: "ML Experiment tracker",
             items: [
               {
                 type: "table",
@@ -237,13 +237,13 @@ export default {
               },
               {
                 type: "summary",
-                label: "Bug tracker",
+                label: "ML Experiment tracker",
                 target: {
                   name: "bug"
                 },
                 title: {
-                  icon: "fas fa-bug",
-                  label: "Bug tracker",
+                  icon: "fas fa-train",
+                  label: "ML Experiment tracker",
                   color: "green",
                 },
                 attributes: {
@@ -277,8 +277,8 @@ export default {
           label: "Bug tracker",
           icon: "fas fa-bug",
           schema: {
-            icon: "fas fa-wrench",
-            label: "Project tracker",
+            icon: "fas fa-bug",
+            label: "Bug tracker",
             items: [
               {
                 type: "table",
