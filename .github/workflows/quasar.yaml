@@ -33,7 +33,7 @@ jobs:
           quasar build -m spa
 
       - name: Use joshstrange/setup-quasar
-        uses: joshstrange/setup-quasar@v1.0.0
+        uses: joshstrange/setup-quasar@1.0.0
         with:
           cordova-version: 9
 
