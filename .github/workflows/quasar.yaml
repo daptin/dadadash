@@ -32,6 +32,15 @@ jobs:
         run: |
           quasar build -m spa
 
+      - name: Use joshstrange/setup-quasar
+        uses: joshstrange/setup-quasar@v1
+        with:
+          cordova-version: 9
+
+      - name: Build
+        run: |
+          quasar build -m cordova -T android
+
       - uses: actions/upload-artifact@v2
         with:
           name: web-spa
