@@ -1,94 +1,99 @@
 <template xmlns:v-slot="http://www.w3.org/1999/XSL/Transform">
-  <div>
+  <q-page-container>
 
-    <div class="q-pa-md q-gutter-sm">
-      <q-breadcrumbs>
-        <template v-slot:separator>
-          <q-icon
-            size="1.2em"
-            name="arrow_forward"
-            color="black"
-          />
-        </template>
+    <q-page>
 
-        <q-breadcrumbs-el label="Integrations" icon="fas fa-bolt"/>
-        <q-breadcrumbs-el label="Actions" icon="fas fa-wrench"/>
-      </q-breadcrumbs>
-    </div>
-    <q-separator></q-separator>
+      <div class="q-pa-md q-gutter-sm">
+        <q-breadcrumbs>
+          <template v-slot:separator>
+            <q-icon
+              size="1.2em"
+              name="arrow_forward"
+              color="black"
+            />
+          </template>
 
-    <div class="row q-pa-md q-gutter-sm">
-
-      <div class="col-12">
-        <q-input clear-icon="fas fa-times" label="search" v-model="actionFilter"></q-input>
+          <q-breadcrumbs-el label="Integrations" icon="fas fa-bolt"/>
+          <q-breadcrumbs-el label="Actions" icon="fas fa-wrench"/>
+        </q-breadcrumbs>
       </div>
-      <div class="col-12">
+      <q-separator></q-separator>
 
-        <q-markup-table flat>
-          <thead>
-          <tr class="text-left">
-            <th>Name</th>
-            <th># Input fields</th>
-            <th># Output fields</th>
-            <th></th>
-          </tr>
-          </thead>
-          <tbody>
-          <tr v-for="action in filteredActions">
-            <td>{{ action.action_schema.Label }} on {{ action.action_schema.OnType }}</td>
-            <td>{{ action.action_schema.InFields ? action.action_schema.InFields.length : 0 }}</td>
-            <td>{{ action.action_schema.OutFields ? action.action_schema.OutFields.length : 0 }}</td>
-            <td class="text-right">
-              <q-btn @click="showEditAction(action)" size="sm"
-                     label="Edit action" class="float-right"></q-btn>
+      <div class="row q-pa-md q-gutter-sm">
 
-            </td>
-          </tr>
-          </tbody>
-        </q-markup-table>
+        <div class="col-12">
+          <q-input clear-icon="fas fa-times" label="search" v-model="actionFilter"></q-input>
+        </div>
+        <div class="col-12">
+
+          <q-markup-table flat>
+            <thead>
+            <tr class="text-left">
+              <th>Name</th>
+              <th># Input fields</th>
+              <th># Output fields</th>
+              <th></th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr v-for="action in filteredActions">
+              <td>{{ action.action_schema.Label }} on {{ action.action_schema.OnType }}</td>
+              <td>{{ action.action_schema.InFields ? action.action_schema.InFields.length : 0 }}</td>
+              <td>{{ action.action_schema.OutFields ? action.action_schema.OutFields.length : 0 }}</td>
+              <td class="text-right">
+                <q-btn @click="showEditAction(action)" size="sm"
+                       label="Edit action" class="float-right"></q-btn>
+
+              </td>
+            </tr>
+            </tbody>
+          </q-markup-table>
+        </div>
+
       </div>
 
-    </div>
+
+      <q-page-sticky style="z-index: 3000" position="bottom-right" :offset="[20, 20]">
+        <q-btn @click="showCreateAction()" fab icon="add" color="primary"/>
+      </q-page-sticky>
+
+      <q-drawer overlay :width="400" side="right" v-model="showCreateActionDrawer">
+        <q-scroll-area class="fit row">
+          <q-card>
+            <q-card-section>
+              <span class="text-h6">Create action</span>
+            </q-card-section>
+            <q-card-section>
+              <q-form class="q-gutter-md">
+                <textarea id="actionSchemaEditor"></textarea>
+              </q-form>
+            </q-card-section>
+            <q-card-actions align="right">
+              <q-btn @click="showCreateActionDrawer = false">Cancel</q-btn>
+              <q-btn class="float-right" color="primary" @click="createAction()">Create</q-btn>
+
+            </q-card-actions>
+
+          </q-card>
+        </q-scroll-area>
+      </q-drawer>
 
 
-    <q-page-sticky style="z-index: 3000" position="bottom-right" :offset="[20, 20]">
-      <q-btn @click="showCreateAction()" fab icon="add" color="primary"/>
-    </q-page-sticky>
-
-    <q-drawer overlay content-class="bg-grey-3" :width="400" side="right" v-model="showCreateActionDrawer">
-      <q-scroll-area class="fit row">
-        <div class="q-pa-md">
-          <span class="text-h6">Create action</span>
-          <q-form class="q-gutter-md">
-            <textarea id="actionSchemaEditor"></textarea>
-            <!--            <q-input label="Action Name" v-model="newAction.action_name"></q-input>-->
-            <!--            <q-input label="Label" v-model="newAction.label"></q-input>-->
-            <!--            <q-select label="On Type" :options="tables" option-value="reference_id" emit-value map-options-->
-            <!--                      option-label="table_name" v-model="newAction.onType"></q-select>-->
+      <q-drawer overlay content-class="bg-grey-3" :width="400" side="right" v-model="showEditActionDrawer">
+        <q-scroll-area class="fit row">
+          <div class="q-pa-md">
+            <span class="text-h6">Edit action</span>
+            <q-form class="q-gutter-md">
+              <q-btn color="negative" @click="deleteAction()">Delete</q-btn>
+              <q-btn class="float-right" @click="showEditActionDrawer = false">Cancel</q-btn>
+            </q-form>
+          </div>
+        </q-scroll-area>
+      </q-drawer>
+    </q-page>
 
 
-            <q-btn class="float-right" color="primary" @click="createAction()">Create</q-btn>
-            <q-btn @click="showCreateActionDrawer = false">Cancel</q-btn>
-          </q-form>
-        </div>
-      </q-scroll-area>
-    </q-drawer>
-
-
-    <q-drawer overlay content-class="bg-grey-3" :width="400" side="right" v-model="showEditActionDrawer">
-      <q-scroll-area class="fit row">
-        <div class="q-pa-md">
-          <span class="text-h6">Edit action</span>
-          <q-form class="q-gutter-md">
-            <q-btn color="negative" @click="deleteAction()">Delete</q-btn>
-            <q-btn class="float-right" @click="showEditActionDrawer = false">Cancel</q-btn>
-          </q-form>
-        </div>
-      </q-scroll-area>
-    </q-drawer>
-
-
-  </div>
+  </q-page-container>
 </template>
 
 <script>

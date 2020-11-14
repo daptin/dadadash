@@ -111,48 +111,11 @@ export default {
           icon: 'fas fa-briefcase'
         },
         {
-          name: "Email",
-          enable: false,
-          path: '/apps/email',
-          icon: 'fas fa-envelope'
-        },
-        {
-          name: "File browser",
-          path: '/apps/files',
+          name: "Control panel",
           enable: true,
-          icon: 'fas fa-archive'
+          path: '/',
+          icon: 'fas fa-wrench'
         },
-        {
-          name: "Contacts",
-          enable: false,
-          path: '/apps/contacts',
-          icon: 'fas fa-users'
-        },
-        // {
-        //   name: "Documents",
-        //   enable: true,
-        //   path: '/apps/document/new',
-        //   icon: 'fas fa-file-alt'
-        // },
-        // {
-        //   name: "Spreadsheet",
-        //   enable: true,
-        //   path: '/apps/spreadsheet/new',
-        //   icon: 'fas fa-file-csv'
-        // },
-        {
-          name: "Calendar",
-          enable: true,
-          path: '/apps/calendar',
-          icon: 'fas fa-calendar'
-        },
-        {
-          name: "Drag",
-          enable: true,
-          path: '/apps/drageditor',
-          icon: 'fas fa-hand-rock'
-        },
-
       ]
     }
   },

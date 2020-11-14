@@ -489,18 +489,6 @@ export default {
       })
     });
 
-    // that.loadDataRelations({
-    //   tableName: "world",
-    //   relation: "usergroup_id",
-    //   reference_id: "",
-    // }).then(function (res) {
-    //   that.userGroups = res.data;
-    // }).catch(function (err) {
-    //   that.$q.notify({
-    //     message: "Failed to load usergroups list: " + JSON.stringify(err)
-    //   })
-    // });
-
 
     this.refresh();
   },

@@ -1,4 +1,6 @@
 <template xmlns:v-slot="http://www.w3.org/1999/XSL/Transform">
+  <q-page-container>
+
   <q-page>
     <div>
       <rapi-doc
@@ -11,6 +13,8 @@
 
     </div>
   </q-page>
+  </q-page-container>
+
 </template>
 
 <script>

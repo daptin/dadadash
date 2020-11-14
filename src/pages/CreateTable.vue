@@ -1,9 +1,9 @@
 <template>
-  <div class="row">
-    <div class="col-12 q-pa-md">
+  <q-page-container>
+    <q-page>
       <table-editor :table="{}" v-on:save="createTable"></table-editor>
-    </div>
-  </div>
+    </q-page>
+  </q-page-container>
 </template>
 
 <script>

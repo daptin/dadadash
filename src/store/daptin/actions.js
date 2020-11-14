@@ -1,7 +1,7 @@
 import {DaptinClient} from 'daptin-client';
 
 // const daptinClient = new DaptinClient(window.location.protocol + "//" + window.location.hostname, false, function () {
-let endpoint = window.location.hostname === "site.daptin.com" ? "http://localhost:6336" : window.location.protocol + "//" + window.location.hostname + (window.location.port === "80" ? "" : ':' +window.location.port);
+let endpoint = window.location.hostname === "site.daptin.com" ? "http://localhost:6336" : window.location.protocol + "//" + window.location.hostname + (window.location.port === "80" ? "" : ':' + window.location.port);
 // let process = process || undefined;
 // if (process) {
 //   endpoint = "http://localhost:6336"
@@ -19,7 +19,7 @@ daptinClient.worldManager.init();
 
 export function loadTables({commit}) {
   console.log("Load tables");
-  daptinClient.worldManager.loadModels(true).then(function (worlds) {
+  daptinClient.worldManager.loadModels(false).then(function (worlds) {
     console.log("All models loaded", arguments);
     commit('setTables', worlds)
   }).catch(function (e) {
@@ -64,6 +64,10 @@ export function executeAction({commit}, params) {
   var tableName = params.tableName;
   var actionName = params.actionName;
   return daptinClient.actionManager.doAction(tableName, actionName, params.params);
+}
+
+export function deleteTableByName({commit}, tableName) {
+
 }
 
 export function deleteRow({commit}, row) {

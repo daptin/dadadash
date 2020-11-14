@@ -1,5 +1,7 @@
 <template xmlns:v-slot="http://www.w3.org/1999/XSL/Transform">
-  <div>
+  <q-page-container>
+
+    <q-page>
 
     <div class="q-pa-md q-gutter-sm">
       <q-breadcrumbs>
@@ -182,8 +184,9 @@
                       :site="selectedSite"></file-browser>
       </q-scroll-area>
     </q-drawer>
+    </q-page>
 
-  </div>
+  </q-page-container>
 </template>
 
 <script>

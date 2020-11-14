@@ -1342,7 +1342,7 @@ const tableComponent = {
       tablePermissionDrawer: false,
       currentPage: 1,
       tabulatorOptions: {
-        headerFilter: false,
+        // headerFilter: false,
       },
       currentPagination: {},
       defaultColumns: ['updated_at', 'created_at', 'reference_id', 'permission'],

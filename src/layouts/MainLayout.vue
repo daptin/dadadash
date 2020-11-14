@@ -65,11 +65,59 @@ text-align: center;
               <q-icon name="fas fa-briefcase"></q-icon>
             </q-item-section>
             <q-item-section>
-              Apps
+              Workspace
             </q-item-section>
 
           </q-item>
 
+          <q-expansion-item
+            expand-icon-class="text-white"
+            :value="true"
+            expand-separator
+            icon="fas fa-user"
+            label="Users">
+
+            <q-list>
+
+              <q-item :inset-level="1" clickable v-ripple @click="$router.push('/user/profile')">
+                <q-item-section avatar>
+                  <q-icon name="fas fa-id-card"></q-icon>
+
+                </q-item-section>
+                <q-item-section>
+                  <q-item-label>
+                    Profile
+                  </q-item-label>
+                </q-item-section>
+              </q-item>
+
+              <q-item :inset-level="1" clickable v-ripple @click="$router.push('/users')">
+                <q-item-section avatar>
+                  <q-icon name="fas fa-address-book"></q-icon>
+
+                </q-item-section>
+                <q-item-section>
+                  <q-item-label>
+                    Accounts
+                  </q-item-label>
+                </q-item-section>
+              </q-item>
+
+              <q-item :inset-level="1" clickable v-ripple @click="$router.push('/groups')">
+                <q-item-section avatar>
+                  <q-icon name="fas fa-users"></q-icon>
+
+                </q-item-section>
+                <q-item-section>
+                  <q-item-label>
+                    Groups
+                  </q-item-label>
+                </q-item-section>
+              </q-item>
+
+            </q-list>
+
+          </q-expansion-item>
 
           <q-expansion-item
             expand-icon-class="text-white"
@@ -145,54 +193,6 @@ text-align: center;
 
           </q-expansion-item>
 
-          <q-expansion-item
-            expand-icon-class="text-white"
-            :value="true"
-            expand-separator
-            icon="fas fa-user"
-            label="Users">
-
-            <q-list>
-
-              <q-item :inset-level="1" clickable v-ripple @click="$router.push('/user/profile')">
-                <q-item-section avatar>
-                  <q-icon name="fas fa-id-card"></q-icon>
-
-                </q-item-section>
-                <q-item-section>
-                  <q-item-label>
-                    Profile
-                  </q-item-label>
-                </q-item-section>
-              </q-item>
-
-              <q-item :inset-level="1" clickable v-ripple @click="$router.push('/users')">
-                <q-item-section avatar>
-                  <q-icon name="fas fa-address-book"></q-icon>
-
-                </q-item-section>
-                <q-item-section>
-                  <q-item-label>
-                    Accounts
-                  </q-item-label>
-                </q-item-section>
-              </q-item>
-
-              <q-item :inset-level="1" clickable v-ripple @click="$router.push('/groups')">
-                <q-item-section avatar>
-                  <q-icon name="fas fa-users"></q-icon>
-
-                </q-item-section>
-                <q-item-section>
-                  <q-item-label>
-                    Groups
-                  </q-item-label>
-                </q-item-section>
-              </q-item>
-
-            </q-list>
-
-          </q-expansion-item>
 
           <q-expansion-item
             expand-icon-class="text-white"
@@ -285,22 +285,16 @@ text-align: center;
     </q-drawer>
 
 
-    <q-page-container>
-      <router-view v-if="isAdmin || isUser"/>
+    <router-view v-if="isAdmin || isUser"/>
 
-      <q-page-sticky v-if="isAdmin || isUser && (!showHelp)" position="top-right" :offset="[0, 0]">
-        <q-btn flat @click="showHelp = true" fab icon="fas fa-question"/>
-      </q-page-sticky>
+    <q-drawer :width="fileDrawerWidth > 800 ? 800 : fileDrawerWidth" overlay :breakpoint="400" side="right"
+              v-model="showHelp">
+      <q-scroll-area class="fit" v-if="showHelp">
+        <help-page @closeHelp="showHelp = false">
+        </help-page>
+      </q-scroll-area>
+    </q-drawer>
 
-      <q-drawer :width="fileDrawerWidth > 800 ? 800 : fileDrawerWidth" overlay :breakpoint="400" side="right"
-                v-model="showHelp">
-        <q-scroll-area class="fit" v-if="showHelp">
-          <help-page @closeHelp="showHelp = false">
-          </help-page>
-        </q-scroll-area>
-      </q-drawer>
-
-    </q-page-container>
 
   </q-layout>
 </template>
@@ -382,7 +376,7 @@ export default {
           that.isUser = false;
         } else {
           that.isUser = true;
-          that.$router.push('/apps/workspace')
+          // that.$router.push('/apps/workspace')
         }
       });
 

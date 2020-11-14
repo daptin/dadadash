@@ -1,7 +1,7 @@
 <template>
   <q-form class="q-gutter-md">
     <div style="padding-bottom: 10px" class="row">
-      <div class="col-md-6">
+      <div class="col-md-6 q-pa-md">
         <span class="text-h4">{{!isEdit ? 'Create table' : 'Edit table'}}</span>
       </div>
     </div>
