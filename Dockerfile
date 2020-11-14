@@ -1,4 +1,4 @@
-FROM daptin/daptin
+FROM daptin/daptin:travis
 
 ADD dist/spa /opt/daptin/dashboard
 ENV DAPTIN_DASHBOARD /opt/daptin/dashboard
