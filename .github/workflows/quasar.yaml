@@ -20,22 +20,12 @@ jobs:
         with:
           node-version: '12'
 
-      - name: Install Libraries
-        shell: bash
-        run: |
-          npm install -g @quasar/cli
-          npm install
-
       - name: Use oxr463/setup-cordova
         uses: oxr463/setup-cordova@0.0.2
         with:
           exec: |
+            npm install -g @quasar/cli
+            npm install
             quasar build -m android
             ls -lah && \
             cp "$(find . -name '*.apk')" .
-
-      - name: Build
-        run: |
-          quasar build -m spa
-
-
