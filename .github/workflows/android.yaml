@@ -2,7 +2,7 @@ name: Build/android
 
 on: push
   branches:
-    - android-ci
+    - "android-ci"
 
 jobs:
   release:
