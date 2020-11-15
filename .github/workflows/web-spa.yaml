@@ -1,8 +1,9 @@
-name: Build/web-spa
+name: Build/android
 
-on: push
-  branches:
-    - master
+on:
+  push:
+    branches:
+      - master
 
 jobs:
   release:
@@ -22,35 +23,18 @@ jobs:
         with:
           node-version: '12'
 
-      - name: Install Libraries
-        shell: bash
-        run: |
-          npm install -g @quasar/cli
-          npm install -g cordova
-          npm install
-
-
-      - name: Build
-        run: |
-          quasar build -m spa
+      - name: Use oxr463/setup-cordova
+        uses: oxr463/setup-cordova@0.0.2
+        with:
+          exec: |
+            npm install -g @quasar/cli
+            npm install
+            quasar build -m android
+            find . -name '*.apk'
 
 
       - uses: actions/upload-artifact@v2
         with:
-          name: web-spa
-          path: dist/spa
-      - name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@v1
-      - name: Login to DockerHub
-        uses: docker/login-action@v1
-        with:
-          username: ${{ secrets.DOCKER_USERNAME }}
-          password: ${{ secrets.DOCKER_PASSWORD }}
-      - name: Build and push
-        id: docker_build
-        uses: docker/build-push-action@v2
-        with:
-          push: true
-          tags: daptin/dadadash:latest
-      - name: Image digest
-        run: echo ${{ steps.docker_build.outputs.digest }}
+          name: dadadash-app.apk
+          path: src-cordova/platforms/android/app/build/outputs/apk/release/app-release-unsigned.apk
+

@@ -1,8 +1,9 @@
 name: Build/android
 
-on: push
-  branches:
-    - "android-ci"
+on:
+  push:
+    branches:
+      - "android-ci"
 
 jobs:
   release:
