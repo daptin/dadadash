@@ -90,9 +90,6 @@ const routes = [
     component: () => import('layouts/UserLayout.vue'),
     children: [
       {
-        path: '', component: () => import('pages/UserApps/UserAppsList.vue')
-      },
-      {
         path: 'files', component: () => import('pages/UserApps/FileBrowser.vue')
       },
       {
@@ -144,14 +141,20 @@ const routes = [
     ]
   },
   {
-    path: '/',
+    path: '',
+    component: () => import('layouts/UserLayout.vue'),
+    children: [
+      {
+        path: '', component: () => import('pages/UserApps/WorkspaceBrowser.vue')
+      },
+    ]
+  },
+  {
+    path: '/admin',
     component: () => import('layouts/MainLayout.vue'),
     children: [
       {
         path: '', component: () => import('pages/Index.vue')
-      },
-      {
-        path: 'data', component: () => import('pages/Data.vue')
       },
     ]
   },
