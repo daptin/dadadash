@@ -2,7 +2,6 @@ name: Build/android
 
 on: push
   branches:
-    - "android-ci"
     - master
 
 jobs:

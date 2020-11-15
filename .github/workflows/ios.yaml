@@ -3,7 +3,6 @@ name: Build/android
 on: push
   branches:
     - "ios-ci"
-    - master
 
 jobs:
   release:
