@@ -27,6 +27,7 @@ jobs:
         shell: bash
         run: |
           npm install -g @quasar/cli
+          npm install -g cordova
           npm install
           quasar build -m ios
           ls -lah dist
