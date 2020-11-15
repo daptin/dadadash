@@ -1,6 +1,8 @@
 name: Build/web-spa
 
 on: push
+  branches:
+    - master
 
 jobs:
   release:
