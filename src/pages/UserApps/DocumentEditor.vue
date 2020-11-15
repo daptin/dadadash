@@ -1,10 +1,10 @@
 <template>
   <q-page-container style="padding-top: 0; overflow: hidden;">
-    <q-page style="min-height: 0 ; height:calc(100vh  - 50px); ">
+    <q-page style="min-height: 0 ; height:calc(100vh  - 38px); ">
       <div class="document-editor__toolbar"></div>
-      <div class="row" style=" overflow: hidden; ">
+      <div class="row" style=" overflow: hidden; width: 100vw">
 
-        <div class="col-12" style="height:calc(100vh  - 90px); overflow-y: scroll">
+        <div class="col-12" style="height:calc(100vh  - 80px); overflow-y: scroll">
           <div class="row-editor" v-for="page in pages">
             <div v-html="page.html" :id="page.id" class="editor"
                  :style="{
@@ -99,7 +99,7 @@
 
 
 </template>
-<style>
+<style scoped>
 @import '../../statics/ckeditor/ckeditor.css';
 
 @page {

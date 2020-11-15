@@ -49,7 +49,7 @@
 
       <div class="row">
         <div class="col-12" style="background: rgb(242, 241, 249)">
-          <div id="spreadsheet" style="height: calc(100vh - 100px); width: 100vw; border-top: 1px solid black"></div>
+          <div id="spreadsheet" style="height: calc(100vh - 70px); width: 100vw; border-top: 1px solid black"></div>
         </div>
       </div>
 

@@ -305,7 +305,8 @@ export default {
         console.log("New workspace item created", res)
         newItem.reference_id = res.data.reference_id;
         that.baseConfig.items.push(newItem);
-        that.baseItemMap[newItem.label] = res.data
+        that.baseItemMap[newItem.label] = res.data;
+        that.ensureBaseTables();
       }).catch(function (err) {
         that.$q.notify({
           message: "Failed to create new item - " + JSON.stringify(err)
@@ -509,17 +510,23 @@ export default {
       };
 
 
-      for (var i = 0; i < that.baseConfig.items.length; i++) {
-        var item = that.baseConfig.items[i];
-        if (item.type === "table") {
-          console.log("Table item", item, item.targetTable);
-          var targetTable = item.targetTable;
+      for (let i = 0; i < that.baseConfig.items.length; i++) {
+        const baseItem = that.baseConfig.items[i];
+        if (baseItem.type === "table") {
+          console.log("Table item", baseItem, baseItem.targetTable);
+          var targetTable = baseItem.targetTable;
           if (!targetTable) {
-            var targetTableConfig = item.attributes;
+            var targetTableConfig = baseItem.attributes;
+            if (!targetTableConfig) {
+              console.log("No columns defined for table: ", baseItem)
+              targetTableConfig = {
+                Columns: []
+              }
+            }
             targetTableConfig.TableName = "tab_" + makeid(7)
 
-            for (var j = 0; j < targetTableConfig.Columns.length; j++) {
-              var column = targetTableConfig.Columns[j];
+            for (let j = 0; j < targetTableConfig.Columns.length; j++) {
+              const column = targetTableConfig.Columns[j];
               if (column.ColumnType.startsWith("file.")) {
                 column.DataType = "blob"
                 column.IsForeignKey = true
@@ -531,14 +538,14 @@ export default {
               }
             }
 
-            console.log("No target table exists for this item, creating one", item.label, targetTableConfig.TableName);
+            console.log("No target table exists for this item, creating one", baseItem.label, targetTableConfig.TableName);
             updateSchema.Tables.push(targetTableConfig);
-            item.targetTable = targetTableConfig;
+            baseItem.targetTable = targetTableConfig;
 
-            that.baseItemMap[item.label].document_content[0].contents = btoa(JSON.stringify(item))
-            console.log("Update base request", that.baseItemMap[item.label])
-            that.baseItemMap[item.label].tableName = "document";
-            promises.push(that.updateRow(that.baseItemMap[item.label]))
+            that.baseItemMap[baseItem.label].document_content[0].contents = btoa(JSON.stringify(baseItem))
+            console.log("Update base request", that.baseItemMap[baseItem.label])
+            that.baseItemMap[baseItem.label].tableName = "document";
+            promises.push(that.updateRow(that.baseItemMap[baseItem.label]))
           }
         }
       }

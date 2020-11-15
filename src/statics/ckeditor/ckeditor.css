@@ -307,7 +307,7 @@ body[ data-editor='InlineEditor'] .collaboration-demo__row {
 body, html {
   padding: 0;
   margin: 0;
-
+  scrollbar-width: none;
   font-family: sans-serif, Arial, Verdana, "Trebuchet MS", "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol";
   font-size: 16px;
   line-height: 1.5;
