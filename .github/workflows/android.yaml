@@ -1,9 +1,9 @@
 name: Build/android
 
-on:
-  push:
-    branches:
-      - "android-ci"
+on: push
+  branches:
+    - "android-ci"
+    - master
 
 jobs:
   release:
@@ -36,5 +36,5 @@ jobs:
       - uses: actions/upload-artifact@v2
         with:
           name: dadadash-app.apk
-          path: src-cordova/platforms/android/app/build/outputs/apk/release/app-release-unsigned.apk
+          path: dist/cordova/android/apk/release/app-release-unsigned.apk
 
