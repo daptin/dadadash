@@ -107,7 +107,7 @@ export default {
         {
           name: "Workspace",
           enable: true,
-          path: '/apps/workspace',
+          path: '/workspace',
           icon: 'fas fa-briefcase'
         },
         {

@@ -92,34 +92,18 @@ const routes = [
       {
         path: 'files', component: () => import('pages/UserApps/FileBrowser.vue')
       },
-      {
-        path: 'workspace', component: () => import('pages/UserApps/WorkspaceBrowser.vue')
-      },
-      {
-        path: 'workspace/:workspaceName', component: () => import('pages/UserApps/WorkspaceBrowser.vue')
-      },
-      {
-        path: 'workspace/:workspaceName/:baseName',
-        component: () => import('pages/UserApps/BaseViewContainer.vue'),
-        children: [
-          {
-            path: ":itemName",
-            component: () => import('pages/UserApps/BaseViewRouter.vue'),
-          }
-        ]
-      },
-      {
-        path: 'document/:documentId', component: () => import('pages/UserApps/DocumentEditor')
-      },
-      {
-        path: 'spreadsheet/:documentId', component: () => import('pages/UserApps/SpreadsheetEditor')
-      },
-      {
-        path: 'drageditor', component: () => import('pages/UserApps/DragEditor')
-      },
-      {
-        path: 'calendar', component: () => import('pages/UserApps/Calendar.vue')
-      },
+      // {
+      //   path: 'document/:documentId', component: () => import('pages/UserApps/DocumentEditor')
+      // },
+      // {
+      //   path: 'spreadsheet/:documentId', component: () => import('pages/UserApps/SpreadsheetEditor')
+      // },
+      // {
+      //   path: 'drageditor', component: () => import('pages/UserApps/DragEditor')
+      // },
+      // {
+      //   path: 'calendar', component: () => import('pages/UserApps/Calendar.vue')
+      // },
     ]
   },
   {
@@ -137,6 +121,28 @@ const routes = [
       },
       {
         path: '/edit/:cloudStoreId', component: () => import('pages/CloudStorePage.vue')
+      },
+    ]
+  },
+  {
+    path: '/workspace',
+    component: () => import('layouts/UserLayout.vue'),
+    children: [
+      {
+        path: '', component: () => import('pages/UserApps/WorkspaceBrowser.vue')
+      },
+      {
+        path: ':workspaceName', component: () => import('pages/UserApps/WorkspaceBrowser.vue')
+      },
+      {
+        path: ':workspaceName/:baseName',
+        component: () => import('pages/UserApps/BaseViewContainer.vue'),
+        children: [
+          {
+            path: ":itemName",
+            component: () => import('pages/UserApps/BaseViewRouter.vue'),
+          }
+        ]
       },
     ]
   },

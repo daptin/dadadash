@@ -1,7 +1,14 @@
 <template>
   <q-card flat>
     <q-card-section>
-      <q-input label="Base name" v-model="newBaseName"></q-input>
+      <span class="text-h6">Create a base</span>
+    </q-card-section>
+    <q-card-section>
+      <div class="row">
+        <div class="col-6">
+          <q-input label="Base name" v-model="newBaseName"></q-input>
+        </div>
+      </div>
     </q-card-section>
     <q-card-section>
       <div class="row">

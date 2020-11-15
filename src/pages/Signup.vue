@@ -91,7 +91,7 @@ export default {
           }
         }).then(function (e) {
           console.log("Sign in successful", arguments);
-          that.$router.push('/apps/workspace')
+          that.$router.push('/workspace')
         }).catch(function (e) {
           console.log("Failed to sign in", arguments);
           that.$q.notify("Error", "Failed to login");

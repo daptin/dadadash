@@ -15,7 +15,7 @@
                 <q-route-tab
                   :key="item.reference_id"
                   v-if="item.type !== 'summary'" v-for="item in baseConfig.items"
-                  :to="'/apps/workspace/' + workspaceName + '/' + baseName + '/' + item.label" exact replace
+                  :to="'/workspace/' + workspaceName + '/' + baseName + '/' + item.label" exact replace
                 >
                   <span><q-icon :name="itemIconMap[item.type]"></q-icon> &nbsp;&nbsp;&nbsp;</span>{{ item.label }}
                   <!--                  <span>&nbsp; &nbsp; &nbsp;-->
@@ -90,7 +90,7 @@
             {icon: 'fas fa-sync-alt', event: 'reload-bases'},
             {icon: 'fas fa-trash', event: 'delete-base'},
           ],
-        }" :onBack="() => {$router.push('/apps/workspace/' + $route.params.workspaceName)}"
+        }" :onBack="() => {$router.push('/workspace/' + $route.params.workspaceName)}"
                      :title='"[Workspace] " + $route.params.workspaceName
                      + "&nbsp;&nbsp; › &nbsp;&nbsp;" + ($route.params.baseName)
                      + ( $route.params.itemName ? "&nbsp;&nbsp; › &nbsp;&nbsp;" + ($route.params.itemName) : "" )  '
@@ -259,7 +259,7 @@ export default {
           that.baseItemMap[that.newName] = that.baseItemMap[originalTitle];
           delete that.baseItemMap[originalTitle];
           if (originalTitle === that.selectedItem) {
-            that.$router.push('/apps/workspace/' + that.workspaceName + "/" + that.baseName + "/" + that.newName)
+            that.$router.push('/workspace/' + that.workspaceName + "/" + that.baseName + "/" + that.newName)
           }
           // that.refreshData()
         }).catch(function (err) {
@@ -360,7 +360,7 @@ export default {
             reference_id: that.baseRow.id,
           }).then(function (res) {
             console.log("Base deleted");
-            that.$router.push('/apps/workspace/' + that.workspaceName)
+            that.$router.push('/workspace/' + that.workspaceName)
           }).catch(function (err) {
             console.log("Failed to delete base", err);
             that.$q.notify({

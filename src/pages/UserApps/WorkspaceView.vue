@@ -38,7 +38,7 @@
           <hr style="border: 1px solid rgba(0, 0, 0, 0.07)"/>
         </q-card-section>
       </q-card>
-      <q-card flat v-if="showAddBase">
+      <q-card flat v-if="showAddBase || baseList.length === 0">
         <q-card-section>
           <add-base-view @add-base="addBaseFromCatalog"></add-base-view>
         </q-card-section>
@@ -206,13 +206,13 @@ export default {
 
       Promise.all(listPromises).then(function () {
         that.$q.loadingBar.increment(30)
-
+        that.$q.notify({
+          message: "Deleting all items and bases"
+        })
         Promise.all(deletePromises).then(function () {
           that.$q.loadingBar.increment(30)
 
-          that.$q.notify({
-            message: "Deleted all items in bases"
-          })
+
           that.$q.notify({
             message: "Deleting workspace"
           });
@@ -251,15 +251,25 @@ export default {
               that.$q.loadingBar.increment(30)
               that.$q.loadingBar.stop()
 
+              that.$emit("delete-workspace")
+
               that.$q.notify({
                 message: "Deleted workspace"
               });
-              that.$router.push('/apps/workspace')
+              that.$router.push('/workspace')
+
             }).catch(function (err) {
+              that.$q.loadingBar.stop();
               that.$q.notify({
                 message: "Failed to delete workspace - " + JSON.stringify(err)
               })
             })
+          }).catch(function (err) {
+            that.$q.notify({
+              message: "Failed to delete workspace - " + JSON.stringify(err)
+            })
+            that.$q.loadingBar.stop();
+
           })
         })
       })
@@ -268,9 +278,9 @@ export default {
     handleCardClick(item) {
       console.log("Summary item ", item);
       if (item.target && item.target.name) {
-        this.$router.push("/apps/workspace/" + this.workspaceName + "/" + item.baseName + "/" + item.target.name)
+        this.$router.push("/workspace/" + this.workspaceName + "/" + item.baseName + "/" + item.target.name)
       } else {
-        this.$router.push("/apps/workspace/" + this.workspaceName + "/" + item.baseName)
+        this.$router.push("/workspace/" + this.workspaceName + "/" + item.baseName)
       }
     },
     addBaseFromCatalog(newBaseName, item) {

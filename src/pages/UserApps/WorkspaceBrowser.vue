@@ -69,8 +69,8 @@
             </q-card>
           </div>
           <div class="col-10 col-sm-12 col-md-10 col-lg-10 col-xl-10 col-xs-12" style="background: #F2F1F9">
-            <new-workspace-screen v-if="showNewWorkspace" @new-workspace-created="refreshData"></new-workspace-screen>
-            <workspace-view :workspace-name="currentWorkspace"
+            <new-workspace-screen v-if="showNewWorkspace || workspaceTree[0].children.length === 0" @new-workspace-created="refreshData"></new-workspace-screen>
+            <workspace-view @delete-workspace="deleteWorkspace" :workspace-name="currentWorkspace"
                             v-if="!showNewWorkspace && currentWorkspace"></workspace-view>
 
           </div>
@@ -144,7 +144,7 @@ export default {
   methods: {
     openWorkspace(workspace) {
       console.log("open workspace", workspace)
-      this.$router.push("/apps/workspace/" + workspace.label)
+      this.$router.push("/workspace/" + workspace.label)
       this.currentWorkspace = workspace.label;
     },
     searchDocuments(query) {
@@ -213,65 +213,6 @@ export default {
           return;
       }
     },
-    itemDelete(file) {
-      console.log("Delete file", file);
-      const that = this;
-      this.deleteRow({
-        tableName: "document",
-        reference_id: file.reference_id
-      }).then(function () {
-        that.refreshData();
-      }).catch(function (er) {
-        that.$q.notify({
-          message: er[0].title
-        })
-      })
-    },
-    fileClicked(file) {
-      console.log("file clicked", file)
-      this.selectedFile = file;
-    },
-    fileDownload(file) {
-      const that = this;
-      console.log("File clicked", file);
-      if (file.is_dir) {
-        if (file.name === ".") {
-          that.refreshData();
-        } else if (file.name === "..") {
-          let pathParts = this.currentPath.split("/");
-          if (pathParts.length > 1) {
-            pathParts.pop();
-          }
-          let newPath = pathParts.join("/");
-          console.log("one level up %s", newPath)
-          this.currentPath = newPath
-        } else {
-          that.currentPath = file.document_path + file.name
-        }
-        that.refreshData();
-      } else {
-        that.$q.loading = true;
-        that.loadData({
-          tableName: "document",
-          params: {
-            query: JSON.stringify([{
-              column: "reference_id",
-              operator: "is",
-              value: file.reference_id
-            }]),
-            page: {
-              size: 1,
-            }
-          }
-        }).then(function (res) {
-          that.$q.loading = false;
-          // console.log("File ", res.data[0].document_content[0].contents);
-          const file = res.data[0];
-          saveByteArray(file.document_name, file.mime_type, base64ToArrayBuffer(res.data[0].document_content[0].contents))
-        })
-
-      }
-    },
     createNew() {
       console.log("Create ", this.newNameType, this.newName, this.currentPath);
       const that = this;
@@ -303,8 +244,10 @@ export default {
           message: JSON.stringify(e)
         });
       });
-
-
+    },
+    deleteWorkspace() {
+      this.currentWorkspace = null;
+      this.refreshData()
     },
     ...mapActions(['loadData', 'createRow', 'loadModel', 'deleteRow']),
     handleDataLoad(workspaceListResponse) {
@@ -335,7 +278,7 @@ export default {
       if (that.workspaceTree[0].children.length > 0) {
         that.expanded.push(that.workspaceTree[0].children[0].label);
         if (!this.currentWorkspace) {
-          that.$router.push('/apps/workspace/' + that.workspaceTree[0].children[0].label);
+          that.$router.push('/workspace/' + that.workspaceTree[0].children[0].label);
         }
       }
 
@@ -380,7 +323,7 @@ export default {
         console.log("data load complete", that.currentWorkspace, res);
         if (!that.currentWorkspace && res.data.length > 0) {
           that.currentWorkspace = res.data[0].document_name;
-          that.$router.push('/apps/workspace/' + that.currentWorkspace)
+          that.$router.push('/workspace/' + that.currentWorkspace)
         }
         that.handleDataLoad(res)
       });

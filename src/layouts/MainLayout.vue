@@ -59,7 +59,7 @@ text-align: center;
           </q-expansion-item>
 
           <q-item clickable
-                  @click="$router.push('/apps/workspace')"
+                  @click="$router.push('/workspace')"
           >
             <q-item-section avatar>
               <q-icon name="fas fa-briefcase"></q-icon>
