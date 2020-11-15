@@ -30,7 +30,8 @@ jobs:
             npm install -g @quasar/cli
             npm install
             quasar build -m ios
-            find .
+            ls -lah dist
+            ls -lah dist/cordova
 
 
 
