@@ -1157,6 +1157,11 @@ const tableComponent = {
                     return !!e.attributes[columnName]
                   })
 
+                  if (columnsToLoad.length === 0) {
+                    resolve();
+                    return
+                  }
+
                   that.loadData({
                     tableName: that.tableName,
                     params: {

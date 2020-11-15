@@ -27,17 +27,17 @@
 
                       <q-item clickable disable>
                         <q-item-section>
-                          <q-item-label>Customise item</q-item-label>
+                          <q-item-label>Configure</q-item-label>
                         </q-item-section>
                       </q-item>
                       <q-item clickable @click="renameBaseItem(item)">
                         <q-item-section>
-                          <q-item-label>Rename item</q-item-label>
+                          <q-item-label>Rename</q-item-label>
                         </q-item-section>
                       </q-item>
                       <q-item clickable @click="deleteBaseItem(item)">
                         <q-item-section>
-                          <q-item-label>Delete item</q-item-label>
+                          <q-item-label>Delete</q-item-label>
                         </q-item-section>
                       </q-item>
                     </q-list>
@@ -121,7 +121,7 @@
           <span class="text-h5">Rename item</span>
         </q-card-section>
         <q-card-section>
-          <q-input v-model="newName"></q-input>
+          <q-input id="newBaseNameField" v-model="newName"></q-input>
         </q-card-section>
         <q-card-actions align="right">
           <q-btn label="Update" @click="renameBaseItem" color="primary"></q-btn>
@@ -132,13 +132,13 @@
     <q-dialog v-model="showDeleteConfirmDialog">
       <q-card style="background: white">
         <q-card-section>
-          <span class="h5">Delete</span>
+          <span class="text-h5">Delete</span>
         </q-card-section>
         <q-card-section>
           Are you sure you want to delete this item
         </q-card-section>
         <q-card-actions align="right">
-          <q-btn label="Delete" color="danger" @click="deleteBaseItem"></q-btn>
+          <q-btn label="Delete" color="negative" @click="deleteBaseItem"></q-btn>
         </q-card-actions>
       </q-card>
     </q-dialog>
@@ -243,6 +243,10 @@ export default {
         this.itemBeingEdited = item;
         this.newName = this.itemBeingEdited.label;
         this.showRenameBaseViewModel = true;
+        that.$nextTick().then(function () {
+          document.getElementById("newBaseNameField").focus();
+          // document.getElementById("newBaseNameField").
+        })
         return
       }
       console.log("Updated name", this.newName)
@@ -271,21 +275,22 @@ export default {
     addBaseItem(item) {
       const that = this;
       console.log("Add new item to base", item);
+      let newItemLabel = "New " + item.type + " - " + Math.floor(Math.random() * 90 + 10);
       let newItem = {
         type: item.type,
-        label: "New " + item.type
+        label: newItemLabel
       };
       if (DEFAULT_ITEM_MAP[item.type]) {
         newItem = DEFAULT_ITEM_MAP[item.type]
         newItem.type = item.type;
-        newItem.label = "New " + item.type;
+        newItem.label = newItemLabel;
       }
 
 
       var newRow = null;
 
       newRow = {
-        document_name: "New " + item.type,
+        document_name: newItemLabel,
         tableName: "document",
         document_extension: item.type,
         mime_type: 'workspace/' + item.type,
@@ -306,6 +311,7 @@ export default {
         newItem.reference_id = res.data.reference_id;
         that.baseConfig.items.push(newItem);
         that.baseItemMap[newItem.label] = res.data;
+        that.renameBaseItem(newItem);
         that.ensureBaseTables();
       }).catch(function (err) {
         that.$q.notify({
@@ -348,13 +354,13 @@ export default {
             var item = that.baseConfig.items[i];
             if (item.type === "table") {
               console.log("target table details,", item)
-              // promises.push(that.executeAction({
-              //   tableName: "world",
-              //   actionName: "remove_table",
-              //   params: {
-              //     world_id: ""
-              //   }
-              // }))
+              promises.push(that.executeAction({
+                tableName: "world",
+                actionName: "remove_table",
+                params: {
+                  world_id: ""
+                }
+              }))
             }
           }
         }

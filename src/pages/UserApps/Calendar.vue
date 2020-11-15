@@ -44,12 +44,12 @@
                 <span class="text-h6">{{ monthNames[date.getMonth()] }} {{ date.getFullYear() }}</span>
                 <q-btn @click="(showEventDialogTarget = true) && (showEventDialog = true)" icon="fas fa-plus" flat>
                   <q-menu :target="showEventDialogTarget" ref="newEventDialog" style="overflow: hidden">
-                    <q-bar>
-                      <div class="text-weight-bold ">
+                    <q-bar class="bg-black text-white">
+                      <span class="text-weight-bold ">
                         New event
-                      </div>
+                      </span>
                     </q-bar>
-                    <q-card style="min-width: 450px; overflow: hidden;" class="q-pa-md">
+                    <q-card style="min-width: 450px; overflow: hidden;" class="q-pa-md bg-white">
 
                       <q-card-section>
                         <q-input label="Title" v-model="newEvent.event_title"></q-input>
@@ -215,8 +215,8 @@
                 </q-btn-dropdown>
               </q-toolbar>
             </div>
-            <div class="col-12 q-pa-md">
-              <div :id="containerId" style="height: calc(100vh - 30%)"></div>
+            <div class="col-12 q-pa-md" style="height: calc(100vh - 100px)">
+              <div class="my-calender-container1" style="height: calc(100vh - 100px)" :id="containerId"></div>
             </div>
           </div>
         </div>

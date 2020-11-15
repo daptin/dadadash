@@ -1,9 +1,9 @@
 <template>
   <q-page-container style="padding-top: 0;">
 
-    <q-page style="overflow: hidden; height:calc(100vh  - 40px); min-height: 0">
+    <q-page style="overflow: hidden; height:calc(100vh  - 38px); min-height: 0">
       <div id="luckysheet"
-           style="margin:0px;padding:0px;position:absolute;width:100%; height:calc(100vh - 10px); left: 0px; top: -21px"></div>
+           style="margin:0px;padding:0px;position:absolute;width:100%; height:calc(100vh - 16px); left: 0px; top: -21px"></div>
 
       <q-dialog v-model="newNameDialog">
         <q-card style="min-width: 400px">
