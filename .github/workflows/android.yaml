@@ -31,10 +31,11 @@ jobs:
             npm install
             quasar build -m android
             find . -name '*.apk'
+            mv dist/cordova/android/apk/release/app-release-unsigned.apk dist/cordova/android/apk/release/dadadash-app.apk
 
 
       - uses: actions/upload-artifact@v2
         with:
           name: dadadash-app.apk
-          path: dist/cordova/android/apk/release/app-release-unsigned.apk
+          path: dist/cordova/android/apk/release/dadadash-app.apk
 
