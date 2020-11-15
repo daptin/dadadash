@@ -1,4 +1,4 @@
-name: Build/release
+name: Build/android
 
 on: push
 
@@ -27,5 +27,11 @@ jobs:
             npm install -g @quasar/cli
             npm install
             quasar build -m android
-            ls -lah && \
-            cp "$(find . -name '*.apk')" .
+            find . -name '*.apk'
+
+
+      - uses: actions/upload-artifact@v2
+        with:
+          name: dadadash-app.apk
+          path: src-cordova/platforms/android/app/build/outputs/apk/release/app-release-unsigned.apk
+
