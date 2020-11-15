@@ -111,7 +111,7 @@ export default {
           icon: 'fas fa-briefcase'
         },
         {
-          name: "Admin Dashboard",
+          name: "Administrator",
           enable: true,
           path: '/admin',
           icon: 'fas fa-wrench'
