@@ -26,15 +26,27 @@ export default {
   data() {
     return {
       showLogin: false,
-      ...mapGetters(['loggedIn'])
+      ...mapGetters(['loggedIn', 'appConnectionStatus'])
     }
   },
   methods: {
     ...mapActions([])
   },
   name: 'App',
+  watch: {
+    'appConnectionStatus': function () {
+      console.log("App connection status changed", arguments)
+    }
+  },
   mounted() {
-    console.log("Loaded app user is ", this.loggedIn());
+    let appConnectionStatus = this.appConnectionStatus();
+    console.log("Loaded app user is ", this.loggedIn(), appConnectionStatus);
+
+    if (!appConnectionStatus) {
+      this.$router.push('/backend')
+      return
+    }
+
     if (!this.loggedIn()) {
       this.$router.push("/login")
     }

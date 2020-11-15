@@ -1,5 +1,8 @@
 
 
+export function appConnectionStatus(state) {
+  return status.appConnectionStatus
+}
 
 
 export function loggedIn(state) {

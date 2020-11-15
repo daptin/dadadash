@@ -2,20 +2,42 @@ import {DaptinClient} from 'daptin-client';
 
 // const daptinClient = new DaptinClient(window.location.protocol + "//" + window.location.hostname, false, function () {
 let endpoint = window.location.hostname === "site.daptin.com" ? "http://localhost:6336" : window.location.protocol + "//" + window.location.hostname + (window.location.port === "80" ? "" : ':' + window.location.port);
-// let process = process || undefined;
-// if (process) {
-//   endpoint = "http://localhost:6336"
-// }
-
 
 console.log("Daptin endpoint is:", endpoint)
-var daptinClient = new DaptinClient(endpoint, false, {
-  getToken: function () {
-    return localStorage.getItem("token");
-  }
-});
+var appIsOnline = false;
+try {
+  var daptinClient = new DaptinClient(endpoint, false, {
+    getToken: function () {
+      return localStorage.getItem("token");
+    }
+  });
+  daptinClient.worldManager.init().then(function () {
+    console.log("Daptin client loaded", arguments)
+    appIsOnline = true;
+  }).catch(function (err) {
+    console.log("Failed to create client", err)
+  })
+} catch (err) {
+  console.log("Failed to create daptin client", err)
+}
 
-daptinClient.worldManager.init();
+// daptinClient.worldManager.init();
+
+export function updateConnectionStatus({commit, state}) {
+  console.log("App online status: ", appIsOnline)
+  appIsOnline = state.appConnectionStatus;
+  if (!appIsOnline) {
+    daptinClient.worldManager.init().then(function () {
+      console.log("Daptin client loaded", arguments)
+      appIsOnline = true;
+      commit("UPDATE_APP_CONNECTION_STATUS", appIsOnline)
+    }).catch(function (err) {
+      appIsOnline = false;
+      console.log("Failed to create client", err)
+      commit("UPDATE_APP_CONNECTION_STATUS", appIsOnline)
+    })
+  }
+}
 
 export function loadTables({commit}) {
   console.log("Load tables");

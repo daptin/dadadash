@@ -164,6 +164,15 @@ const routes = [
       },
     ]
   },
+  {
+    path: '/backend',
+    component: () => import('layouts/ServiceLayout.vue'),
+    children: [
+      {
+        path: '', component: () => import('pages/Index.vue')
+      },
+    ]
+  }
 ];
 
 // Always leave this as last one
