@@ -30,7 +30,9 @@ jobs:
         uses: oxr463/setup-cordova@0.0.2
         with:
           exec: |
-            quasar build -m android
+            ls -lah && \
+            cordova platform add android && \
+            cordova build --release android
             cp "$(find . -name '*.apk')" .
 
       - name: Build
