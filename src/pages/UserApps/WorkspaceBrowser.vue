@@ -69,7 +69,8 @@
             </q-card>
           </div>
           <div class="col-10 col-sm-12 col-md-10 col-lg-10 col-xl-10 col-xs-12" style="background: #F2F1F9">
-            <new-workspace-screen v-if="showNewWorkspace || workspaceTree[0].children.length === 0" @new-workspace-created="refreshData"></new-workspace-screen>
+            <new-workspace-screen v-if="showNewWorkspace || !currentWorkspace"
+                                  @new-workspace-created="refreshData"></new-workspace-screen>
             <workspace-view @delete-workspace="deleteWorkspace" :workspace-name="currentWorkspace"
                             v-if="!showNewWorkspace && currentWorkspace"></workspace-view>
 

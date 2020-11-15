@@ -38,7 +38,7 @@
           <hr style="border: 1px solid rgba(0, 0, 0, 0.07)"/>
         </q-card-section>
       </q-card>
-      <q-card flat v-if="showAddBase || baseList.length === 0">
+      <q-card flat v-if="showAddBase || (workspaceSchema && Object.keys(workspaceSchema.workspaceItems).length === 0)">
         <q-card-section>
           <add-base-view @add-base="addBaseFromCatalog"></add-base-view>
         </q-card-section>

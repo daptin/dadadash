@@ -340,17 +340,21 @@ export default {
             reference_id: item.id
           }))
         }
-        for (var i = 0; i < that.baseConfig.items.length; i++) {
-          var item = that.baseConfig.items[i];
-          if (item.type === "table") {
-            console.log("target table details,", item)
-            // promises.push(that.executeAction({
-            //   tableName: "world",
-            //   actionName: "remove_table",
-            //   params: {
-            //     world_id: ""
-            //   }
-            // }))
+        if (that.baseConfig.items) {
+
+
+          for (var i = 0; i < that.baseConfig.items.length; i++) {
+            var item = that.baseConfig.items[i];
+            if (item.type === "table") {
+              console.log("target table details,", item)
+              // promises.push(that.executeAction({
+              //   tableName: "world",
+              //   actionName: "remove_table",
+              //   params: {
+              //     world_id: ""
+              //   }
+              // }))
+            }
           }
         }
         Promise.all(promises).then(function (res) {
