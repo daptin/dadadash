@@ -22,12 +22,15 @@ jobs:
         uses: actions/setup-node@v2-beta
         with:
           node-version: '12'
-          exec: |
-            npm install -g @quasar/cli
-            npm install
-            quasar build -m ios
-            ls -lah dist
-            ls -lah dist/cordova
+
+      - name: Build
+        shell: bash
+        run: |
+          npm install -g @quasar/cli
+          npm install
+          quasar build -m ios
+          ls -lah dist
+          ls -lah dist/cordova
 
 
       - uses: actions/upload-artifact@v2
