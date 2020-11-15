@@ -11,7 +11,7 @@ jobs:
 
     strategy:
       matrix:
-        os: [ ubuntu-latest ]
+        os: [ macos-latest ]
 
     steps:
       - name: Check out Git repository
@@ -22,17 +22,12 @@ jobs:
         uses: actions/setup-node@v2-beta
         with:
           node-version: '12'
-
-      - name: Use oxr463/setup-cordova
-        uses: oxr463/setup-cordova@0.0.2
-        with:
           exec: |
             npm install -g @quasar/cli
             npm install
             quasar build -m ios
             ls -lah dist
             ls -lah dist/cordova
-
 
 
       - uses: actions/upload-artifact@v2
