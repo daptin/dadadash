@@ -1,8 +1,9 @@
 name: Build/android
 
-on: push
-  branches:
-    - master
+on:
+  push:
+    branches:
+      - master
 
 jobs:
   release:
