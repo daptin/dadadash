@@ -13,7 +13,7 @@
     <q-card-section>
       <div class="row">
         <div class="col-3 q-pa-md" v-for="item in catalog" @click="selectedItem = item">
-          <q-card style="cursor: pointer; background: white" :class="{'selected-card': selectedItem ==  item}">
+          <q-card style="cursor: pointer; background: white" :class="{'selected-card': selectedItem ===  item}">
             <q-card-section style="text-align: center">
               <q-icon color="primary" :name="item.icon" style="width: 100px; height: 100px; font-size: 60px"></q-icon>
             </q-card-section>
@@ -399,99 +399,45 @@ export default {
               },
             ],
           }
-        }
-        ,
+        },
         {
           label: "Feedback collection",
           icon: "fas fa-comment-dots",
           schema: {
             icon: "fas fa-wrench",
-            label: "Project tracker",
+            label: "Feedback collection",
             items: [
               {
                 type: "table",
-                label: "project",
+                label: "feedback",
                 attributes: {
-                  TableName: "project",
+                  TableName: "feedback",
                   Columns: [
                     {
-                      ColumnName: "project_name",
+                      ColumnName: "feedback_body",
                       ColumnType: "label",
                     },
                     {
-                      ColumnName: "project_start_date",
-                      ColumnType: "datetime",
-                    },
-                    {
-                      ColumnName: "project_end_date",
-                      ColumnType: "datetime",
-                    },
-                    {
-                      ColumnName: "project_cost",
-                      ColumnType: "measurement",
-                    },
-                    {
-                      ColumnName: "project_rating",
+                      ColumnName: "feedback_rating",
                       ColumnType: "rating",
                     },
                     {
-                      ColumnName: "project_logo",
-                      ColumnType: "file.png|jpg",
-                      IsNullable: true,
-                      DataType: "blob",
-                    },
-                  ]
-                }
-              },
-              {
-                type: "table",
-                label: "bug",
-                attributes: {
-                  TableName: "bug",
-                  Columns: [
-                    {
-                      ColumnName: "bug_title",
-                      ColumnType: "label",
-                    },
-                    {
-                      ColumnName: "status",
-                      ColumnType: "label",
-                    },
-                    {
-                      ColumnName: "blocker_count",
+                      ColumnName: "feedback_score",
                       ColumnType: "measurement",
                     },
-                    {
-                      ColumnName: "eta_resolve",
-                      ColumnType: "datetime",
-                    },
-                    {
-                      ColumnName: "bug_description",
-                      ColumnType: "content",
-                      DataType: "text",
-                    },
-                    {
-                      ColumnName: "confirmed",
-                      ColumnType: "truefalse",
-                      DataType: "int(1)",
-                    },
-                    {
-                      ColumnName: "locked",
-                      ColumnType: "truefalse",
-                      DataType: "int(1)",
-                    }
                   ]
                 }
               },
+
               {
                 type: "summary",
-                label: "Bug tracker",
+                label: "Feedback collection",
                 target: {
                   name: "bug"
                 },
                 title: {
-                  icon: "fas fa-bug",
-                  label: "Bug tracker",
+                  icon: "fas fa-comment-dots",
+                  label: "Feedback collection",
                   color: "green",
                 },
                 attributes: {

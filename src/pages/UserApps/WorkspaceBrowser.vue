@@ -77,7 +77,7 @@
           </div>
         </div>
       </q-page>
-      <user-header-bar style="border-bottom: 1px solid black" @search="searchDocuments" @show-uploader="showUploader"
+      <user-header-bar :onBack="false" style="border-bottom: 1px solid black" @search="searchDocuments" @show-uploader="showUploader"
                        :buttons="{
         before: [
             // {icon: 'fas fa-search', event: 'search'},
