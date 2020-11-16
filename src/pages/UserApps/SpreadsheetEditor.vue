@@ -151,10 +151,7 @@ export default {
         return
       }
       console.log("Contents changed", arguments)
-      if (this.saveDebounced === null) {
-        this.saveDebounced = debounce(this.saveDocument, 1000, true)
-      }
-      this.saveDebounced();
+      // this.saveDebounced();
     }
   },
   methods: {
@@ -163,6 +160,10 @@ export default {
     },
     loadEditor() {
       const that = this;
+      if (that.saveDebounced === null) {
+        that.saveDebounced = debounce(that.saveDocument, 300, false)
+      }
+
       setTimeout(function () {
 
         console.log("Create sheet")
@@ -176,7 +177,9 @@ export default {
               console.log("Cell edited")
             },
             cellRenderAfter: function () {
-              console.log("Cell red")
+              console.log("Cell red");
+
+              that.saveDebounced();
             },
           }
         }
@@ -211,22 +214,6 @@ export default {
         if (that.decodedAuthToken() === null) {
           return;
         }
-        setInterval(function () {
-          that.loading = false;
-          let newData = luckysheet.getluckysheetfile();
-          if (!newData) {
-            return
-          }
-          newData = newData.map(function (sheet) {
-            // console.log("Get grid data for sheet", sheet)
-            sheet.celldata = luckysheet.getGridData(sheet.data)
-            // delete sheet.data
-            return sheet;
-          })
-          var newContents = JSON.stringify(newData);
-          that.contents = newContents;
-          window.localStorage.setItem("d", newContents)
-        }, 10000)
 
       }, 300)
     },
@@ -287,6 +274,21 @@ export default {
       if (this.decodedAuthToken() === null) {
         return
       }
+
+      that.loading = false;
+      let newData = luckysheet.getluckysheetfile();
+      if (!newData) {
+        return
+      }
+      newData = newData.map(function (sheet) {
+        // console.log("Get grid data for sheet", sheet)
+        sheet.celldata = luckysheet.getGridData(sheet.data)
+        // delete sheet.data
+        return sheet;
+      })
+      var newContents = JSON.stringify(newData);
+      that.contents = newContents;
+      window.localStorage.setItem("d", newContents)
 
 
       var zip = new JSZip();

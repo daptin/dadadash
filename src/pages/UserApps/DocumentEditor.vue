@@ -352,7 +352,7 @@ export default {
             that.editor = editor;
             editor.setData("page-1", that.contents);
             // that.pageReflow()
-            const saveMethod = debounce(that.saveDocument, 1000, false)
+            const saveMethod = debounce(that.saveDocument, 800, false)
             if (that.decodedAuthToken()) {
               editor.onChange((res) => { //提供onChange方法获取数据
                 // console.log("Editor on change", res)
