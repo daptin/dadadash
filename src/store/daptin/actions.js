@@ -67,6 +67,34 @@ export function executeAction({commit}, params) {
 }
 
 export function deleteTableByName({commit}, tableName) {
+  return new Promise(function (resolve, reject) {
+    console.log("Delete table by name", tableName);
+    daptinClient.jsonApi.findAll("world", {
+      query: JSON.stringify([{
+        column: "table_name",
+        operator: "is",
+        value: tableName
+      }]),
+      fields: "reference_id"
+    }).then(function (res) {
+      console.log("Table reference id for deletion ", res.data);
+
+      daptinClient.actionManager.doAction("world", "remove_table", {
+        world_id: res.data[0].reference_id
+      }).then(function (res) {
+        console.log("Table deletion response", res);
+        resolve();
+      }).catch(function (err) {
+        console.log("Failed to load table id for deletion", err)
+        reject()
+      })
+
+
+    }).catch(function (err) {
+      console.log("Failed to load table id for deletion", err)
+      reject()
+    })
+  })
 
 }
 

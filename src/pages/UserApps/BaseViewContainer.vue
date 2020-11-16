@@ -15,9 +15,9 @@
                 <q-route-tab
                   :key="item.reference_id"
                   v-if="item.type !== 'summary'" v-for="item in baseConfig.items"
-                  :to="'/workspace/' + workspaceName + '/' + baseName + '/' + item.label" exact replace
+                  :to="'/workspace/' + workspaceName + '/' + baseName + '/' + item.document_name" exact replace
                 >
-                  <span><q-icon :name="itemIconMap[item.type]"></q-icon> &nbsp;&nbsp;&nbsp;</span>{{ item.label }}
+                  <span><q-icon :name="itemIconMap[item.document_extension]"></q-icon> &nbsp;&nbsp;&nbsp;</span>{{ item.document_name }}
                   <!--                  <span>&nbsp; &nbsp; &nbsp;-->
                   <!--                    <q-icon name="fas fa-cog"></q-icon>-->
 
@@ -70,7 +70,7 @@
           <q-separator></q-separator>
         </div>
 
-        <base-view-router v-if="baseLoaded && selectedBaseItem" :base-config="baseConfig"
+        <base-view-router v-if="selectedBaseItem" :base-config="baseConfig"
                           :baseItem="selectedBaseItem"></base-view-router>
 
 
@@ -225,13 +225,19 @@ export default {
         delete that.baseItemMap[that.itemBeingEdited.label];
         var indexToDelete = -1;
         for (var i = 0; i < that.baseConfig.items.length; i++) {
-          if (that.baseConfig.items[i].label === that.itemBeingEdited.label) {
+          if (that.baseConfig.items[i].document_name === that.itemBeingEdited.document_name) {
             indexToDelete = i;
             break
           }
+
         }
         console.log("Item to remove from base config", indexToDelete)
         if (indexToDelete > -1) {
+          var item = that.baseConfig.items[indexToDelete]
+          if (item.type === "table") {
+            console.log("target table details,", item);
+            that.deleteTableByName(item.targetTable.TableName)
+          }
           that.baseConfig.items.splice(indexToDelete, 1);
         }
       })
@@ -353,14 +359,8 @@ export default {
           for (var i = 0; i < that.baseConfig.items.length; i++) {
             var item = that.baseConfig.items[i];
             if (item.type === "table") {
-              console.log("target table details,", item)
-              promises.push(that.executeAction({
-                tableName: "world",
-                actionName: "remove_table",
-                params: {
-                  world_id: ""
-                }
-              }))
+              console.log("target table details,", item);
+              that.deleteTableByName(item.targetTable.TableName)
             }
           }
         }
@@ -397,7 +397,7 @@ export default {
     showUploadData() {
 
     },
-    ...mapActions(['loadData', 'getTableSchema', 'updateRow', 'createRow', 'deleteRow', 'executeAction', 'loadModel']),
+    ...mapActions(['loadData', 'getTableSchema', 'updateRow', 'createRow', 'deleteRow', 'executeAction', 'loadModel', 'deleteTableByName']),
     refreshBaseData() {
       const that = this;
       that.baseItemMap = {};
@@ -489,7 +489,7 @@ export default {
                 itemConfig.label = item.document_name;
                 itemConfig.reference_id = item.reference_id;
                 that.baseItemMap[item.document_name] = item;
-                that.baseConfig.items.push(itemConfig);
+                that.baseConfig.items.push(item);
               } catch (e) {
                 console.log("failed to parse item data", e)
               }
@@ -574,18 +574,21 @@ export default {
                 }]
               }
             }).then(function (res) {
+              that.$q.loadingBar.stop();
               console.log("Tables created", res);
               that.$q.notify({
                 message: "Base tables created, please wait while we generate random data to begin"
               });
-              that.$q.loadingBar.stop();
-              that.$q.loadingBar.start(5);
+              // that.$nextTick().then(function () {
+              //   that.$q.loadingBar.start();
+              // })
 
 
               console.log("Try to create random data for the new base");
               that.$q.notify({
                 message: "Generating random data for " + updateSchema.Tables.length + " tables"
               });
+              that.$q.loadingBar.start();
               var randomDataPromises = []
               randomDataPromises = updateSchema.Tables.map(function (table) {
                 console.log("Create random data for ", table.TableName);
@@ -605,11 +608,11 @@ export default {
                         console.log("Generate random data response", res)
                         if (!res || res === "") {
                           console.log("data generate failed, try again", res)
-                          that.$q.loadingBar.increment(1000 / updateSchema.Tables.length);
+                          that.$q.loadingBar.increment(5);
                           generateRandomDataAndLoad()
                           return
                         }
-                        that.$q.loadingBar.increment(100 / updateSchema.Tables.length);
+                        that.$q.loadingBar.increment(5);
                         console.log("Random data generated for table", table.TableName)
                         resolve();
 
@@ -656,14 +659,12 @@ export default {
       const that = this;
       that.newRowData = [];
       that.sourceMap = {};
-      console.log("Refresh daata, update the selected item", that.selectedItem, that.baseItemMap);
+      console.log("Refresh data, update the selected item", that.selectedItem, that.baseItemMap);
       console.log("Updated base ", that.selectedItem, that.baseName, that.selectedBaseItem);
 
       that.selectedItem = that.$route.params.itemName;
       that.baseName = that.$route.params.baseName;
       that.selectedBaseItem = that.baseItemMap[that.selectedItem]
-
-
       that.baseLoaded = true;
       return Promise.resolve();
 

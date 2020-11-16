@@ -1,6 +1,6 @@
 <template>
   <q-page-container style="padding-top: 0; overflow: hidden;">
-    <q-page style="min-height: 0 ; height:calc(100vh  - 38px); ">
+    <q-page style="min-height: 0 ; height:calc(100vh  - 46px); ">
       <div class="document-editor__toolbar"></div>
       <div class="row" style=" overflow: hidden; width: 100vw">
 
