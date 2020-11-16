@@ -1,242 +1,238 @@
 <template>
-  <q-form class="q-gutter-md">
-    <div style="padding-bottom: 10px" class="row">
-      <div class="col-md-6 q-pa-md">
-        <span class="text-h4">{{!isEdit ? 'Create table' : 'Edit table'}}</span>
-      </div>
-    </div>
-    <div class="row">
+    <q-form class="q-gutter-md">
 
-      <div class="col-4 col-xs-11 col-sm-10 q-pa-md">
+      <div class="row">
 
-        <q-input
-          filled
-          v-model="localTable.TableName"
-          size="sm"
-          placeholder="Table name"
-          :readonly="isEdit"
-          lazy-rules
-          :rules="[ val => val && val.length > 0 || 'Table name cannot be empty']"></q-input>
-      </div>
+        <div class="col-4 col-xs-11 col-sm-10 q-pa-md">
 
-      <div class="col-6 col-xs-1 col-sm-2 q-pa-md">
-        <div>
-          <q-btn :disable="localTable.ColumnModel && localTable.ColumnModel.length>0 ? false: true" size="20px"
-                 @click="createTable" :label="isEdit ? 'Save' : 'Create'" type="submit" color="green"/>
+          <q-input
+            filled
+            v-model="localTable.TableName"
+            size="sm"
+            placeholder="Table name"
+            :readonly="isEdit"
+            lazy-rules
+            :rules="[ val => val && val.length > 0 || 'Table name cannot be empty']"></q-input>
+        </div>
+
+        <div class="col-6 col-xs-1 col-sm-2 q-pa-md">
+          <div>
+            <q-btn :disable="localTable.ColumnModel && localTable.ColumnModel.length>0 ? false: true" size="20px"
+                   @click="createTable" :label="isEdit ? 'Save' : 'Create'" type="submit" color="green"/>
+          </div>
+        </div>
+
+        <div class="col-12">
+          <hr/>
         </div>
       </div>
 
-      <div class="col-12">
-        <hr/>
-      </div>
-    </div>
+      <q-tabs
+        v-model="tab"
+        dense
+        class="text-grey"
+        active-color="primary"
+        indicator-color="primary"
+        align="justify"
+        narrow-indicator
+      >
+        <q-tab name="columns" label="Columns"/>
+        <q-tab name="relations" label="Relations"/>
+      </q-tabs>
 
-    <q-tabs
-      v-model="tab"
-      dense
-      class="text-grey"
-      active-color="primary"
-      indicator-color="primary"
-      align="justify"
-      narrow-indicator
-    >
-      <q-tab name="columns" label="Columns"/>
-      <q-tab name="relations" label="Relations"/>
-    </q-tabs>
-
-    <q-separator/>
-    <div class="row">
-      <div class="col-md-12">
-        <q-tab-panels v-model="tab" animated>
-          <q-tab-panel name="columns" class="q-pa-md">
+      <q-separator/>
+      <div class="row">
+        <div class="col-md-12">
+          <q-tab-panels v-model="tab" animated>
+            <q-tab-panel name="columns" class="q-pa-md">
 
 
-            <span class="text-h6">Columns</span>
-            <small> ({{ (table.TableName ? (localTable.ColumnModel.length - StandardColumns.length) :
-              (Object.keys(localTable.ColumnModel).length)) + ' plus '
+              <span class="text-h6">Columns</span>
+              <small> ({{ (table.TableName ? (localTable.ColumnModel.length - StandardColumns.length) :
+                (Object.keys(localTable.ColumnModel).length)) + ' plus '
               + StandardColumns.length + ' base columns'}})
-            </small>
+              </small>
 
-            <div class="row bg-grey-1" style="border-bottom: 1px solid black"
-                 v-for="column in localTable.ColumnModel
+              <div class="row bg-grey-1" style="border-bottom: 1px solid black"
+                   v-for="column in localTable.ColumnModel
              .filter(e => e.ColumnName && StandardColumns.indexOf(e.ColumnName) === -1 && (!e.IsForeignKey || e.IsForeignKey && e.ForeignKeyData.DataSource === 'cloud_store'))">
 
-              <div class="col-3 col-md-3 col-lg-3 col-xl-3 col-xs-12 col-sm-3" style="padding: 5px">
-                <q-input placeholder="column Name" :readonly="!column.notCreated" v-model="column.ColumnName"></q-input>
+                <div class="col-3 col-md-3 col-lg-3 col-xl-3 col-xs-12 col-sm-3" style="padding: 5px">
+                  <q-input placeholder="column Name" :readonly="!column.notCreated" v-model="column.ColumnName"></q-input>
+                </div>
+
+                <div class="col-2 col-md-2 col-lg-2 col-xl-2 col-xs-12 col-sm-2" style="padding: 5px">
+                  <q-select placeholder="column type" :readonly="!column.notCreated" v-model="column.ColumnType"
+                            :options="ColumnTypes.map(e => e.columnType + ' - ' + e.dataType)"
+                            label="Column Type"></q-select>
+                </div>
+
+
+                <div class="col-3 col-md-3 col-lg-3 col-xl-3 col-xs-12 col-sm-3" style="padding: 5px">
+                  <q-input placeholder="default value (string values inside single quote)"
+                           v-model="column.DefaultValue"></q-input>
+                </div>
+
+
+                <div class="col-4 col-md-4 col-lg-4 col-xl-4 col-xs-12 col-sm-4" style="padding: 5px">
+                  <q-checkbox :disable="!column.notCreated && column.IsNullable" size="xs" v-model="column.IsNullable"
+                              label="Nullable">
+                    <q-tooltip content-class="text-bold">
+                      Check this if this column can be left empty (<b>no value</b> is different from zero value)
+                    </q-tooltip>
+                  </q-checkbox>
+                  <q-checkbox :disable="!column.notCreated && column.IsUnique" size="xs" v-model="column.IsUnique"
+                              label="Unique">
+                    <q-tooltip content-class="text-bold">
+                      Check this to ensure that this column has no duplicate values
+                    </q-tooltip>
+                  </q-checkbox>
+                  <q-checkbox :disable="!column.notCreated && column.IsIndexed" size="xs" v-model="column.IsIndexed"
+                              label="Indexed">
+                    <q-tooltip content-class="text-bold">
+                      Check this if you are going to search on this column using the API
+                    </q-tooltip>
+                  </q-checkbox>
+                  <q-btn class="float-right" @click="$emit('deleteColumn', column)" icon="fas fa-trash" flat size="sm">
+                    <q-tooltip content-style="font-size: 16px">
+                      Delete this column metadata from drop column from database
+                    </q-tooltip>
+                  </q-btn>
+                </div>
+
+                <hr />
               </div>
 
-              <div class="col-2 col-md-2 col-lg-2 col-xl-2 col-xs-12 col-sm-2" style="padding: 5px">
-                <q-select placeholder="column type" :readonly="!column.notCreated" v-model="column.ColumnType"
-                          :options="ColumnTypes.map(e => e.columnType + ' - ' + e.dataType)"
-                          label="Column Type"></q-select>
+              <div class="row">
+
+                <div class="col-3 col-md-3 col-lg-3 col-xl-3 col-xs-12 col-sm-3" style="padding: 5px">
+                  <q-input @blur="columnNameUpdated()" placeholder="column name" v-model="newColumn.ColumnName"></q-input>
+                </div>
+
+                <div class="col-2 col-md-2 col-lg-2 col-xl-2 col-xs-12 col-sm-2" style="padding: 5px">
+                  <q-select @input="columnNameUpdated()" placeholder="column Type" v-model="newColumn.ColumnType"
+                            :options="ColumnTypes.map(e => e.columnType + ' - ' + e.dataType)"
+                            label="column type"></q-select>
+                </div>
+
+                <div class="col-3 col-md-3 col-lg-3 col-xl-3 col-xs-12 col-sm-3" style="padding: 5px">
+                  <q-input placeholder="default value (string values inside single quote)"
+                           v-model="newColumn.DefaultValue"></q-input>
+                </div>
+
+                <div class="col-4 col-md-4 col-lg-4 col-xl-4 col-xs-12 col-sm-4" style="padding: 5px">
+                  <q-checkbox size="xs" v-model="newColumn.IsNullable" label="Nullable">
+                    <q-tooltip content-style="font-size: 16px">
+                      Check this if this column can be left empty (<b>no value</b> is different from zero value)
+                    </q-tooltip>
+                  </q-checkbox>
+                  <q-checkbox size="xs" v-model="newColumn.IsUnique" label="Unique">
+                    <q-tooltip content-style="font-size: 16px">
+                      Check this to ensure that this column has no duplicate values
+                    </q-tooltip>
+                  </q-checkbox>
+                  <q-checkbox size="xs" v-model="newColumn.IsIndexed" label="Indexed">
+                    <q-tooltip content-style="font-size: 16px">
+                      Check this if you are going to search on this column using the API
+                    </q-tooltip>
+                  </q-checkbox>
+                </div>
+
               </div>
 
+            </q-tab-panel>
 
-              <div class="col-3 col-md-3 col-lg-3 col-xl-3 col-xs-12 col-sm-3" style="padding: 5px">
-                <q-input placeholder="default value (string values inside single quote)"
-                         v-model="column.DefaultValue"></q-input>
+            <q-tab-panel name="relations">
+
+              <span class="text-h6">Relations {{isEdit}}</span>
+              <small>({{(isEdit ? localTable.Relations.length - StandardRelations.length:localTable.Relations.length)}} +
+                2
+                default)
+              </small>
+
+              <div class="row" v-for="relation in localTable.Relations || []"
+                   v-if="StandardRelations.indexOf(relation.SubjectName) == -1 && StandardRelations.indexOf(relation.ObjectName) == -1">
+
+
+                <div class="col-2" style="padding: 5px">
+                  <q-input v-model="relation.SubjectName"></q-input>
+                </div>
+
+                <div class="col-2" style="padding: 5px">
+                  <q-select @input="checkRelation(relation, 'subject')" v-model="relation.Subject"
+                            :options="tables.map(e => e.table_name)"></q-select>
+                </div>
+
+
+                <div class="col-2" style="padding: 5px">
+                  <q-select v-model="relation.Relation"
+                            :options="RelationTypes"></q-select>
+                </div>
+
+                <div class="col-2" style="padding: 5px">
+                  <q-select @input="checkRelation(relation, 'object')" v-model="relation.Object"
+                            :options="tables.map(e => e.table_name)"></q-select>
+                </div>
+
+                <div class="col-2" style="padding: 5px">
+                  <q-input v-model="relation.ObjectName"></q-input>
+                </div>
+
+
+                <div class="col-2" style="padding: 5px">
+                  <q-btn @click="$emit('deleteRelation', relation)" icon="fas fa-times" flat size="sm"></q-btn>
+                </div>
+
+
               </div>
 
+              <div class="row">
 
-              <div class="col-4 col-md-4 col-lg-4 col-xl-4 col-xs-12 col-sm-4" style="padding: 5px">
-                <q-checkbox :disable="!column.notCreated && column.IsNullable" size="xs" v-model="column.IsNullable"
-                            label="Nullable">
-                  <q-tooltip content-class="text-bold">
-                    Check this if this column can be left empty (<b>no value</b> is different from zero value)
-                  </q-tooltip>
-                </q-checkbox>
-                <q-checkbox :disable="!column.notCreated && column.IsUnique" size="xs" v-model="column.IsUnique"
-                            label="Unique">
-                  <q-tooltip content-class="text-bold">
-                    Check this to ensure that this column has no duplicate values
-                  </q-tooltip>
-                </q-checkbox>
-                <q-checkbox :disable="!column.notCreated && column.IsIndexed" size="xs" v-model="column.IsIndexed"
-                            label="Indexed">
-                  <q-tooltip content-class="text-bold">
-                    Check this if you are going to search on this column using the API
-                  </q-tooltip>
-                </q-checkbox>
-                <q-btn class="float-right" @click="$emit('deleteColumn', column)" icon="fas fa-trash" flat size="sm">
-                  <q-tooltip content-style="font-size: 16px">
-                    Delete this column metadata from drop column from database
-                  </q-tooltip>
-                </q-btn>
+
+                <div class="col-2" style="padding: 5px">
+                  <q-input placeholder="optional subject name" v-model="newRelation.SubjectName"></q-input>
+                </div>
+
+                <div class="col-2" style="padding: 5px">
+                  <q-select placeholder="column Name" @input="updatedRelation('subject')" v-model="newRelation.Subject"
+                            :options="tables.map(e => e.table_name)"></q-select>
+                </div>
+
+
+                <div class="col-2" style="padding: 5px">
+                  <q-select hint="relation type" @input="updatedRelation('relation')" placeholder="relation type"
+                            v-model="newRelation.Relation" :options="RelationTypes"></q-select>
+                </div>
+
+                <div class="col-2" style="padding: 5px">
+                  <q-select hint="related object" @input="updatedRelation('object')" placeholder="related object"
+                            v-model="newRelation.Object"
+                            :options="tables.map(e => e.table_name)"></q-select>
+                </div>
+
+
+                <div class="col-2" style="padding: 5px">
+                  <q-input placeholder="optional object name" v-model="newRelation.ObjectName"></q-input>
+                </div>
+
+
               </div>
 
-              <hr />
-            </div>
+            </q-tab-panel>
 
-            <div class="row">
-
-              <div class="col-3 col-md-3 col-lg-3 col-xl-3 col-xs-12 col-sm-3" style="padding: 5px">
-                <q-input @blur="columnNameUpdated()" placeholder="column name" v-model="newColumn.ColumnName"></q-input>
-              </div>
-
-              <div class="col-2 col-md-2 col-lg-2 col-xl-2 col-xs-12 col-sm-2" style="padding: 5px">
-                <q-select @input="columnNameUpdated()" placeholder="column Type" v-model="newColumn.ColumnType"
-                          :options="ColumnTypes.map(e => e.columnType + ' - ' + e.dataType)"
-                          label="column type"></q-select>
-              </div>
-
-              <div class="col-3 col-md-3 col-lg-3 col-xl-3 col-xs-12 col-sm-3" style="padding: 5px">
-                <q-input placeholder="default value (string values inside single quote)"
-                         v-model="newColumn.DefaultValue"></q-input>
-              </div>
-
-              <div class="col-4 col-md-4 col-lg-4 col-xl-4 col-xs-12 col-sm-4" style="padding: 5px">
-                <q-checkbox size="xs" v-model="newColumn.IsNullable" label="Nullable">
-                  <q-tooltip content-style="font-size: 16px">
-                    Check this if this column can be left empty (<b>no value</b> is different from zero value)
-                  </q-tooltip>
-                </q-checkbox>
-                <q-checkbox size="xs" v-model="newColumn.IsUnique" label="Unique">
-                  <q-tooltip content-style="font-size: 16px">
-                    Check this to ensure that this column has no duplicate values
-                  </q-tooltip>
-                </q-checkbox>
-                <q-checkbox size="xs" v-model="newColumn.IsIndexed" label="Indexed">
-                  <q-tooltip content-style="font-size: 16px">
-                    Check this if you are going to search on this column using the API
-                  </q-tooltip>
-                </q-checkbox>
-              </div>
-
-            </div>
-
-          </q-tab-panel>
-
-          <q-tab-panel name="relations">
-
-            <span class="text-h6">Relations {{isEdit}}</span>
-            <small>({{(isEdit ? localTable.Relations.length - StandardRelations.length:localTable.Relations.length)}} +
-              2
-              default)
-            </small>
-
-            <div class="row" v-for="relation in localTable.Relations || []"
-                 v-if="StandardRelations.indexOf(relation.SubjectName) == -1 && StandardRelations.indexOf(relation.ObjectName) == -1">
-
-
-              <div class="col-2" style="padding: 5px">
-                <q-input v-model="relation.SubjectName"></q-input>
-              </div>
-
-              <div class="col-2" style="padding: 5px">
-                <q-select @input="checkRelation(relation, 'subject')" v-model="relation.Subject"
-                          :options="tables.map(e => e.table_name)"></q-select>
-              </div>
-
-
-              <div class="col-2" style="padding: 5px">
-                <q-select v-model="relation.Relation"
-                          :options="RelationTypes"></q-select>
-              </div>
-
-              <div class="col-2" style="padding: 5px">
-                <q-select @input="checkRelation(relation, 'object')" v-model="relation.Object"
-                          :options="tables.map(e => e.table_name)"></q-select>
-              </div>
-
-              <div class="col-2" style="padding: 5px">
-                <q-input v-model="relation.ObjectName"></q-input>
-              </div>
-
-
-              <div class="col-2" style="padding: 5px">
-                <q-btn @click="$emit('deleteRelation', relation)" icon="fas fa-times" flat size="sm"></q-btn>
-              </div>
-
-
-            </div>
-
-            <div class="row">
-
-
-              <div class="col-2" style="padding: 5px">
-                <q-input placeholder="optional subject name" v-model="newRelation.SubjectName"></q-input>
-              </div>
-
-              <div class="col-2" style="padding: 5px">
-                <q-select placeholder="column Name" @input="updatedRelation('subject')" v-model="newRelation.Subject"
-                          :options="tables.map(e => e.table_name)"></q-select>
-              </div>
-
-
-              <div class="col-2" style="padding: 5px">
-                <q-select hint="relation type" @input="updatedRelation('relation')" placeholder="relation type"
-                          v-model="newRelation.Relation" :options="RelationTypes"></q-select>
-              </div>
-
-              <div class="col-2" style="padding: 5px">
-                <q-select hint="related object" @input="updatedRelation('object')" placeholder="related object"
-                          v-model="newRelation.Object"
-                          :options="tables.map(e => e.table_name)"></q-select>
-              </div>
-
-
-              <div class="col-2" style="padding: 5px">
-                <q-input placeholder="optional object name" v-model="newRelation.ObjectName"></q-input>
-              </div>
-
-
-            </div>
-
-          </q-tab-panel>
-
-        </q-tab-panels>
+          </q-tab-panels>
+        </div>
       </div>
-    </div>
 
-    <div style="padding-bottom: 10px" class="row q-pa-md" v-if="isEdit">
-      <div class="col-md-12">
-        <q-btn @click="deleteTable()" color="red" label="Delete table"></q-btn>
+      <div style="padding-bottom: 10px" class="row q-pa-md" v-if="isEdit">
+        <div class="col-md-12">
+          <q-btn @click="deleteTable()" color="red" label="Delete table"></q-btn>
+        </div>
       </div>
-    </div>
 
 
 
-  </q-form>
+    </q-form>
 </template>
 
 <script>
@@ -291,9 +287,10 @@
         const that = this;
         console.log("Delete table", this.localTable);
         this.$q.dialog({
-          title: 'Confirm',
+          title: 'Confirm delete',
           message: 'Do you want to delete the table "' + this.localTable.TableName + '"',
           cancel: true,
+          bgColor: "white",
           persistent: true
         }).onOk(() => {
           that.$emit('deleteTable', this.localTable.TableName);

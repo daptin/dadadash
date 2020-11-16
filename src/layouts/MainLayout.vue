@@ -252,49 +252,8 @@ text-align: center;
       </q-scroll-area>
     </q-drawer>
 
-
-    <q-page-sticky v-if="isUser" position="bottom-right" :offset="[50, 50]">
-      <q-btn @click="userDrawer = !userDrawer" fab icon="menu" color="primary"/>
-    </q-page-sticky>
-
-    <q-drawer content-class="bg-grey-3" overlay :width="300" :breakpoint="100" show-if-above side="right"
-              v-if="isUser && userDrawer">
-      <q-scroll-area class="fit">
-
-        <q-list>
-          <q-item :inset-level="1" clickable v-ripple @click="logout">
-            <q-item-section avatar>
-              <q-icon name="fas fa-lock"></q-icon>
-            </q-item-section>
-            <q-item-section>
-              <q-item-label>
-                Logout
-              </q-item-label>
-            </q-item-section>
-          </q-item>
-        </q-list>
-        <q-list>
-          <q-item>
-            <q-item-section>
-              <q-btn label="Close" @click="userDrawer = false"></q-btn>
-            </q-item-section>
-          </q-item>
-        </q-list>
-
-      </q-scroll-area>
-    </q-drawer>
-
-
     <router-view v-if="isAdmin || isUser"/>
-
-    <q-drawer :width="fileDrawerWidth > 800 ? 800 : fileDrawerWidth" overlay :breakpoint="400" side="right"
-              v-model="showHelp">
-      <q-scroll-area class="fit" v-if="showHelp">
-        <help-page @closeHelp="showHelp = false">
-        </help-page>
-      </q-scroll-area>
-    </q-drawer>
-
+    <user-header-bar :buttons="{before: [], after: []}" :on-back="false"></user-header-bar>
 
   </q-layout>
 </template>
