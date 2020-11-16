@@ -173,6 +173,10 @@
   border-radius: 4px;
 }
 
+.tabulator-row.tabulator-selected {
+  background-color: rgb(233, 232, 246);
+}
+
 .tabulator-row:hover .row-selection-checkbox input {
   display: block;
 }
@@ -277,7 +281,7 @@ div.tabulator-col:nth-child(1) > div:nth-child(1) > div:nth-child(1) > div:nth-c
 }
 
 .tabulator-row.tabulator-selectable:hover {
-  background: #FFF8E8;
+  background: rgb(233, 232, 246);
 }
 
 
@@ -1072,8 +1076,8 @@ const tableComponent = {
               });
             } else {
               obj = cell._cell.row.data;
-              // console.log("Create new row with data", obj, Object.values(obj));
-              if (Object.values(obj).filter(e => !!e && e !== "").length === 1) {
+              console.log("Create new row with data", obj, Object.values(obj).filter(e => !!e && e !== "" && !(e instanceof  Array && e.length === 0)), Object.values(obj));
+              if (Object.values(obj).filter(e => !!e && e !== "" && !(e instanceof  Array && e.length === 0)).length === 1) {
                 that.spreadsheet.addData([{}])
               }
               obj["tableName"] = that.tableName;
@@ -1081,6 +1085,7 @@ const tableComponent = {
                 that.$q.notify({
                   message: "Saved"
                 });
+                // that.spreadsheet.addRow({})
               }).catch(function (e) {
                 console.log("Failed to save", e)
                 that.$q.notify({
