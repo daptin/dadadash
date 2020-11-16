@@ -56,7 +56,7 @@ import {mapActions} from 'vuex';
 export default {
   name: 'PageSignup',
   methods: {
-    ...mapActions(['executeAction']),
+    ...mapActions(['executeAction', 'setToken']),
     onSubmit() {
       var that = this;
       that.executeAction({
@@ -90,16 +90,28 @@ export default {
             password: that.password,
           }
         }).then(function (e) {
-          console.log("Sign in successful", arguments);
-          that.$router.push('/workspace')
+          for (var i = 0; i < e.length; i++) {
+            if (e[i].ResponseType === "client.notify") {
+              that.$q.notify(e[i].Attributes);
+            }
+          }
+          that.setToken();
+          that.$router.push("/workspace");
         }).catch(function (e) {
           console.log("Failed to sign in", arguments);
           that.$q.notify("Error", "Failed to login");
           that.$router.push('/login');
         })
-      }).catch(function (responses) {
-        that.$q.notify("Error", "Failed to signup");
-        console.log("Failed to register", responses)
+      }).catch(function (res) {
+        var e = res.response.data;
+        console.log("Failed to register", e);
+
+        for (var i = 0; i < e.length; i++) {
+          if (e[i].ResponseType === "client.notify") {
+            that.$q.notify(e[i].Attributes);
+          }
+        }
+
       })
     },
   },

@@ -2,7 +2,7 @@
   <q-page-container>
     <q-page>
 
-      <div class="q-pa-md q-gutter-sm">
+      <div style="padding: 12px 12px " class=" q-gutter-sm">
         <q-breadcrumbs>
           <template v-slot:separator>
             <q-icon
@@ -17,12 +17,12 @@
       <q-separator></q-separator>
 
 
-      <div class="row" style="overflow-y: scroll; height: 90vh">
+      <div class="row" style="overflow-y: scroll; height: calc(100vh - 12px); background: #F2F1F9">
 
         <div class="col-8 col-md-8 col-xs-12 col-lg-9 col-sm-6">
           <div class="row">
             <div class="col-6 col-md-6 col-lg-4 col-xl-4 col-xs-12 col-sm-12 q-pa-md q-gutter-sm">
-              <q-card>
+              <q-card class="bg-white">
 
 
                 <q-card-section>
@@ -65,11 +65,11 @@
                     </div>
                     <div class="col-6 text-right">
                       <q-btn-toggle @click="updateSignupActionPermission()" size="sm" flat color="white"
-                                    toggle-color="primary" toggle-text-color="primary"
-                                    text-color="black"
+                                    toggle-color="black" toggle-text-color="black"
+                                    text-color="primary"
                                     :options="[
           {label: signUpPublicAvailable == '2097057' ? 'Enabled' : 'Enable', value: '2097057', disable: signUpPublicAvailable == '2097057'},
-          {label: signUpPublicAvailable != '2097057' ? 'Disabled' : 'Disable', value: '2097024', disable: !(signUpPublicAvailable == '2097057')},
+          {label: signUpPublicAvailable != '2097057' ? 'Disabled' : 'Disable', value: '2097025', disable: !(signUpPublicAvailable == '2097057')},
         ]" v-model="signUpPublicAvailable"></q-btn-toggle>
                     </div>
                   </div>
@@ -94,7 +94,7 @@
 
 
             <div class="col-6  col-md-6 col-lg-4 col-xl-3 col-xs-12 col-sm-12 q-pa-md q-gutter-sm">
-              <q-card>
+              <q-card class="bg-white">
 
                 <q-card-section>
                   <q-item>
@@ -134,7 +134,7 @@
             </div>
 
             <div class="col-6 col-md-6 col-lg-4 col-xl-3 col-xs-12 col-sm-12 q-pa-md q-gutter-sm">
-              <q-card>
+              <q-card class="bg-white">
 
                 <q-card-section>
                   <q-item>
@@ -192,7 +192,7 @@
             </div>
 
             <div class="col-6  col-md-6 col-lg-4 col-xl-3 col-xs-12 col-sm-12 q-pa-md q-gutter-sm">
-              <q-card>
+              <q-card class="bg-white">
                 <q-card-section>
                   <q-item>
                     <q-item-section avatar>
@@ -243,7 +243,7 @@
         <div class="col-4  col-md-4 col-lg-3 col-xl-3 col-xs-12 col-sm-6 q-pa-md q-gutter-sm">
           <div class="row">
             <div class="col-12">
-              <q-card>
+              <q-card class="bg-white">
                 <q-card-section>
                   <q-item>
                     <q-item-section avatar>
@@ -376,9 +376,6 @@
       </div>
 
 
-      <q-page-sticky v-if="!showHelp" position="top-right" :offset="[0, 0]">
-        <q-btn flat @click="showHelp = true" fab icon="fas fa-question"/>
-      </q-page-sticky>
 
       <q-drawer overlay :width="400" side="right" v-model="showHelp">
         <q-scroll-area class="fit" v-if="showHelp">
@@ -389,6 +386,10 @@
 
 
     </q-page>
+<!--    <q-page-sticky v-if="!showHelp" position="top-right" :offset="[0, 0]">-->
+<!--      <q-btn flat @click="showHelp = true" fab icon="fas fa-question"/>-->
+<!--    </q-page-sticky>-->
+
   </q-page-container>
 </template>
 
@@ -439,17 +440,17 @@ export default {
 
 
       that.updateRow({
-        tableName: "world",
-        id: that.selectedTable.reference_id,
-        permission: JSON.stringify(that.tableSchema),
+        tableName: "action",
+        id: signUpAction.reference_id,
+        permission: that.signUpPublicAvailable,
       }).then(function () {
         that.$q.notify({
           message: "Saved"
         });
       }).catch(function (e) {
-        console.log("Failed to remove group from default groups", e);
+        console.log("Failed to enable signup action permissions", e);
         that.$q.notify({
-          message: "Failed to save"
+          message: "Failed to enable signup action permissions"
         });
       });
 
@@ -540,7 +541,7 @@ export default {
         console.log("Failed to restart daptin", err)
       })
     },
-    ...mapActions(['loadData', 'loadAggregates', 'loadServerConfig', 'executeAction', 'saveConfig', 'loadTables'])
+    ...mapActions(['loadData', 'loadAggregates', 'loadServerConfig', 'executeAction', 'saveConfig', 'loadTables', 'updateRow'])
   },
 
   data() {
