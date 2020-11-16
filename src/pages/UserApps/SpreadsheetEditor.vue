@@ -150,9 +150,9 @@ export default {
       if (this.loading) {
         return
       }
-      // console.log("Contents changed", arguments)
+      console.log("Contents changed", arguments)
       if (this.saveDebounced === null) {
-        this.saveDebounced = debounce(this.saveDocument, 3000, true)
+        this.saveDebounced = debounce(this.saveDocument, 1000, true)
       }
       this.saveDebounced();
     }
@@ -171,6 +171,14 @@ export default {
           showinfobar: false,
           title: that.document ? that.document.document_name : "New document",
           userInfo: that.decodedAuthToken() !== null ? that.decodedAuthToken().email : 'Anonymous',
+          hook: {
+            cellEditAfter: function () {
+              console.log("Cell edited")
+            },
+            cellRenderAfter: function () {
+              console.log("Cell red")
+            },
+          }
         }
         console.log("l", luckysheet)
 

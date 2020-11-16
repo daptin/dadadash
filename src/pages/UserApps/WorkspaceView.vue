@@ -1,7 +1,7 @@
 <template>
   <div class="row">
     <div class="col-12">
-      <q-card flat>
+      <q-card style="background: transparent" flat>
         <q-card-section>
           <div style="float: left; padding-top: 5px">
            <span class="text-h4"
@@ -38,7 +38,7 @@
           <hr style="border: 1px solid rgba(0, 0, 0, 0.07)"/>
         </q-card-section>
       </q-card>
-      <q-card flat v-if="showAddBase || (workspaceSchema && Object.keys(workspaceSchema.workspaceItems).length === 0)">
+      <q-card style="background: transparent" flat v-if="showAddBase || (workspaceSchema && Object.keys(workspaceSchema.workspaceItems).length === 0)">
         <q-card-section>
           <add-base-view @add-base="addBaseFromCatalog"></add-base-view>
         </q-card-section>

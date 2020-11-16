@@ -1,7 +1,7 @@
 <template>
-  <q-card flat>
+  <q-card style="background: transparent" flat>
     <q-card-section>
-      <span class="text-h6">Create a base</span>
+      <span class="text-bold">Create a base</span>
     </q-card-section>
     <q-card-section>
       <div class="row">

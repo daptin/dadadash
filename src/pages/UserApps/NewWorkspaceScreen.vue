@@ -1,8 +1,8 @@
 <template>
   <div class="row">
     <div class="col-6">
-      <q-form @submit="createWorkspace">
-        <q-card flat>
+      <q-form  @submit="createWorkspace">
+        <q-card style="background: transparent" flat>
           <q-card-section>
             <span class="text-h4">Create new workspace</span>
           </q-card-section>
