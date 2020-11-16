@@ -177,13 +177,13 @@ export default {
               console.log("Cell edited")
             },
             cellRenderAfter: function () {
-              console.log("Cell red");
+              // console.log("Cell red");
 
               that.saveDebounced();
             },
           }
         }
-        console.log("l", luckysheet)
+        // console.log("l", luckysheet)
 
         luckysheet.destroy();
         if (that.contents.length > 0) {
