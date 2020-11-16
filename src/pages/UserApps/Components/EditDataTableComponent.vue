@@ -5,25 +5,6 @@
       <div class="row" style="">
         <q-bar style="padding-left: 0; width: 100% ; background: white">
 
-
-<!--          <q-btn size="sm" flat icon="fas fa-bars">-->
-<!--            <q-menu>-->
-<!--              <q-card style="background: white; min-width: 300px">-->
-<!--                <q-card-section>-->
-<!--                  <q-list>-->
-<!--                    <q-item clickable v-for="column in newRowData">-->
-<!--                      <q-item-section>-->
-<!--                        <q-checkbox v-model="column.meta.IsHidden"></q-checkbox>-->
-<!--                      </q-item-section>-->
-<!--                      <q-item-section>-->
-<!--                        {{ column.meta.ColumnName }}-->
-<!--                      </q-item-section>-->
-<!--                    </q-item>-->
-<!--                  </q-list>-->
-<!--                </q-card-section>-->
-<!--              </q-card>-->
-<!--            </q-menu>-->
-<!--          </q-btn>-->
           <q-btn size="sm" @click="showNewRowDrawer()" flat label="New row"></q-btn>
           <q-btn size="sm" @click="showPermissionsDrawer()" color="primary" flat label="Table Permissions"></q-btn>
           <q-btn size="sm" flat label="Table Options">
@@ -49,7 +30,7 @@
 
       <div class="row">
         <div class="col-12" style="background: rgb(242, 241, 249)">
-          <div id="spreadsheet" style="height: calc(100vh - 70px); width: 100vw; border-top: 1px solid black"></div>
+          <div id="spreadsheet" style="height: calc(100vh - 82px); width: 100vw; border-top: 1px solid black"></div>
         </div>
       </div>
 

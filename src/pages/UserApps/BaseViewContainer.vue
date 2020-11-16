@@ -4,73 +4,70 @@
     <q-page-container>
       <q-page>
 
-        <div class="row">
+        <div class="row" style="width: 100vw; height: 50px">
+          <q-tabs style="max-width: calc(100vw - 50px)"
+                  class="text-black"
+                  inline-label
+          >
+            <q-route-tab
+              :key="item.reference_id"
+              v-if="item.type !== 'summary'" v-for="item in baseConfig.items"
+              :to="'/workspace/' + workspaceName + '/' + baseName + '/' + item.document_name" exact replace
+            >
+              <span><q-icon :name="itemIconMap[item.document_extension]"></q-icon> &nbsp;&nbsp;&nbsp;</span>{{
+                item.document_name
+              }}
+              <!--                  <span>&nbsp; &nbsp; &nbsp;-->
+              <!--                    <q-icon name="fas fa-cog"></q-icon>-->
 
-          <div class="col-12">
-            <q-bar style="height: 50px" dark>
-              <q-tabs
-                class="text-black"
-                inline-label
-              >
-                <q-route-tab
-                  :key="item.reference_id"
-                  v-if="item.type !== 'summary'" v-for="item in baseConfig.items"
-                  :to="'/workspace/' + workspaceName + '/' + baseName + '/' + item.document_name" exact replace
-                >
-                  <span><q-icon :name="itemIconMap[item.document_extension]"></q-icon> &nbsp;&nbsp;&nbsp;</span>{{ item.document_name }}
-                  <!--                  <span>&nbsp; &nbsp; &nbsp;-->
-                  <!--                    <q-icon name="fas fa-cog"></q-icon>-->
+              <!--                  </span>-->
+              <q-menu context-menu style="min-width: 300px">
+                <q-list>
 
-                  <!--                  </span>-->
-                  <q-menu context-menu style="min-width: 300px">
-                    <q-list>
-
-                      <q-item clickable disable>
-                        <q-item-section>
-                          <q-item-label>Configure</q-item-label>
-                        </q-item-section>
-                      </q-item>
-                      <q-item clickable @click="renameBaseItem(item)">
-                        <q-item-section>
-                          <q-item-label>Rename</q-item-label>
-                        </q-item-section>
-                      </q-item>
-                      <q-item clickable @click="deleteBaseItem(item)">
-                        <q-item-section>
-                          <q-item-label>Delete</q-item-label>
-                        </q-item-section>
-                      </q-item>
-                    </q-list>
-                  </q-menu>
-                </q-route-tab>
+                  <q-item clickable disable>
+                    <q-item-section>
+                      <q-item-label>Configure</q-item-label>
+                    </q-item-section>
+                  </q-item>
+                  <q-item clickable @click="renameBaseItem(item)">
+                    <q-item-section>
+                      <q-item-label>Rename</q-item-label>
+                    </q-item-section>
+                  </q-item>
+                  <q-item clickable @click="deleteBaseItem(item)">
+                    <q-item-section>
+                      <q-item-label>Delete</q-item-label>
+                    </q-item-section>
+                  </q-item>
+                </q-list>
+              </q-menu>
+            </q-route-tab>
 
 
-              </q-tabs>
-              <q-btn flat class="text-primary" id="newTableButton" icon="fas fa-plus">
-                <q-menu>
-                  <q-list style="min-width: 280px">
+          </q-tabs>
+          <q-btn style="width: 50px; height: 50px" flat class="text-primary" id="newTableButton" icon="fas fa-plus">
+            <q-menu>
+              <q-list style="min-width: 280px">
 
-                    <q-item :disable="item.disabled" clickable @click="addBaseItem(item)" v-close-popup
-                            v-for="item in baseItemTypes"
-                            :key="item.label">
-                      <q-item-section>{{ item.label }}</q-item-section>
-                      <q-item-section avatar>
-                        <q-icon :name="item.icon"></q-icon>
-                      </q-item-section>
-                    </q-item>
-                    <q-separator/>
+                <q-item :disable="item.disabled" clickable @click="addBaseItem(item)" v-close-popup
+                        v-for="item in baseItemTypes"
+                        :key="item.label">
+                  <q-item-section>{{ item.label }}</q-item-section>
+                  <q-item-section avatar>
+                    <q-icon :name="item.icon"></q-icon>
+                  </q-item-section>
+                </q-item>
+                <q-separator/>
 
-                  </q-list>
-                </q-menu>
-              </q-btn>
+              </q-list>
+            </q-menu>
+          </q-btn>
 
-            </q-bar>
-          </div>
-
-          <q-separator></q-separator>
         </div>
 
-        <base-view-router v-if="selectedBaseItem" :base-config="baseConfig"
+        <q-separator></q-separator>
+
+        <base-view-router v-if="baseLoaded && selectedBaseItem" :base-config="baseConfig"
                           :baseItem="selectedBaseItem"></base-view-router>
 
 
@@ -222,7 +219,7 @@ export default {
         that.$q.notify({
           message: "Item deleted"
         });
-        delete that.baseItemMap[that.itemBeingEdited.label];
+        delete that.baseItemMap[that.itemBeingEdited.document_name];
         var indexToDelete = -1;
         for (var i = 0; i < that.baseConfig.items.length; i++) {
           if (that.baseConfig.items[i].document_name === that.itemBeingEdited.document_name) {
@@ -247,7 +244,7 @@ export default {
       console.log("Rename base item", this.itemBeingEdited);
       if (this.showRenameBaseViewModel !== true) {
         this.itemBeingEdited = item;
-        this.newName = this.itemBeingEdited.label;
+        this.newName = this.itemBeingEdited.document_name;
         this.showRenameBaseViewModel = true;
         that.$nextTick().then(function () {
           document.getElementById("newBaseNameField").focus();
@@ -256,10 +253,10 @@ export default {
         return
       }
       console.log("Updated name", this.newName)
-      if (this.newName !== this.itemBeingEdited.label) {
+      if (this.newName !== this.itemBeingEdited.document_name) {
         console.log("Update item");
-        const originalTitle = this.itemBeingEdited.label;
-        this.itemBeingEdited.label = this.newName;
+        const originalTitle = this.itemBeingEdited.document_name;
+        this.itemBeingEdited.document_name = this.newName;
         that.updateRow({
           tableName: "document",
           id: that.itemBeingEdited.reference_id,
@@ -288,8 +285,8 @@ export default {
       };
       if (DEFAULT_ITEM_MAP[item.type]) {
         newItem = DEFAULT_ITEM_MAP[item.type]
-        newItem.type = item.type;
-        newItem.label = newItemLabel;
+        newItem.document_extension = item.type;
+        newItem.document_name = newItemLabel;
       }
 
 
@@ -305,7 +302,7 @@ export default {
           name: item.type + "-" + uuidv4() + ".json",
           type: "workspace/" + item.type,
           path: "/" + that.workspaceName + "/" + that.baseName,
-          contents: "workspace/" + item.type + "," + btoa(JSON.stringify(item))
+          contents: "workspace/" + item.type + "," + btoa(JSON.stringify(newItem))
         }],
       }
 
@@ -315,10 +312,14 @@ export default {
       that.createRow(newRow).then(function (res) {
         console.log("New workspace item created", res)
         newItem.reference_id = res.data.reference_id;
-        that.baseConfig.items.push(newItem);
-        that.baseItemMap[newItem.label] = res.data;
-        that.renameBaseItem(newItem);
+        var finalNewItem = {...newItem, ...res.data}
+        that.baseConfig.items.push(finalNewItem);
+        that.baseItemMap[newItem.label] = finalNewItem;
+        that.renameBaseItem(finalNewItem);
+
         that.ensureBaseTables();
+
+        that.selectedBaseItem = finalNewItem;
       }).catch(function (err) {
         that.$q.notify({
           message: "Failed to create new item - " + JSON.stringify(err)
@@ -485,9 +486,7 @@ export default {
               try {
                 var item = res.data[i];
                 var itemConfig = JSON.parse(atob(item.document_content[0].contents))
-                itemConfig.type = item.document_extension;
-                itemConfig.label = item.document_name;
-                itemConfig.reference_id = item.reference_id;
+                item = {...item, ...itemConfig}
                 that.baseItemMap[item.document_name] = item;
                 that.baseConfig.items.push(item);
               } catch (e) {
@@ -544,14 +543,14 @@ export default {
               }
             }
 
-            console.log("No target table exists for this item, creating one", baseItem.label, targetTableConfig.TableName);
+            console.log("No target table exists for this item, creating one", baseItem.document_name, targetTableConfig.TableName);
             updateSchema.Tables.push(targetTableConfig);
             baseItem.targetTable = targetTableConfig;
 
-            that.baseItemMap[baseItem.label].document_content[0].contents = btoa(JSON.stringify(baseItem))
-            console.log("Update base request", that.baseItemMap[baseItem.label])
-            that.baseItemMap[baseItem.label].tableName = "document";
-            promises.push(that.updateRow(that.baseItemMap[baseItem.label]))
+            that.baseItemMap[baseItem.document_name].document_content[0].contents = btoa(JSON.stringify(baseItem))
+            console.log("Update base request", that.baseItemMap[baseItem.document_name])
+            that.baseItemMap[baseItem.document_name].tableName = "document";
+            promises.push(that.updateRow(that.baseItemMap[baseItem.document_name]))
           }
         }
       }
@@ -770,13 +769,11 @@ export default {
   watch: {
     '$route.params.baseName': function () {
       const that = this;
-      that.baseLoaded = false;
       console.log("base name changed", arguments)
       this.refreshData();
     },
     '$route.params.itemName': function () {
       const that = this;
-      that.baseLoaded = false;
       console.log("item name changed", arguments)
       this.refreshData();
     }
