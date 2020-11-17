@@ -1,4 +1,4 @@
-name: Build/android
+name: Build/spa
 
 on:
   push:
