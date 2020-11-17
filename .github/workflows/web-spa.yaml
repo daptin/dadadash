@@ -41,7 +41,7 @@ jobs:
           path: dist/spa
       - name: Build and push
         run: |
-          docker build -t daptin/dadadash:master .
+          docker build -t daptin/dadadash:latest .
           docker login -u="${{ secrets.DOCKER_USERNAME }}" -p="${{ secrets.DOCKER_PASSWORD }}"
-          docker push daptin/dadadash:master
+          docker push daptin/dadadash:latest
 
