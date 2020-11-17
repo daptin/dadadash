@@ -167,7 +167,8 @@ export default {
         var queryPayload = {
           tableName: "document",
           params: {
-            query: JSON.stringify([{
+            query: JSON.stringify(
+              [{
               column: "document_path",
               operator: "is",
               value: "/" + that.workspaceName + "/" + baseItem.document_name
@@ -175,7 +176,8 @@ export default {
               column: "mime_type",
               operator: "like",
               value: "workspace/%"
-            }]),
+            }]
+            ),
             page: {
               size: 100,
             }
