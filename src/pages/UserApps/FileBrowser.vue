@@ -34,12 +34,12 @@
           <q-card flat style="background: white">
             <q-card-section>
               <q-list bordered separator>
-                <q-item @click="$router.push('/apps/document/new')" clickable>
-                  <q-item-section>New document</q-item-section>
-                </q-item>
-                <q-item @click="$router.push('/apps/spreadsheet/new')" clickable>
-                  <q-item-section>New spreadsheet</q-item-section>
-                </q-item>
+<!--                <q-item @click="$router.push('/apps/document/new')" clickable>-->
+<!--                  <q-item-section>New document</q-item-section>-->
+<!--                </q-item>-->
+<!--                <q-item @click="$router.push('/apps/spreadsheet/new')" clickable>-->
+<!--                  <q-item-section>New spreadsheet</q-item-section>-->
+<!--                </q-item>-->
                 <q-item clickable
                         @click="() => {(newNamePrompt = true) ; (newName = '') ; ( newNameType = 'folder')}">
                   <q-item-section>New folder</q-item-section>
@@ -338,11 +338,11 @@ export default {
         tableName: "document",
         document_extension: this.newName.indexOf(".") > -1 ? this.newName.split(".")[1] : "",
         mime_type: '',
-        document_path: this.currentPath + "/",
+        document_path: this.pathNamespace + "/" + (this.currentPath ? this.currentPath + "/" : ""),
         document_content: [{
           name: this.newName,
           type: "text/plain",
-          path: this.currentPath,
+          path: this.pathNamespace + "/" + (this.currentPath ? this.currentPath + "/" : ""),
           contents: "data:base64," + btoa(""),
         }],
       }
@@ -441,15 +441,17 @@ export default {
       let queryPayload = {
         tableName: "document",
         params: {
-          query: JSON.stringify([{
-            column: "document_path",
-            operator: "is",
-            value: that.currentPath + "/"
-          }, {
-            column: "mime_type",
-            operator: "not like",
-            value: "workspace"
-          }]),
+          query: JSON.stringify([
+            {
+              column: "document_path",
+              operator: "is",
+              value: that.pathNamespace + "/" + (that.currentPath ? that.currentPath + "/" : "")
+            },
+            {
+              column: "mime_type",
+              operator: "not like",
+              value: "workspace"
+            }]),
           page: {
             size: 100,
           }
@@ -458,6 +460,10 @@ export default {
       if (searchTerm && searchTerm.trim().length > 0) {
         queryPayload.params.query = JSON.stringify([
           {
+            column: "document_path",
+            operator: "like",
+            value: that.pathNamespace + "/"
+          }, {
             column: "document_name",
             operator: "contains",
             value: searchTerm
@@ -552,11 +558,11 @@ export default {
           reader.onload = function (fileResult) {
             // console.log("File loaded", fileToUpload, fileResult);
             file.status = "Uploading"
-            let documentPath = that.currentPath + "/";
+            let documentPath = that.pathNamespace + "/" + (that.currentPath ? that.currentPath + "/" : "");
             if (fileToUpload.webkitRelativePath && fileToUpload.webkitRelativePath.length > 0) {
               var relPath = fileToUpload.webkitRelativePath.split("/");
               relPath.pop(); //remove name
-              documentPath = that.currentPath + "/" + relPath.join("/") + "/"
+              documentPath = that.pathNamespace + "/" + (that.currentPath ? that.currentPath + "/" : "") + relPath.join("/") + "/"
             }
             var pathParts = documentPath.split("/")
             if (pathParts.length > 2) {
@@ -614,6 +620,7 @@ export default {
       ...mapGetters(['endpoint']),
       directoryEnsureCache: {},
       newNamePrompt: false,
+      pathNamespace: null,
       viewMode: 'card',
       uploadedFiles: [],
       newName: '',
@@ -634,11 +641,12 @@ export default {
     document.onpaste = null;
     document.ondrop = null;
   },
+  props: ["baseItem"],
   mounted() {
     const that = this;
     this.containerId = "id-" + new Date().getMilliseconds();
-    console.log("Mounted FilesBrowser", this.containerId);
-
+    console.log("Mounted FilesBrowser", this.containerId, this.baseItem);
+    this.pathNamespace = this.baseItem.document_path + "/" + this.baseItem.document_name;
     var lastPath = localStorage.getItem("_last_current_path")
     if (lastPath) {
       this.currentPath = lastPath;

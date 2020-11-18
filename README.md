@@ -28,6 +28,9 @@ Own and organize your content on Dadadash.
 ### Spreadsheet editor
 ![spreadsheet editor](assets/spreadsheetEditor.png)
 
+### Data tables
+![data tables](assets/dataTable.png)
+
 ### File folder manager
 ![file browser](assets/fileBrowser.png)
 
