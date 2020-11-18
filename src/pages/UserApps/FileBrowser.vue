@@ -160,6 +160,7 @@
 <script>
 
 import {mapActions, mapGetters} from "vuex";
+import moment from "moment";
 
 function base64ToArrayBuffer(base64) {
   var binaryString = window.atob(base64);
@@ -705,7 +706,8 @@ export default {
           var blob = item.getAsFile();
           console.log("Upload blob", blob)
           let nameParts = blob.name.split(".");
-          let newName = nameParts[0] + " pasted at " + new Date().toLocaleString() + "." + nameParts[1]
+          let newName = nameParts[0] + " pasted at " + moment().format('YYYY_MM_DD_hh_mm_ss_a');
+          +"." + nameParts[1]
           that.uploadFile({
             file: blob,
           }, newName)
