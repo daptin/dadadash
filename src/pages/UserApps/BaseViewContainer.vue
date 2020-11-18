@@ -67,7 +67,7 @@
 
         <q-separator></q-separator>
 
-        <base-view-router v-if="baseLoaded && selectedBaseItem" :base-config="baseConfig"
+        <base-view-router ref="viewRouter" v-if="baseLoaded && selectedBaseItem" :base-config="baseConfig"
                           :baseItem="selectedBaseItem"></base-view-router>
 
 
@@ -318,6 +318,7 @@ export default {
         that.renameBaseItem(finalNewItem);
 
         that.ensureBaseTables();
+        that.$refs.viewRouter.reloadBaseItem()
 
         that.selectedBaseItem = finalNewItem;
       }).catch(function (err) {

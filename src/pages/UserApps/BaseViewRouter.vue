@@ -43,7 +43,6 @@ export default {
         }
       }
 
-
       that.baseItemConfigMap = {}
 
       for (let i = 0; i < that.baseConfig.items.length; i++) {
