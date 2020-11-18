@@ -14,31 +14,13 @@ Own and organize your content on Dadadash.
 
 # What is inside
 
-## Workspaces
-![new workspace](assets/newWorkspace.png)
-![worksapce view](assets/workspaceView.png)
-![new base](assets/newBase.png)
-
-## Base
-![new app item menu](assets/newAppItemMenu.png)
-
-### Document editor
-![document editor](assets/documentEditor.png)
-
-### Spreadsheet editor
-![spreadsheet editor](assets/spreadsheetEditor.png)
-
-### Data tables
-![data tables](assets/dataTable.png)
-
-### File folder manager
-![file browser](assets/fileBrowser.png)
-
-### Calendar
-![calendar](assets/newCalendarEvent.png)
-
-### Calendar week view
-![File browser](assets/7.png)
+|      |    |
+|------------------------------------------------|------------------------------------------------------|
+| ![ new workspace](assets/newWorkspace.png)     | ![ worksapce view](assets/workspaceView.png)         |
+| ![ new base](assets/newBase.png)               | ![ new app item menu](assets/newAppItemMenu.png)     |
+| ![ document editor](assets/documentEditor.png) | ![ spreadsheet editor](assets/spreadsheetEditor.png) |
+| ![ data tables](assets/dataTable.png)          | ![ file browser](assets/fileBrowser.png)             |
+| ![ calendar](assets/newCalendarEvent.png)      | ![ File browser](assets/7.png)                       |
 
 
 
