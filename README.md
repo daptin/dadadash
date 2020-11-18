@@ -1,6 +1,6 @@
 # Dadadash
 
-Own and organize your content on Dadadash. 
+Own and organize your content on Dadadash.
 
 - File/folder manager
 - Rich document editor
@@ -34,19 +34,7 @@ Own and organize your content on Dadadash.
 ### Calendar
 ![calendar](assets/newCalendarEvent.png)
 
-## Document editor
-![Document editor](assets/3.png)
-
-## Spreadsheet editor
-![Spreadsheet editor](assets/4.png)
-
-## Calendar
-![File browser](assets/5.png)
-
-## Calendar new event
-![File browser](assets/6.png)
-
-## Calendar week view
+### Calendar week view
 ![File browser](assets/7.png)
 
 
