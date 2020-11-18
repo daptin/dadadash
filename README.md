@@ -1,14 +1,18 @@
-# Daptin Office Suite
+# Dadadash
 
-An Office suite with following capabilities:
+Own and organize your content on Dadadash. 
 
 - File/folder manager
-- Upload files/folders, drag and drop files
-- Document editor
+- Rich document editor
 - Spreadsheet editor
 - Calendar
+- Data tables with CRUD API's
 
-# Preview
+# Try it now
+
+```docker run -p 8080:8080 daptin/dadadash```
+
+# What is inside
 
 ## Workspaces
 ![new workspace](assets/newWorkspace.png)
@@ -47,24 +51,24 @@ An Office suite with following capabilities:
 
 
 
+# For developers
 
-## Install the dependencies
+## Build from source
+
+### Install the dependencies
 ```bash
-npm install
-docker build -t daptin-office-suite
-docker run -p 8081:8080 daptin-office-suite
+npm install -g @quasar/cli && npm install && npm run build
+docker build -t dadadash
+docker run -p 8080:8080 dadadash
 ```
 
-### Start the app in development mode (hot-code reloading, error reporting, etc.)
+#### Start the app in development mode (hot-code reloading, error reporting, etc.)
 ```bash
-quasar dev
+npm run dev
 ```
 
 
-### Build the app for production
+#### Build the app for production
 ```bash
-quasar build
+npm run build
 ```
-
-### Customize the configuration
-See [Configuring quasar.conf.js](https://quasar.dev/quasar-cli/quasar-conf-js).
