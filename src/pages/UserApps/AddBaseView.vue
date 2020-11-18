@@ -41,6 +41,15 @@ export default {
       newBaseName: null,
       catalog: [
         {
+          label: "From scratch",
+          icon: "fas fa-chalkboard",
+          schema: {
+            icon: "fas fa-chalkboard",
+            label: "A new base",
+            items: [],
+          }
+        },
+        {
           label: "Project tracker",
           icon: "fas fa-wrench",
           schema: {

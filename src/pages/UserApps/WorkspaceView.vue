@@ -38,7 +38,8 @@
           <hr style="border: 1px solid rgba(0, 0, 0, 0.07)"/>
         </q-card-section>
       </q-card>
-      <q-card style="background: transparent" flat v-if="showAddBase || (workspaceSchema && Object.keys(workspaceSchema.workspaceItems).length === 0)">
+      <q-card style="background: transparent" flat
+              v-if="showAddBase || (workspaceSchema && Object.keys(workspaceSchema.workspaceItems).length === 0)">
         <q-card-section>
           <add-base-view @add-base="addBaseFromCatalog"></add-base-view>
         </q-card-section>
@@ -169,18 +170,19 @@ export default {
           params: {
             query: JSON.stringify(
               [{
-              column: "document_path",
-              operator: "is",
-              value: "/" + that.workspaceName + "/" + baseItem.document_name
-            }, {
-              column: "mime_type",
-              operator: "like",
-              value: "workspace/%"
-            }]
+                column: "document_path",
+                operator: "is",
+                value: "/" + that.workspaceName + "/" + baseItem.document_name
+              }, {
+                column: "mime_type",
+                operator: "like",
+                value: "workspace/%"
+              }]
             ),
             page: {
               size: 100,
-            }
+            },
+            included_relations: "document_content"
           }
         };
 
@@ -192,9 +194,16 @@ export default {
 
         listPromises.push(that.loadData(queryPayload).then(function (res) {
           console.log("Deleting %s items in base %s", res.data.length, baseItem.document_name);
+          debugger
           for (var i = 0; i < res.data.length; i++) {
             try {
               var item = res.data[i];
+              console.log("Delete item ", item.document_path, item)
+              if (item.document_extension === "table") {
+                var itemConfig = JSON.parse(atob(item.document_content[0].contents))
+                console.log("Need to delete target table", itemConfig)
+                deletePromises.push(that.deleteTableByName(itemConfig.targetTable.TableName))
+              }
               deletePromises.push(that.deleteRow({
                 tableName: "document",
                 reference_id: item.reference_id
@@ -375,7 +384,7 @@ export default {
 
 
     },
-    ...mapActions(['loadData', 'createRow', 'updateRow', 'executeAction', 'deleteRow']),
+    ...mapActions(['loadData', 'createRow', 'updateRow', 'executeAction', 'deleteRow', 'deleteTableByName']),
     handleDataLoad(data) {
       const that = this;
       console.log("Configuration for workspace", data);

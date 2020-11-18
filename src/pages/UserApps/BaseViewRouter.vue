@@ -2,7 +2,8 @@
 
   <div>
     <q-tab-panels keep-alive v-model="baseItem.document_name">
-      <q-tab-panel :key="item.reference_id" style="padding: 0" :name="item.document_name" v-for="item in baseConfig.items">
+      <q-tab-panel :key="item.reference_id" style="padding: 0" :name="item.document_name"
+                   v-for="item in baseConfig.items">
         <component :is="baseItemComponentMap[item.document_extension]"
                    :baseItem="baseItemConfigMap[item.document_name]"
                    v-if="baseItemConfigMap[item.document_name]"
@@ -93,6 +94,15 @@ export default {
       that.baseItemConfigMap[that.baseItem.document_name].file = baseEncodedFileItem;
       var originalContent = this.getJsonFromDocument(that.baseItem.document_content[0])
       originalContent.file = baseEncodedFileItem;
+
+      var contentKeys = Object.keys(originalContent);
+      var baseKeys = Object.keys(that.baseItem);
+      for (const baseKey of baseKeys) {
+        if (contentKeys.indexOf(baseKey) > -1) {
+          delete originalContent[contentKeys]
+        }
+      }
+
       that.baseItem.document_content[0].contents = "application/json," + btoa(JSON.stringify(originalContent));
       that.baseItem.tableName = "document";
       that.updateRow(that.baseItem).then(function (res) {

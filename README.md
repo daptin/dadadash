@@ -10,11 +10,25 @@ An Office suite with following capabilities:
 
 # Preview
 
-## File browser
-![File browser](assets/1.png)
+## Workspaces
+![new workspace](assets/newWorkspace.png)
+![worksapce view](assets/workspaceView.png)
+![new base](assets/newBase.png)
 
-## File browser with attributes
-![File browser list](assets/2.png)
+## Base
+![new app item menu](assets/newAppItemMenu.png)
+
+### Document editor
+![document editor](assets/documentEditor.png)
+
+### Spreadsheet editor
+![spreadsheet editor](assets/spreadsheetEditor.png)
+
+### File folder manager
+![file browser](assets/fileBrowser.png)
+
+### Calendar
+![calendar](assets/newCalendarEvent.png)
 
 ## Document editor
 ![Document editor](assets/3.png)

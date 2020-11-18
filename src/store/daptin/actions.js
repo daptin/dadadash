@@ -75,6 +75,9 @@ export function deleteTableByName({commit}, tableName) {
         operator: "is",
         value: tableName
       }]),
+      page: {
+        size: 1,
+      },
       fields: "reference_id"
     }).then(function (res) {
       console.log("Table reference id for deletion ", res.data);
@@ -83,16 +86,16 @@ export function deleteTableByName({commit}, tableName) {
         world_id: res.data[0].reference_id
       }).then(function (res) {
         console.log("Table deletion response", res);
-        resolve();
+        resolve(tableName);
       }).catch(function (err) {
         console.log("Failed to load table id for deletion", err)
-        reject()
+        reject(tableName)
       })
 
 
     }).catch(function (err) {
       console.log("Failed to load table id for deletion", err)
-      reject()
+      reject(tableName)
     })
   })
 

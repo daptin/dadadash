@@ -2,13 +2,7 @@
   <q-layout view="lHh Lpr lFf">
 
     <q-drawer
-      v-if="isAdmin"
       v-model="showAdminDrawer"
-      :mini-to-overlay="!showAdminDrawerStick"
-      :mini="!showAdminDrawerStick && showAdminDrawerMini"
-      @mouseover="showAdminDrawerMini = false"
-      @mouseout="showAdminDrawerMini = true"
-
       :mini-width="50"
       :width="250"
       :breakpoint="1400"

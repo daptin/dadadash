@@ -247,7 +247,7 @@ export default {
         this.newName = this.itemBeingEdited.document_name;
         this.showRenameBaseViewModel = true;
         that.$nextTick().then(function () {
-          document.getElementById("newBaseNameField").focus();
+          // document.getElementById("newBaseNameField").focus();
           // document.getElementById("newBaseNameField").
         })
         return
