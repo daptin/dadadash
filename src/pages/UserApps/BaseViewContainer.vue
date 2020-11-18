@@ -264,6 +264,7 @@ export default {
         }).then(function (res) {
           console.log("Updated item name", res);
           that.baseItemMap[that.newName] = that.baseItemMap[originalTitle];
+          that.$refs.viewRouter.reloadBaseItem()
           delete that.baseItemMap[originalTitle];
           if (originalTitle === that.selectedItem) {
             that.$router.push('/workspace/' + that.workspaceName + "/" + that.baseName + "/" + that.newName)

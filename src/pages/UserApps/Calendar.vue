@@ -368,6 +368,9 @@ export default {
       // this.calendar.gotoDate(this.date.toString())
     }
   },
+  beforeDestroy() {
+    window.onresize = null;
+  },
   mounted() {
     const that = this;
     that.containerId = "id-" + new Date().getMilliseconds();
