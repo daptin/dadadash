@@ -34,12 +34,12 @@
           <q-card flat style="background: white">
             <q-card-section>
               <q-list bordered separator>
-<!--                <q-item @click="$router.push('/apps/document/new')" clickable>-->
-<!--                  <q-item-section>New document</q-item-section>-->
-<!--                </q-item>-->
-<!--                <q-item @click="$router.push('/apps/spreadsheet/new')" clickable>-->
-<!--                  <q-item-section>New spreadsheet</q-item-section>-->
-<!--                </q-item>-->
+                <!--                <q-item @click="$router.push('/apps/document/new')" clickable>-->
+                <!--                  <q-item-section>New document</q-item-section>-->
+                <!--                </q-item>-->
+                <!--                <q-item @click="$router.push('/apps/spreadsheet/new')" clickable>-->
+                <!--                  <q-item-section>New spreadsheet</q-item-section>-->
+                <!--                </q-item>-->
                 <q-item clickable
                         @click="() => {(newNamePrompt = true) ; (newName = '') ; ( newNameType = 'folder')}">
                   <q-item-section>New folder</q-item-section>
@@ -303,7 +303,7 @@ export default {
           console.log("one level up %s", newPath)
           this.currentPath = newPath
         } else {
-          that.currentPath = file.document_path + file.name
+          that.currentPath = that.currentPath + "/" + file.name
         }
         that.refreshData();
       } else {
