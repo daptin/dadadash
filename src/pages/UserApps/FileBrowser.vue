@@ -201,7 +201,7 @@ export default {
   watch: {
     'currentPath': function (newVal) {
       console.log("Current path changed", newVal);
-      localStorage.setItem("_last_current_path", newVal)
+      localStorage.setItem("_last_current_path_" + this.baseItem.reference_id, newVal)
     }
   },
   methods: {
@@ -647,8 +647,8 @@ export default {
     const that = this;
     this.containerId = "id-" + new Date().getMilliseconds();
     console.log("Mounted FilesBrowser", this.containerId, this.baseItem);
-    this.pathNamespace = this.baseItem.document_path + "/" + this.baseItem.document_name;
-    var lastPath = localStorage.getItem("_last_current_path")
+    this.pathNamespace = this.baseItem.document_path + "/" + this.baseItem.reference_id;
+    var lastPath = localStorage.getItem("_last_current_path_" + this.baseItem.reference_id)
     if (lastPath) {
       this.currentPath = lastPath;
     }
