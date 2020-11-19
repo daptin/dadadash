@@ -217,8 +217,8 @@
                 </q-btn-dropdown>
               </q-toolbar>
             </div>
-            <div class="col-12 q-pa-md" style="height: calc(100vh - 100px)">
-              <div class="my-calendar-container1" style="height: calc(100vh - 200px)" :id="containerId"></div>
+            <div class="col-12 " style="height: calc(100vh - 100px)">
+              <div class="my-calendar-container1 q-pa-md" style="height: calc(100vh - 200px)" :id="containerId"></div>
             </div>
           </div>
         </div>
@@ -358,11 +358,10 @@ export default {
     createEvent() {
       const that = this;
       console.log("Create new event", this.newEvent);
-      this.calendarConfig.events.push(this.newEvent);
+      that.calendar.addEvent(this.newEvent);
       this.newEvent = this.generateNewEvent();
-      that.calendar.refetchEvents();
       that.$refs.newEventDialog.hide();
-      that.$emit("save-base-item-contents", btoa(JSON.stringify(that.calendarConfig)))
+      that.saveCalendar()
     },
     setDate(date) {
       console.log("set date", date)
@@ -400,27 +399,7 @@ export default {
     eventDrop(dropInfo) {
       const that = this;
       console.log("drop info", dropInfo)
-      var referenceId = dropInfo.oldEvent.id;
-      var newEvent = dropInfo.event;
-
-      var indexToRemove = -1;
-      for (var i = 0; i < that.calendarConfig.events.length; i++) {
-        let event = that.calendarConfig.events[i];
-        console.log("Compare id", event.id, referenceId)
-        if (event.id === referenceId) {
-          indexToRemove = i;
-          break;
-        }
-      }
-      if (indexToRemove !== -1) {
-        console.log("Deleting event at ", indexToRemove, that.calendarConfig.events)
-        that.calendarConfig.events.splice(indexToRemove, 1);
-        // that.calendar.refetchEvents();
-      }
-      that.calendarConfig.events.push(newEvent);
-      console.log("Updated config", referenceId, newEvent, that.calendarConfig)
-      that.$emit("save-base-item-contents", btoa(JSON.stringify(that.calendarConfig)))
-
+      that.saveCalendar()
     },
     dateClickedEvent(info) {
       const that = this;
@@ -440,37 +419,22 @@ export default {
     },
     fetchEvents(info, successCallback, failureCallback) {
       const that = this;
-      if (!that.calendarConfig.events) {
-        that.calendarConfig.events = []
+      if (!that.calendar || !that.calendar.events) {
+        return that.calendarConfig.events ? successCallback(that.calendarConfig.events) : successCallback([]);
       }
-      successCallback(that.calendarConfig.events)
+      successCallback(that.calendar.events)
+    },
+    saveCalendar() {
+      const that = this;
+
+      that.calendarConfig.events = that.calendar.getEvents();
+      that.$emit("save-base-item-contents", btoa(JSON.stringify(that.calendarConfig)))
+
     },
     eventResize(dropInfo) {
       const that = this;
-      console.log("event resized", dropInfo)
-
-      var referenceId = dropInfo.oldEvent.id;
-      var newEvent = dropInfo.event;
-
-      var indexToRemove = -1;
-      for (var i = 0; i < that.calendarConfig.events.length; i++) {
-        let event = that.calendarConfig.events[i];
-        console.log("Compare id", event.id, referenceId)
-        if (event.id === referenceId) {
-          indexToRemove = i;
-          break;
-        }
-      }
-      if (indexToRemove !== -1) {
-        console.log("Deleting event at ", indexToRemove, that.calendarConfig.events)
-        that.calendarConfig.events.splice(indexToRemove, 1);
-        // that.calendar.refetchEvents();
-      }
-      that.calendarConfig.events.push(newEvent);
-      console.log("Updated config", referenceId, newEvent, that.calendarConfig)
-      that.$emit("save-base-item-contents", btoa(JSON.stringify(that.calendarConfig)))
-
-
+      console.log("event resized", dropInfo, that.calendar)
+      that.saveCalendar();
     }
   },
   computed: {},
@@ -502,6 +466,7 @@ export default {
       try {
         var savedConfig = JSON.parse(atob(file))
         calendarConfig = savedConfig;
+        console.log("Restore saved calendar", calendarConfig)
       } catch (e) {
         console.log("Failed to parse existing data", e)
       }
