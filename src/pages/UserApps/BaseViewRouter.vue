@@ -79,7 +79,11 @@ export default {
       })
     },
     getJsonFromDocument: function (document) {
+
       let contents = document.contents;
+      if (!contents) {
+        return {}
+      }
       if (contents.indexOf(",") > -1) {
         return JSON.parse(atob(contents.split(",")[1]))
       }
