@@ -8,6 +8,9 @@
           <q-tabs style="max-width: calc(100vw - 50px)"
                   class="text-black"
                   inline-label
+                  shrink
+                  outside-arrows
+
           >
             <q-route-tab
               :key="item.reference_id"
@@ -17,13 +20,8 @@
               <span><q-icon :name="itemIconMap[item.document_extension]"></q-icon> &nbsp;&nbsp;&nbsp;</span>{{
                 item.document_name
               }}
-              <!--                  <span>&nbsp; &nbsp; &nbsp;-->
-              <!--                    <q-icon name="fas fa-cog"></q-icon>-->
-
-              <!--                  </span>-->
               <q-menu context-menu style="min-width: 300px">
                 <q-list>
-
                   <q-item clickable disable>
                     <q-item-section>
                       <q-item-label>Configure</q-item-label>

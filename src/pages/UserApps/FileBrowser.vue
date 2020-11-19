@@ -18,10 +18,10 @@
                 <q-item clickable @click="fileDownload(selectedFile)">
                   <q-item-section>Download</q-item-section>
                 </q-item>
-                <q-item clickable v-if="isEditable(selectedFile)"
-                        @click="openEditor(selectedFile)">
-                  <q-item-section>Open</q-item-section>
-                </q-item>
+<!--                <q-item clickable v-if="isEditable(selectedFile)"-->
+<!--                        @click="openEditor(selectedFile)">-->
+<!--                  <q-item-section>Open</q-item-section>-->
+<!--                </q-item>-->
                 <q-item clickable v-if="isViewable(selectedFile)"
                         @click="openViewer(selectedFile)">
                   <q-item-section>View</q-item-section>

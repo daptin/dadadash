@@ -11,18 +11,24 @@
       </div>
     </q-card-section>
     <q-card-section>
-      <div class="row">
-        <div class="col-3 q-pa-md" v-for="item in catalog" @click="selectedItem = item">
-          <q-card style="cursor: pointer; background: white" :class="{'selected-card': selectedItem ===  item}">
-            <q-card-section style="text-align: center">
-              <q-icon color="primary" :name="item.icon" style="width: 100px; height: 100px; font-size: 60px"></q-icon>
-            </q-card-section>
-            <q-card-section style="text-align: center">
-              <span class="text-bold text-primary">{{ item.label }}</span>
-            </q-card-section>
-          </q-card>
+      <q-scroll-area horizontal class="q-pa-md q-gutter-sm" style="height: 250px; width: 100%">
+        <div class="row no-wrap">
+          <div v-for="item in catalog" class="q-pa-md">
+            <q-card @click="selectedItem = item"
+                    style="cursor: pointer; background: white; width: 250px; height: 200px; float: left"
+                    :class="{'selected-card': selectedItem ===  item}">
+              <q-card-section style="text-align: center">
+                <q-icon color="primary" :name="item.icon" style="width: 100px; height: 100px; font-size: 60px"></q-icon>
+              </q-card-section>
+              <q-card-section style="text-align: center">
+                <span class="text-bold text-primary">{{ item.label }}</span>
+              </q-card-section>
+            </q-card>
+          </div>
+
         </div>
-      </div>
+      </q-scroll-area>
+
     </q-card-section>
     <q-card-actions align="right">
       <q-btn @click="$emit('add-base', newBaseName, selectedItem)" style="min-width: 100px" color="primary"
