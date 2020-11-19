@@ -23,11 +23,13 @@ import EditDataTableComponent from "pages/UserApps/Components/EditDataTableCompo
 import CalendarComponent from "pages/UserApps/Calendar.vue";
 import DocumentEditorComponent from "pages/UserApps/DocumentEditor.vue";
 import SpreadsheetEditor from "pages/UserApps/SpreadsheetEditor";
+import HorizontalScroll from 'vue-horizontal-scroll'
 
 
 // import CKEditor from '@ckeditor/ckeditor5-vue'
 // Vue.use(CKEditor)
 
+Vue.component('vue-horizontal-scroll', HorizontalScroll);
 Vue.component('v-jstree', VJstree);
 Vue.component('ace-editor', AceEditor);
 Vue.component('user-header-bar', UserHeaderBar);

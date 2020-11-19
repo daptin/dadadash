@@ -1,6 +1,6 @@
 <template>
   <div class="row">
-    <div class="col-6">
+    <div class="col-6 offset-3">
       <q-form  @submit="createWorkspace">
         <q-card style="background: transparent" flat>
           <q-card-section>
@@ -10,7 +10,7 @@
             <q-input placeholder="Workspace name" v-model="newWorkspaceName"></q-input>
           </q-card-section>
           <q-card-actions align="right">
-            <q-btn size="lg" @click="ensureWorkspace" label="Create" color="primary"></q-btn>
+            <q-btn size="lg" style="width: 100px" @click="ensureWorkspace" label="Create" color="primary"></q-btn>
           </q-card-actions>
         </q-card>
 
