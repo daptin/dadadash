@@ -191,3 +191,53 @@ export function refreshTableSchema({commit}, tableName) {
   });
   return daptinClient.worldManager.refreshWorld(tableName, true);
 }
+
+export function setWorkspaceByName({commit}, workspaceName) {
+  daptinClient.jsonApi.findAll("")
+}
+
+export function loadWorkspaces({commit}, workspaceName) {
+
+  return new Promise(function (resolve, reject) {
+    let queryPayload = {
+      tableName: "document",
+      params: {
+        query: [{
+          column: "document_path",
+          operator: "is",
+          value: "/"
+        }, {
+          column: "mime_type",
+          operator: "like",
+          value: "workspace/root"
+        }],
+        page: {
+          size: 100,
+        },
+      }
+    };
+    if (workspaceName && workspaceName.length > 0) {
+      queryPayload.params.query = [
+        {
+          column: "document_name",
+          operator: "contains",
+          value: workspaceName
+        }
+      ]
+      queryPayload.params.page.size = 1;
+    }
+    queryPayload.params.query = JSON.stringify(queryPayload.params.query)
+
+    daptinClient.jsonApi.findAll("document", queryPayload).then(function (res) {
+      console.log("Workspaces loaded", res);
+    });
+
+  });
+
+
+}
+
+
+export function setCurrent({commit}, currentData) {
+  commit("setCurrent", currentData)
+}

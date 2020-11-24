@@ -309,7 +309,7 @@ export default {
         const users = res.data;
         console.log("Users: ", users);
 
-        if (users.length == 2) {
+        if (users.length === 2) {
           that.isAdmin = true;
           that.showAdminDrawer = true;
           that.executeAction({
@@ -319,7 +319,8 @@ export default {
 
             that.$q.notify({
               message: "You have become the administrator of this instance"
-            })
+            });
+
           }).catch(function (err) {
             console.log("Failed to become admin", err);
           })

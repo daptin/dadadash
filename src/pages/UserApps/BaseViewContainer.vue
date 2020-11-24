@@ -22,8 +22,8 @@
               }}
               <q-menu context-menu style="min-width: 300px">
                 <q-list>
-                  <q-item clickable disable>
-                    <q-item-section>
+                  <q-item clickable>
+                    <q-item-section @click="configureBaseItem(item)">
                       <q-item-label>Configure</q-item-label>
                     </q-item-section>
                   </q-item>
@@ -86,7 +86,7 @@
             {icon: 'fas fa-trash', event: 'delete-base'},
           ],
         }" :onBack="() => {$router.push('/workspace/' + $route.params.workspaceName)}"
-                     :title='"[Workspace] " + $route.params.workspaceName
+                     :title='$route.params.workspaceName
                      + "&nbsp;&nbsp; › &nbsp;&nbsp;" + ($route.params.baseName)
                      + ( $route.params.itemName ? "&nbsp;&nbsp; › &nbsp;&nbsp;" + ($route.params.itemName) : "" )  '
     ></user-header-bar>
@@ -137,6 +137,83 @@
         </q-card-actions>
       </q-card>
     </q-dialog>
+
+    <q-drawer overlay :width="450" side="right" v-model="showBaseConfigurationModel">
+      <q-list class="q-pa-md">
+        <q-item>
+          <q-item-section>
+            <span class="text-bold">Configure</span>
+            <span class="text-h6">{{ itemConfiguration.document_name }}</span>
+          </q-item-section>
+          <!--          <q-item-section avatar class="text-primary" style="padding-top: 25px">-->
+          <!--            <q-btn icon="fas fa-pen" color="grey" size="xs">-->
+          <!--              <q-popup-edit v-model="itemConfiguration.document_name" content-class="bg-accent text-white">-->
+          <!--                <q-input dark color="white" v-model="itemConfiguration.document_name" dense autofocus counter>-->
+          <!--                  <template v-slot:append>-->
+          <!--                    <q-icon name="edit"/>-->
+          <!--                  </template>-->
+          <!--                </q-input>-->
+          <!--              </q-popup-edit>-->
+          <!--            </q-btn>-->
+          <!--          </q-item-section>-->
+        </q-item>
+        <q-item>
+          <q-item-section>
+            <div class="row">
+              <div class="col-12">
+                <span class="text-bold">Read access</span>
+              </div>
+              <div class="col-12">
+                <div class="row">
+                  <div class="col-12">
+                    <q-checkbox label="Allow guests to see this item"
+                                v-model="itemConfiguration.allowGuests"></q-checkbox>
+                  </div>
+                  <div class="col-12">
+                    <q-checkbox label="Show this on frontpage"
+                                v-model="itemConfiguration.showOnFrontpage"></q-checkbox>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </q-item-section>
+        </q-item>
+        <q-item>
+          <q-item-section>
+            <div class="row">
+              <div class="col-12">
+                <q-btn class="float-right" @click="saveItemPermissions" color="primary" label="Save"></q-btn>
+              </div>
+            </div>
+          </q-item-section>
+        </q-item>
+        <!--        <q-item>-->
+        <!--          <q-item-section>-->
+        <!--            <div class="row">-->
+        <!--              <div class="col-10">-->
+        <!--                <span class="text-bold">Write access</span>-->
+        <!--              </div>-->
+        <!--              <div class="col-2">-->
+        <!--                <q-btn size="sm" flat icon="fas fa-plus"></q-btn>-->
+        <!--              </div>-->
+        <!--              <div class="col-12">-->
+        <!--                <div class="row">-->
+        <!--                  <div class="col-12">-->
+        <!--                    <q-list>-->
+        <!--                      <q-item v-for="user in itemConfiguration.usersWithWriteAccess">-->
+        <!--                        <q-item-section>{{ user.email }}</q-item-section>-->
+        <!--                      </q-item>-->
+        <!--                    </q-list>-->
+        <!--                  </div>-->
+
+        <!--                </div>-->
+        <!--              </div>-->
+        <!--            </div>-->
+        <!--          </q-item-section>-->
+        <!--        </q-item>-->
+      </q-list>
+
+    </q-drawer>
 
 
   </q-layout>
@@ -200,6 +277,34 @@ export default {
   },
 
   methods: {
+    saveItemPermissions() {
+      const that = this;
+      console.log("save config", this.itemConfiguration);
+      if (this.itemConfiguration.allowGuests) {
+        that.updateRow({
+          tableName: "document",
+          id: this.itemBeingEdited.reference_id,
+          permission: 2097059
+        })
+      } else {
+        that.updateRow({
+          tableName: "document",
+          id: this.itemBeingEdited.reference_id,
+          permission: 2097025
+        })
+      }
+    },
+    configureBaseItem(item) {
+      this.itemBeingEdited = item;
+      this.showBaseConfigurationModel = true;
+      this.itemConfiguration = {
+        permission: item.permission,
+        allowGuests: false,
+        document_name: item.document_name,
+        usersWithWriteAccess: [],
+        showOnFrontpage: false,
+      };
+    },
     deleteBaseItem(item) {
       console.log("Delete base item", item, this.itemBeingEdited)
       if (!this.showDeleteConfirmDialog) {
@@ -672,7 +777,9 @@ export default {
   props: ["baseConfiguration"],
   data() {
     return {
+      showBaseConfigurationModel: false,
       baseItemMap: {},
+      itemConfiguration: {},
       showRenameBaseViewModel: false,
       showDeleteConfirmDialog: false,
       itemBeingEdited: null,

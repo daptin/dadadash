@@ -1,4 +1,6 @@
-
+export function current(state) {
+  return state.current
+}
 
 
 
@@ -14,6 +16,7 @@ export function endpoint(state) {
 export function authToken(state) {
   return state.token
 }
+
 export function hideNavigationDrawer(state) {
   return state.hideNavigationDrawer
 }

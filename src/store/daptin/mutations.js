@@ -1,4 +1,5 @@
 import Vue from "vue";
+
 var jwtDecode = require('jwt-decode');
 
 export function setToken(state, token) {
@@ -7,6 +8,13 @@ export function setToken(state, token) {
   state.decodedAuthToken = decodedAuthToken;
 
 
+}
+
+export function setCurrent(state, currentInfo) {
+  var keys = Object.keys(currentInfo);
+  for (const key of keys) {
+    state.current[key] = currentInfo[key]
+  }
 }
 
 export function setDecodedAuthToken(state, token) {

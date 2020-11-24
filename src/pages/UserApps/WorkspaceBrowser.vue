@@ -42,12 +42,12 @@
                 >
                   <template v-slot:default-header="prop" class="workspace-title">
                     <div class="row items-center" v-if="prop.node.mime_type  === 'root'">
-                      <div style="font-weight: 400; text-transform: uppercase" class=" text-primary">{{
+                      <div style="font-weight: 400; text-transform: uppercase" class="text-primary">{{
                           prop.node.label
                         }}
                       </div>
                     </div>
-                    <div class="row cursor-pointer " @click="openWorkspace(prop.node)"
+                    <div class="workspace-title-container row " @click="openWorkspace(prop.node)"
                          v-if="prop.node.mime_type  === 'workspace/root'">
                       <q-icon name="fas fa-briefcase" color="primary" size="14px" class="q-mr-sm"/>
                       <div style="text-transform: capitalize">{{
@@ -77,7 +77,8 @@
           </div>
         </div>
       </q-page>
-      <user-header-bar :onBack="false" style="border-bottom: 1px solid black" @search="searchDocuments" @show-uploader="showUploader"
+      <user-header-bar :onBack="false" style="border-bottom: 1px solid black" @search="searchDocuments"
+                       @show-uploader="showUploader"
                        :buttons="{
         before: [
             // {icon: 'fas fa-search', event: 'search'},
@@ -91,6 +92,16 @@
   </q-layout>
 </template>
 <style>
+.workspace-title-container i {
+  padding-top: 5px;
+}
+
+.workspace-title-container:hover {
+  background: rgb(242, 241, 249);
+  cursor: pointer;
+  border-radius: 4px;
+}
+
 /*.workspace-title:hover {*/
 /*  background: rgba(80, 52, 164, 0.1);*/
 /*}*/
@@ -250,7 +261,7 @@ export default {
       this.currentWorkspace = null;
       this.refreshData()
     },
-    ...mapActions(['loadData', 'createRow', 'loadModel', 'deleteRow']),
+    ...mapActions(['loadData', 'createRow', 'loadModel', 'deleteRow', 'setWorkspaceByName']),
     handleDataLoad(workspaceListResponse) {
       const that = this;
       if (workspaceListResponse.data === null) {
@@ -510,10 +521,8 @@ export default {
     if (lastWorkspace && !this.currentWorkspace) {
       this.currentWorkspace = lastWorkspace;
     }
-
+    // that.setWorkspaceByName(this.currentWorkspace)
     that.refreshData();
-
-
   }
 }
 </script>
