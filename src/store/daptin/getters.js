@@ -3,6 +3,11 @@ export function current(state) {
 }
 
 
+export function documentTable(state) {
+  console.log("Get document table", state.tables)
+  return state.tables['document']
+}
+
 
 export function loggedIn(state) {
   let token = state.token;

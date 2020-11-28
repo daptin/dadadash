@@ -10,6 +10,10 @@ export function setToken(state, token) {
 
 }
 
+export function setTableRow(state, tableRow) {
+  state.tableMap[tableRow.table_name] = tableRow
+}
+
 export function setCurrent(state, currentInfo) {
   var keys = Object.keys(currentInfo);
   for (const key of keys) {
@@ -39,5 +43,10 @@ export function setTables(state, tables) {
   for (var tableName in tables) {
     Vue.set(state.tables, tableName, tables[tableName])
   }
+  console.log("Tables set to ", state.tables)
+}
+
+export function setTable(state, table) {
+  Vue.set(state.tables, table.table_name, table)
   console.log("Tables set to ", state.tables)
 }

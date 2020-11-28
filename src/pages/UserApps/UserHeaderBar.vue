@@ -16,6 +16,7 @@
       <q-btn :key="btn.icon" v-for="btn in buttons.after" flat @click="buttonClicked(btn)" :label="btn.label"
              :icon="btn.icon"></q-btn>
       <q-space/>
+      <q-btn flat icon="fas fa-eye" v-if="documentTable() !== null" :label=" documentTable().permission "></q-btn>
       <q-btn flat icon="fas fa-th">
         <q-menu>
           <div class="row no-wrap q-pa-md">
@@ -76,6 +77,12 @@ import {mapActions, mapGetters} from "vuex";
 
 export default {
   name: "UserHeaderBar",
+  mounted() {
+    const that = this;
+    that.loadTable("document").then(function (){
+      console.log("document table loaded", arguments)
+    })
+  },
   methods: {
     emitSearch(event) {
       this.$emit('search', this.searchQuery)
@@ -97,11 +104,11 @@ export default {
       this.$router.push("/login");
       window.location = window.location;
     },
-    ...mapActions(['setDecodedAuthToken'])
+    ...mapActions(['setDecodedAuthToken', 'loadData', 'loadTable'])
   },
   data() {
     return {
-      ...mapGetters(['decodedAuthToken']),
+      ...mapGetters(['decodedAuthToken', 'documentTable', 'tables']),
       searchQuery: null,
       menuItems: [
         {

@@ -19,7 +19,7 @@ daptinClient.worldManager.init();
 
 export function loadTables({commit}) {
   console.log("Load tables");
-  daptinClient.worldManager.loadModels(false).then(function (worlds) {
+  return daptinClient.worldManager.loadModels(false).then(function (worlds) {
     console.log("All models loaded", arguments);
     commit('setTables', worlds)
   }).catch(function (e) {
@@ -194,6 +194,22 @@ export function refreshTableSchema({commit}, tableName) {
 
 export function setWorkspaceByName({commit}, workspaceName) {
   daptinClient.jsonApi.findAll("")
+}
+
+export function loadTable({commit}, tableName) {
+  return daptinClient.jsonApi.findAll("world", {
+    query: [{
+      column: "table_name",
+      operator: "is",
+      value: tableName
+    }],
+    page: {
+      size: 1
+    }
+  }).then(function (res){
+    console.log("Loaded table", res)
+    commit("setTable", res.data[0])
+  })
 }
 
 export function loadWorkspaces({commit}, workspaceName) {

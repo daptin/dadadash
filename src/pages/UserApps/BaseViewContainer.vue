@@ -367,7 +367,7 @@ export default {
         }).then(function (res) {
           console.log("Updated item name", res);
           that.baseItemMap[that.newName] = that.baseItemMap[originalTitle];
-          that.$refs.viewRouter.reloadBaseItem()
+          // that.$refs.viewRouter.reloadBaseItem()
           delete that.baseItemMap[originalTitle];
           if (originalTitle === that.selectedItem) {
             that.$router.push('/workspace/' + that.workspaceName + "/" + that.baseName + "/" + that.newName)
@@ -419,13 +419,16 @@ export default {
         var finalNewItem = {...newItem, ...res.data}
         that.baseConfig.items.push(finalNewItem);
         that.baseItemMap[newItem.label] = finalNewItem;
-        that.renameBaseItem(finalNewItem);
 
         that.ensureBaseTables();
-        that.$refs.viewRouter.reloadBaseItem()
 
         that.selectedBaseItem = finalNewItem;
+        that.$nextTick().then(function (){
+          that.$refs.viewRouter.reloadBaseItem()
+          that.renameBaseItem(finalNewItem);
+        })
       }).catch(function (err) {
+        console.log("Failed to create new item", err)
         that.$q.notify({
           message: "Failed to create new item - " + JSON.stringify(err)
         })
