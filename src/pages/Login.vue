@@ -1,16 +1,22 @@
 <template xmlns:v-slot="http://www.w3.org/1999/XSL/Transform">
 
-      <div class="flex flex-center ">
-        <div class="col-3 col-sm-4">
-          <div class="q-pa-md ">
-            <h3>Login</h3>
+  <div class="row">
+    <div class="col-6 offset-3 col-sm-6 col-xs-12">
 
+      <div class="flex flex-center">
+        <q-card flat style="min-width: 300px; width: 30vw" class="q-pa-md">
+          <q-card-section>
+            <span class="text-h4">Login</span>
+
+          </q-card-section>
+          <q-card-section>
             <q-form autofocus
                     @submit="onSubmit"
                     class="q-gutter-md"
             >
               <q-input
                 filled
+                style="min-width: 40%"
                 v-model="email"
                 label="Email"
                 lazy-rules
@@ -19,6 +25,7 @@
 
               <q-input
                 filled
+                style="min-width: 40%"
                 type="password"
                 v-model="password"
                 label="Password"
@@ -33,50 +40,55 @@
               </div>
             </q-form>
 
-          </div>
-        </div>
+          </q-card-section>
+        </q-card>
+
+
       </div>
+    </div>
+  </div>
+
 
 </template>
 
 <script>
-  import {mapActions} from 'vuex';
+import {mapActions} from 'vuex';
 
-  export default {
-    name: 'PageLogin',
-    methods: {
-      ...mapActions(['executeAction', 'setToken']),
-      onSubmit() {
-        const that = this;
-        that.executeAction({
-          tableName: 'user_account',
-          actionName: 'signin',
-          params: {
-            email: this.email,
-            password: this.password,
+export default {
+  name: 'PageLogin',
+  methods: {
+    ...mapActions(['executeAction', 'setToken']),
+    onSubmit() {
+      const that = this;
+      that.executeAction({
+        tableName: 'user_account',
+        actionName: 'signin',
+        params: {
+          email: this.email,
+          password: this.password,
+        }
+      }).then(function (e) {
+        for (var i = 0; i < e.length; i++) {
+          if (e[i].ResponseType === "client.notify") {
+            that.$q.notify(e[i].Attributes);
           }
-        }).then(function (e) {
-          for (var i = 0; i < e.length; i++) {
-            if (e[i].ResponseType === "client.notify") {
-              that.$q.notify(e[i].Attributes);
-            }
-          }
-          that.setToken();
-          that.$router.push("/workspace");
-        }).catch(function (e) {
-          that.$q.notify("Failed to sign in");
-          console.log("error ", arguments)
-        })
-      },
+        }
+        that.setToken();
+        that.$router.push("/workspace");
+      }).catch(function (e) {
+        that.$q.notify("Failed to sign in");
+        console.log("error ", arguments)
+      })
     },
-    data() {
-      return {
-        email: null,
-        password: null,
-      }
-    },
-    mounted() {
-      console.log("mounted login")
+  },
+  data() {
+    return {
+      email: null,
+      password: null,
     }
+  },
+  mounted() {
+    console.log("mounted login")
   }
+}
 </script>

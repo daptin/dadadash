@@ -32,11 +32,10 @@
 
             </q-card-section>
             <q-card-section>
-
-              <q-btn label="Public" :class="{'primary': basePermission.read === 'public'}"
+              <q-btn label="Public" :class="{'btn-primary': basePermission.read === 'public'}"
                      @click="updateBasePermission('public')"/>
 
-              <q-btn label="Private" :class="{'primary': basePermission.read === 'private'}"
+              <q-btn label="Private" :class="{'btn-primary': basePermission.read === 'private'}"
                      @click="updateBasePermission('private')"/>
 
             </q-card-section>
@@ -107,18 +106,17 @@ export default {
   name: "UserHeaderBar",
   mounted() {
     const that = this;
-    that.loadTable("document").then(function () {
-      console.log("document table loaded", arguments)
-      var documentTable = that.documentTable();
-      if ((documentTable.permission & that.permissionStructure.GuestRead) === that.permissionStructure.GuestRead) {
-        that.basePermission.read = "public";
-      }
-    })
+    console.log("document table loaded", arguments)
+    var documentTable = that.documentTable();
+    if (documentTable && ((documentTable.permission & that.permissionStructure.GuestRead) === that.permissionStructure.GuestRead)) {
+      that.basePermission.read = "public";
+    }
   },
   methods: {
     updateBasePermission(newPerm) {
       const that = this;
       var document = this.documentTable();
+      that.basePermission.read = newPerm;
       var currentDocumentPermission = document.permission;
 
       if (newPerm === "public") {
@@ -128,7 +126,7 @@ export default {
       }
       console.log("Update permission for site", currentDocumentPermission, this.basePermission.read);
       var promimses = [];
-      if (document.permission != currentDocumentPermission) {
+      if (document.permission !== currentDocumentPermission) {
         promimses.push(that.updateRow({
           tableName: 'world',
           id: document.reference_id,
@@ -136,7 +134,7 @@ export default {
         }))
       }
 
-      if (that.worldTable().permission != currentDocumentPermission) {
+      if (that.worldTable().permission !== currentDocumentPermission) {
         promimses.push(that.updateRow({
           tableName: 'world',
           id: that.worldTable().reference_id,
@@ -186,7 +184,7 @@ export default {
       this.$router.push("/login");
       window.location = window.location;
     },
-    ...mapActions(['setDecodedAuthToken', 'loadData', 'loadTable', 'updateRow', 'executeAction'])
+    ...mapActions(['setDecodedAuthToken', 'loadData', 'updateRow', 'executeAction'])
   },
   data() {
     return {

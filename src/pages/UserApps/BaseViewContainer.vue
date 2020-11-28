@@ -3,9 +3,27 @@
 
     <q-page-container>
       <q-page>
+        <div class="row" style="width: 100vw; height: 30px;">
 
-        <div class="row" style="width: 100vw; height: 50px">
-          <q-tabs style="max-width: calc(100vw - 50px)"
+          <q-btn flat class="text-primary tabMenuButton" id="listTableButton" icon="fas fa-bars">
+            <q-menu>
+              <q-list style="min-width: 280px">
+                <q-item clickable v-close-popup
+                        @click="$router.push('/workspace/' + workspaceName + '/' + baseName + '/' + item.document_name)"
+                        v-for="item in baseConfig.items"
+                        :key="item.document_name">
+                  <q-item-section>{{ item.document_name }}</q-item-section>
+                  <q-item-section avatar>
+                    <q-icon :name="baseItemTypes[item.document_extension].icon"></q-icon>
+                  </q-item-section>
+                </q-item>
+                <q-separator/>
+
+              </q-list>
+            </q-menu>
+          </q-btn>
+
+          <q-tabs style="max-width: calc(100vw - 150px); height: 30px"
                   class="text-black"
                   inline-label
                   shrink
@@ -17,7 +35,7 @@
               v-if="item.type !== 'summary'" v-for="item in baseConfig.items"
               :to="'/workspace/' + workspaceName + '/' + baseName + '/' + item.document_name" exact replace
             >
-              <span><q-icon :name="itemIconMap[item.document_extension]"></q-icon> &nbsp;&nbsp;&nbsp;</span>{{
+              <span><q-icon :name="baseItemTypes[item.document_extension].icon"></q-icon> &nbsp;&nbsp;&nbsp;</span>{{
                 item.document_name
               }}
               <q-menu context-menu style="min-width: 300px">
@@ -43,7 +61,7 @@
 
 
           </q-tabs>
-          <q-btn style="width: 50px; height: 50px" flat class="text-primary" id="newTableButton" icon="fas fa-plus">
+          <q-btn flat class="text-primary tabMenuButton" id="newTableButton" icon="fas fa-plus">
             <q-menu>
               <q-list style="min-width: 280px">
 
@@ -177,30 +195,7 @@
             </div>
           </q-item-section>
         </q-item>
-        <!--        <q-item>-->
-        <!--          <q-item-section>-->
-        <!--            <div class="row">-->
-        <!--              <div class="col-10">-->
-        <!--                <span class="text-bold">Write access</span>-->
-        <!--              </div>-->
-        <!--              <div class="col-2">-->
-        <!--                <q-btn size="sm" flat icon="fas fa-plus"></q-btn>-->
-        <!--              </div>-->
-        <!--              <div class="col-12">-->
-        <!--                <div class="row">-->
-        <!--                  <div class="col-12">-->
-        <!--                    <q-list>-->
-        <!--                      <q-item v-for="user in itemConfiguration.usersWithWriteAccess">-->
-        <!--                        <q-item-section>{{ user.email }}</q-item-section>-->
-        <!--                      </q-item>-->
-        <!--                    </q-list>-->
-        <!--                  </div>-->
 
-        <!--                </div>-->
-        <!--              </div>-->
-        <!--            </div>-->
-        <!--          </q-item-section>-->
-        <!--        </q-item>-->
       </q-list>
 
     </q-drawer>
@@ -211,12 +206,34 @@
 </template>
 <style>
 
+.q-tab {
+  border: 1px solid black;
+  border-radius: 4px;
+  height: 39px;
+  top: 4px;
+  margin-left: 2px;
+  margin-right: 2px;
 
-#newTableButton i {
+}
+
+.q-tab .q-tab__content {
+  left: -20px;
+  margin-top: -4px;
+}
+
+.q-tab span i.q-icon {
+  margin-top: -5px;
+  left: 12px;
+}
+
+.tabMenuButton i {
   border: 1px solid #DDDBDA;
-  font-size: 14px;
+  font-size: 1em !important;
   color: #5034A4;
   border-radius: 4px;
+  margin-top: -5px;
+  width: 35px;
+  height: 20px;
 }
 
 
@@ -799,45 +816,6 @@ export default {
       baseLoaded: false,
       dataUploadFile: null,
       selectedBaseItem: null,
-      baseItemTypes: {
-        "table": {
-          label: "Data table",
-          type: "table",
-          icon: 'fas fa-table'
-        },
-        "view": {
-          label: "View",
-          type: "view",
-          icon: 'fas fa-eye'
-        },
-        "spreadsheet": {
-          label: "Spreadsheet",
-          type: "spreadsheet",
-          icon: 'table_view'
-        },
-        "document": {
-          label: "Document",
-          type: "document",
-          icon: 'fas fa-file-alt'
-        },
-        "folder": {
-          label: "Folder",
-          type: "folder",
-          icon: 'folder_open'
-        },
-        "calendar": {
-          label: "Calendar",
-          type: "calendar",
-          icon: 'fas fa-table'
-        },
-        "mailbox": {
-          label: "Mailbox",
-          type: "mailbox",
-          icon: 'all_inbox',
-          disabled: true
-        },
-
-      },
       itemIconMap: {
         'table': 'fas fa-table',
         'view': 'fas fa-eye',
@@ -872,7 +850,7 @@ export default {
     }
   },
   computed: {
-    ...mapGetters(['endpoint', 'authToken', 'tables'])
+    ...mapGetters(['endpoint', 'authToken', 'tables', 'baseItemTypes'])
   },
   updated() {
   },

@@ -197,18 +197,23 @@ export function setWorkspaceByName({commit}, workspaceName) {
 }
 
 export function loadTable({commit}, tableName) {
-  return daptinClient.jsonApi.findAll("world", {
-    query: [{
-      column: "table_name",
-      operator: "is",
-      value: tableName
-    }],
-    page: {
-      size: 1
-    }
-  }).then(function (res){
-    console.log("Loaded table", res)
-    commit("setTable", res.data[0])
+  return new Promise(function (resolve, reject) {
+    daptinClient.jsonApi.findAll("world", {
+      query: JSON.stringify([{
+        column: "table_name",
+        operator: "is",
+        value: tableName
+      }]),
+      page: {
+        size: 1
+      }
+    }).then(function (res) {
+      console.log("Loaded table", tableName, res)
+      if (res.data.length > 0) {
+        commit("setTable", res.data[0]);
+      }
+      resolve(res.data[0])
+    }).catch(reject)
   })
 }
 

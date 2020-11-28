@@ -9,6 +9,15 @@ const routes = [
     ]
   },
   {
+    path: '/guest',
+    component: () => import('layouts/GuestLayout.vue'),
+    children: [
+      {
+        path: 'document_name', component: () => import('pages/Login.vue')
+      }
+    ]
+  },
+  {
     path: '/register',
     component: () => import('layouts/GuestLayout.vue'),
     children: [

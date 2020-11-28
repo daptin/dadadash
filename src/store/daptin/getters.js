@@ -13,6 +13,49 @@ export function worldTable(state) {
   return state.tables['world']
 }
 
+export function baseItemTypes() {
+  return {
+    "table": {
+      label: "Data table",
+      type: "table",
+      icon: 'fas fa-table'
+    },
+    "view": {
+      label: "View",
+      type: "view",
+      icon: 'fas fa-eye'
+    },
+    "spreadsheet": {
+      label: "Spreadsheet",
+      type: "spreadsheet",
+      icon: 'table_view'
+    },
+    "document": {
+      label: "Document",
+      type: "document",
+      icon: 'fas fa-file-alt'
+    },
+    "folder": {
+      label: "Folder",
+      type: "folder",
+      icon: 'folder_open'
+    },
+    "calendar": {
+      label: "Calendar",
+      type: "calendar",
+      icon: 'fas fa-table'
+    },
+    "mailbox": {
+      label: "Mailbox",
+      type: "mailbox",
+      icon: 'all_inbox',
+      disabled: true
+    },
+
+  }
+
+}
+
 
 export function loggedIn(state) {
   let token = state.token;

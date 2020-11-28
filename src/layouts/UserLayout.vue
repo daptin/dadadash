@@ -70,7 +70,6 @@ export default {
   },
   mounted() {
     const that = this;
-    console.log("Mounted main layout");
     if (that.decodedAuthToken()) {
       let decodedAuthToken = that.decodedAuthToken();
       let isLoggedOut = decodedAuthToken.exp * 1000 < new Date().getTime();
@@ -88,7 +87,13 @@ export default {
 
     that.loadModel(["cloud_store", "user_account", "usergroup", "world",
       "action", 'site', 'integration', 'calendar', 'document']).then(async function () {
-      that.loaded = true;
+      Promise.all([that.loadTable("world"), that.loadTable("document")]).then(function () {
+        console.log("Loaded world and document", arguments)
+        that.loaded = true;
+      }).catch(function (err){
+        console.log("Failed to load table ", err)
+      })
+      console.log("Mounted main layout");
       that.getDefaultCloudStore();
       that.loadData({
         tableName: "user_account",
@@ -96,6 +101,24 @@ export default {
         const users = res.data;
         console.log("Users: ", users);
         that.isUser = true;
+        if (users.length === 2) {
+          that.isAdmin = true;
+          that.showAdminDrawer = true;
+          that.executeAction({
+            tableName: 'world',
+            actionName: "become_an_administrator"
+          }).then(function (res) {
+
+            that.$q.notify({
+              message: "You have become the administrator of this instance"
+            });
+
+          }).catch(function (err) {
+            console.log("Failed to become admin", err);
+          })
+        }
+
+
       });
 
     }).catch(function (err) {
@@ -107,7 +130,7 @@ export default {
 
   },
   methods: {
-    ...mapActions(['getDefaultCloudStore', 'loadModel', 'executeAction', 'loadData', 'setDecodedAuthToken']),
+    ...mapActions(['getDefaultCloudStore', 'loadModel', 'executeAction', 'loadData', 'setDecodedAuthToken', 'loadTable']),
     logout() {
       localStorage.removeItem("token");
       localStorage.removeItem("user");

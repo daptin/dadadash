@@ -1,53 +1,60 @@
 <template xmlns:v-slot="http://www.w3.org/1999/XSL/Transform">
-  <q-page>
-    <div class="flex flex-center">
-      <div style="min-width: 30%">
-        <div class="q-pa-md">
-          <h3>Sign up</h3>
-
-          <q-form
-            @submit="onSubmit"
-            class="q-gutter-md"
-          >
-            <q-input
-              filled
-              v-model="email"
-              label="Email"
-              lazy-rules
-              :rules="[ val => val && val.length > 0 || 'Please type something']"
-            />
-
-            <q-input
-              filled
-              type="password"
-              v-model="password"
-              label="Password"
-              lazy-rules
-            />
-            <q-input
-              filled
-              type="password"
-              v-model="passwordConfirm"
-              label="Confirm Password"
-              lazy-rules
-            />
 
 
-            <div>
-              <q-btn class="float-left" label="Sign up" type="submit" color="primary"/>
-              <q-btn class="float-right" label="Login" @click="$router.push('/login')" type="reset" color="secondary"
-                     flat/>
-            </div>
-          </q-form>
+  <div class="row">
+    <div class="col-6 offset-3 col-sm-6 col-xs-12">
 
-        </div>
-      </div>
-      <div class="col-10">
+      <div class="flex flex-center q-pa-xs">
+        <q-card flat style="min-width: 400px; width: 30vw">
+          <q-card-section>
+            <span class="text-h4">Create a new account</span>
+
+          </q-card-section>
+          <q-card-section>
+            <q-form
+              @submit="onSubmit"
+              class="q-gutter-md"
+            >
+              <q-input
+                filled
+                v-model="email"
+                label="Email"
+                lazy-rules
+                :rules="[ val => val && val.length > 0 || 'Please type something']"
+              />
+
+              <q-input
+                filled
+                type="password"
+                v-model="password"
+                label="Password"
+                lazy-rules
+              />
+              <q-input
+                filled
+                type="password"
+                v-model="passwordConfirm"
+                label="Confirm Password"
+                lazy-rules
+              />
+
+
+              <div>
+                <q-btn class="float-left" label="Sign up" type="submit" color="primary"/>
+                <q-btn class="float-right" label="Login" @click="$router.push('/login')" type="reset" color="secondary"
+                       flat/>
+              </div>
+            </q-form>
+
+          </q-card-section>
+        </q-card>
+
 
       </div>
     </div>
+  </div>
 
-  </q-page>
+
 </template>
 
 <script>

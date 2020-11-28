@@ -15,7 +15,7 @@
     <div v-if="documents.length > 0" class="row">
       <div class="col-12" style="height: 48px">
         <guest-header-bar @login="rightDrawerOpen = !rightDrawerOpen" :on-back="false" :buttons="[]"
-                          :title="currentItem.document_name"></guest-header-bar>
+                          :title="currentItem ? currentItem.document_name : 'Home'"></guest-header-bar>
       </div>
       <div class="col-12">
 
@@ -33,8 +33,12 @@
           <q-item :active="currentItem === item" active-class="bg-primary text-white" clickable
                   @click="currentItem = item" v-for="item in workspaceMap[workspace].items"
                   :key="item.document_name">
+            <q-item-section avatar>
+              <q-icon :name="baseItemTypes()[item.document_extension].icon"/>
+            </q-item-section>
             <q-item-section>
               <q-item-label lines="1">{{ item.document_name }}</q-item-label>
+              <q-item-section side class="text-white">{{ item.document_path.split("/")[2] }}</q-item-section>
             </q-item-section>
           </q-item>
         </q-list>
@@ -43,7 +47,7 @@
 
 
     <q-drawer overlay class="bg-primary"
-              :width="600"
+              :width="300"
               side="right" v-model="rightDrawerOpen" v-if="documents.length > 0">
       <router-view/>
     </q-drawer>
@@ -151,7 +155,12 @@ export default {
 
           if (item.mime_type !== "workspace/root" && item.mime_type !== "workspace/base") {
             if (that.currentItem === null) {
-              that.currentItem = item;
+              if (!that.$q.$route.params.document_name) {
+                that.currentItem = item;
+                that.$q.router.push('/guest/' + item.document_name)
+              } else if (that.$q.$route.params.document_name === item.document_name) {
+                that.currentItem = item;
+              }
             }
           }
         }
@@ -186,7 +195,7 @@ export default {
       rightDrawerOpen: false,
       workspaceMap: {},
       documents: [],
-      ...mapGetters(['documentTable']),
+      ...mapGetters(['documentTable', 'baseItemTypes']),
     }
   }
 }

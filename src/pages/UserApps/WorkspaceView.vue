@@ -194,7 +194,6 @@ export default {
 
         listPromises.push(that.loadData(queryPayload).then(function (res) {
           console.log("Deleting %s items in base %s", res.data.length, baseItem.document_name);
-          debugger
           for (var i = 0; i < res.data.length; i++) {
             try {
               var item = res.data[i];
