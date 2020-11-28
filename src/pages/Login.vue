@@ -1,43 +1,42 @@
 <template xmlns:v-slot="http://www.w3.org/1999/XSL/Transform">
-  <q-page>
-    <div class="flex flex-center ">
-      <div style="min-width: 30%">
-        <div class="q-pa-md ">
-          <h3>Login</h3>
 
-          <q-form autofocus
-            @submit="onSubmit"
-            class="q-gutter-md"
-          >
-            <q-input
-              filled
-              v-model="email"
-              label="Email"
-              lazy-rules
-              :rules="[ val => val && val.length > 0 || 'Please type something']"
-            />
+      <div class="flex flex-center ">
+        <div class="col-3 col-sm-4">
+          <div class="q-pa-md ">
+            <h3>Login</h3>
 
-            <q-input
-              filled
-              type="password"
-              v-model="password"
-              label="Password"
-              lazy-rules
-            />
+            <q-form autofocus
+                    @submit="onSubmit"
+                    class="q-gutter-md"
+            >
+              <q-input
+                filled
+                v-model="email"
+                label="Email"
+                lazy-rules
+                :rules="[ val => val && val.length > 0 || 'Please type something']"
+              />
+
+              <q-input
+                filled
+                type="password"
+                v-model="password"
+                label="Password"
+                lazy-rules
+              />
 
 
-            <div>
-              <q-btn class="float-left" label="Login" type="submit" color="primary"/>
-              <q-btn class="float-right" label="Register" @click="$router.push('/register')" type="reset"
-                     color="secondary" flat/>
-            </div>
-          </q-form>
+              <div>
+                <q-btn class="float-left" label="Login" type="submit" color="primary"/>
+                <q-btn class="float-right" label="Register" @click="$router.push('/register')" type="reset"
+                       color="secondary" flat/>
+              </div>
+            </q-form>
 
+          </div>
         </div>
       </div>
-    </div>
 
-  </q-page>
 </template>
 
 <script>

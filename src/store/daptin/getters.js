@@ -8,6 +8,11 @@ export function documentTable(state) {
   return state.tables['document']
 }
 
+export function worldTable(state) {
+  console.log("Get world table", state.tables)
+  return state.tables['world']
+}
+
 
 export function loggedIn(state) {
   let token = state.token;

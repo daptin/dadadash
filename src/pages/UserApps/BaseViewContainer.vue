@@ -145,17 +145,7 @@
             <span class="text-bold">Configure</span>
             <span class="text-h6">{{ itemConfiguration.document_name }}</span>
           </q-item-section>
-          <!--          <q-item-section avatar class="text-primary" style="padding-top: 25px">-->
-          <!--            <q-btn icon="fas fa-pen" color="grey" size="xs">-->
-          <!--              <q-popup-edit v-model="itemConfiguration.document_name" content-class="bg-accent text-white">-->
-          <!--                <q-input dark color="white" v-model="itemConfiguration.document_name" dense autofocus counter>-->
-          <!--                  <template v-slot:append>-->
-          <!--                    <q-icon name="edit"/>-->
-          <!--                  </template>-->
-          <!--                </q-input>-->
-          <!--              </q-popup-edit>-->
-          <!--            </q-btn>-->
-          <!--          </q-item-section>-->
+
         </q-item>
         <q-item>
           <q-item-section>
@@ -266,7 +256,7 @@ const DEFAULT_ITEM_MAP = {
 
 
 export default {
-  name: "BaseData",
+  name: "BaseViewContainer",
   components: {BaseViewRouter},
   meta() {
     return {
@@ -279,18 +269,37 @@ export default {
   methods: {
     saveItemPermissions() {
       const that = this;
+      this.showBaseConfigurationModel = false;
       console.log("save config", this.itemConfiguration);
       if (this.itemConfiguration.allowGuests) {
         that.updateRow({
           tableName: "document",
           id: this.itemBeingEdited.reference_id,
           permission: 2097059
+        }).then(function (res) {
+          that.$q.notify({
+            message: "Updated permission for document"
+          })
+        }).catch(function (res) {
+          that.$q.notify({
+            message: "Failed to update document permission: " + JSON.stringify(res.data)
+          });
+          this.showBaseConfigurationModel = true;
         })
       } else {
         that.updateRow({
           tableName: "document",
           id: this.itemBeingEdited.reference_id,
           permission: 2097025
+        }).then(function (res) {
+          that.$q.notify({
+            message: "Updated permission for document"
+          })
+        }).catch(function (res) {
+          that.$q.notify({
+            message: "Failed to update document permission: " + JSON.stringify(res.data)
+          });
+          this.showBaseConfigurationModel = true;
         })
       }
     },
@@ -423,7 +432,7 @@ export default {
         that.ensureBaseTables();
 
         that.selectedBaseItem = finalNewItem;
-        that.$nextTick().then(function (){
+        that.$nextTick().then(function () {
           that.$refs.viewRouter.reloadBaseItem()
           that.renameBaseItem(finalNewItem);
         })

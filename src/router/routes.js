@@ -12,7 +12,9 @@ const routes = [
     path: '/register',
     component: () => import('layouts/GuestLayout.vue'),
     children: [
-      {path: '', component: () => import('pages/Signup.vue')}
+      {
+        path: '', component: () => import('pages/Signup.vue')
+      }
     ]
   },
   {
