@@ -14,7 +14,7 @@
                         :key="item.document_name">
                   <q-item-section>{{ item.document_name }}</q-item-section>
                   <q-item-section avatar>
-                    <q-icon :name="baseItemTypes[item.document_extension].icon"></q-icon>
+                    <q-icon :name="baseItemTypes[item.document_extension] ? baseItemTypes[item.document_extension].icon : item.document_extension"></q-icon>
                   </q-item-section>
                 </q-item>
                 <q-separator/>
@@ -35,10 +35,11 @@
               v-if="item.type !== 'summary'" v-for="item in baseConfig.items"
               :to="'/workspace/' + workspaceName + '/' + baseName + '/' + item.document_name" exact replace
             >
-              <span><q-icon :name="baseItemTypes[item.document_extension].icon"></q-icon> &nbsp;&nbsp;&nbsp;</span>{{
+              <span><q-icon :name="baseItemTypes[item.document_extension] ? baseItemTypes[item.document_extension].icon : item.document_extension"></q-icon> &nbsp;&nbsp;&nbsp;</span>{{
                 item.document_name
               }}
-              <q-menu context-menu style="min-width: 300px">
+              <q-menu context-menu
+                      style="min-width: 300px">
                 <q-list>
                   <q-item clickable>
                     <q-item-section @click="configureBaseItem(item)">
