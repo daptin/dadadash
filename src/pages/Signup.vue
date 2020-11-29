@@ -1,17 +1,16 @@
 <template xmlns:v-slot="http://www.w3.org/1999/XSL/Transform">
 
-
   <div class="row">
     <div class="col-6 offset-3 col-sm-6 col-xs-12">
 
-      <div class="flex flex-center q-pa-xs">
-        <q-card flat style="min-width: 400px; width: 30vw">
+      <div class="flex flex-center">
+        <q-card flat style="min-width: 300px; width: 30vw" class="q-pa-md">
           <q-card-section>
             <span class="text-h4">Create a new account</span>
 
           </q-card-section>
           <q-card-section>
-            <q-form
+            <q-form autofocus
               @submit="onSubmit"
               class="q-gutter-md"
             >
