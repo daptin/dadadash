@@ -24,6 +24,9 @@ import {mapActions} from "vuex";
 
 export default {
   name: "NewWorkspaceScreen.vue",
+  meta : {
+    title: "Create new workspace"
+  },
   methods: {
     ...mapActions(['createRow', 'loadData']),
     ensureWorkspace() {

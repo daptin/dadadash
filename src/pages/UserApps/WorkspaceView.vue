@@ -153,6 +153,11 @@ export default {
       workspaceSchema: null,
     }
   },
+  meta() {
+    return {
+      title: this.workspaceName || 'Home',
+    }
+  },
   methods: {
     deleteWorkspace() {
       const that = this;

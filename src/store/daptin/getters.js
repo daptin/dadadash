@@ -13,6 +13,11 @@ export function worldTable(state) {
   return state.tables['world']
 }
 
+export function userGroupTable(state) {
+  console.log("Get user group table", state.tables)
+  return state.tables['usergroup']
+}
+
 export function baseItemTypes() {
   return {
     "table": {

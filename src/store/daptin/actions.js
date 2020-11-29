@@ -208,7 +208,7 @@ export function loadTable({commit}, tableName) {
         size: 1
       }
     }).then(function (res) {
-      console.log("Loaded table", tableName, res)
+      // console.log("Loaded table", tableName, res)
       if (res.data.length > 0) {
         commit("setTable", res.data[0]);
       }

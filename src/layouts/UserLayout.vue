@@ -58,7 +58,7 @@ export default {
       showDrawerFull: false,
       showAdminDrawerMini: false,
       showAdminDrawerStick: false,
-      ...mapGetters(['loggedIn', 'drawerLeft', 'authToken', 'decodedAuthToken']),
+      ...mapGetters(['loggedIn', 'drawerLeft', 'authToken', 'decodedAuthToken', 'userGroupTable']),
       essentialLinks: [],
       drawer: false,
       userDrawer: true,
@@ -87,23 +87,13 @@ export default {
 
     that.loadModel(["cloud_store", "user_account", "usergroup", "world",
       "action", 'site', 'integration', 'calendar', 'document']).then(async function () {
-      Promise.all([that.loadTable("world"), that.loadTable("document")]).then(function () {
+      Promise.all([that.loadTable("world"), that.loadTable("document"), that.loadTable("usergroup")]).then(function () {
         console.log("Loaded world and document", arguments)
-        that.loaded = true;
-      }).catch(function (err){
-        console.log("Failed to load table ", err)
-      })
-      console.log("Mounted main layout");
-      that.getDefaultCloudStore();
-      that.loadData({
-        tableName: "user_account",
-      }).then(function (res) {
-        const users = res.data;
-        console.log("Users: ", users);
-        that.isUser = true;
-        if (users.length === 2) {
+        let userGroupTable = that.userGroupTable();
+        console.log("Mounted main layout - ", userGroupTable);
+
+        if (userGroupTable.permission !== 2097057) {
           that.isAdmin = true;
-          that.showAdminDrawer = true;
           that.executeAction({
             tableName: 'world',
             actionName: "become_an_administrator"
@@ -112,11 +102,25 @@ export default {
             that.$q.notify({
               message: "You have become the administrator of this instance"
             });
+            that.loadTable("world");
+
 
           }).catch(function (err) {
             console.log("Failed to become admin", err);
           })
         }
+
+        that.loaded = true;
+      }).catch(function (err) {
+        console.log("Failed to load table ", err)
+      })
+      that.getDefaultCloudStore();
+      that.loadData({
+        tableName: "user_account",
+      }).then(function (res) {
+        const users = res.data;
+        console.log("Users: ", users);
+        that.isUser = true;
 
 
       });

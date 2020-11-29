@@ -28,6 +28,9 @@
 
     <q-drawer class="bg-primary" side="left" v-model="leftDrawerOpen" v-if="documents.length > 0">
       <q-scroll-area style="height: 100vh">
+        <q-list bordered>
+          <q-item-label header><span class="text-bold">Workspaces</span></q-item-label>
+        </q-list>
         <q-list bordered :key="workspace" v-for="(workspace) in workspaces">
           <q-item-label header>{{ workspace }}</q-item-label>
           <q-item :active="currentItem === item" active-class="bg-primary text-white" clickable
@@ -155,10 +158,10 @@ export default {
 
           if (item.mime_type !== "workspace/root" && item.mime_type !== "workspace/base") {
             if (that.currentItem === null) {
-              if (!that.$q.$route.params.document_name) {
+              if (!that.$route.params.document_name) {
                 that.currentItem = item;
-                that.$q.router.push('/guest/' + item.document_name)
-              } else if (that.$q.$route.params.document_name === item.document_name) {
+                that.$router.push('/guest/' + item.document_name)
+              } else if (that.$route.params.document_name === item.document_name) {
                 that.currentItem = item;
               }
             }
