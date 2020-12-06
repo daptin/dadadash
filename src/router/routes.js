@@ -189,7 +189,7 @@ const routes = [
     component: () => import('layouts/ServiceLayout.vue'),
     children: [
       {
-        path: '', component: () => import('pages/Index.vue')
+        path: '', component: () => import('pages/Service/ServiceIndex.vue')
       },
     ]
   }
