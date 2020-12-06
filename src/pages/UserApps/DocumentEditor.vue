@@ -1,6 +1,6 @@
 <template>
   <q-page-container style="padding-top: 0; overflow: hidden;">
-    <q-page style="min-height: 0 ; height:calc(100vh  - 38px); ">
+    <q-page style="min-height: 0 ; height:calc(100vh  - 46px); ">
       <div class="document-editor__toolbar"></div>
       <div class="row" style=" overflow: hidden; width: 100vw">
 
@@ -352,7 +352,7 @@ export default {
             that.editor = editor;
             editor.setData("page-1", that.contents);
             // that.pageReflow()
-            const saveMethod = debounce(that.saveDocument, 1000, false)
+            const saveMethod = debounce(that.saveDocument, 800, false)
             if (that.decodedAuthToken()) {
               editor.onChange((res) => { //提供onChange方法获取数据
                 // console.log("Editor on change", res)

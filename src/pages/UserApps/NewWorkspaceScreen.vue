@@ -1,8 +1,8 @@
 <template>
   <div class="row">
-    <div class="col-6">
-      <q-form @submit="createWorkspace">
-        <q-card flat>
+    <div class="col-6 offset-3">
+      <q-form  @submit="createWorkspace">
+        <q-card style="background: transparent" flat>
           <q-card-section>
             <span class="text-h4">Create new workspace</span>
           </q-card-section>
@@ -10,7 +10,7 @@
             <q-input placeholder="Workspace name" v-model="newWorkspaceName"></q-input>
           </q-card-section>
           <q-card-actions align="right">
-            <q-btn size="lg" @click="ensureWorkspace" label="Create" color="primary"></q-btn>
+            <q-btn size="lg" style="width: 100px" @click="ensureWorkspace" label="Create" color="primary"></q-btn>
           </q-card-actions>
         </q-card>
 
@@ -24,6 +24,9 @@ import {mapActions} from "vuex";
 
 export default {
   name: "NewWorkspaceScreen.vue",
+  meta : {
+    title: "Create new workspace"
+  },
   methods: {
     ...mapActions(['createRow', 'loadData']),
     ensureWorkspace() {

@@ -9,10 +9,30 @@ const routes = [
     ]
   },
   {
+    path: '/offline',
+    component: () => import('layouts/OfflineLayout'),
+    children: [
+      {
+        path: 'index', component: () => import('pages/Offline/OfflineIndex.vue')
+      }
+    ]
+  },
+  {
+    path: '/guest',
+    component: () => import('layouts/GuestLayout.vue'),
+    children: [
+      {
+        path: ':document_name', component: () => import('pages/Login.vue')
+      }
+    ]
+  },
+  {
     path: '/register',
     component: () => import('layouts/GuestLayout.vue'),
     children: [
-      {path: '', component: () => import('pages/Signup.vue')}
+      {
+        path: '', component: () => import('pages/Signup.vue')
+      }
     ]
   },
   {

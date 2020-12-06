@@ -1,0 +1,41 @@
+name: Build/ios
+
+on:
+  push:
+    branches:
+      - "ios-ci"
+
+jobs:
+  release:
+    runs-on: ${{ matrix.os }}
+
+    strategy:
+      matrix:
+        os: [ macos-latest ]
+
+    steps:
+      - name: Check out Git repository
+        uses: actions/checkout@v1
+
+
+      - name: Install node
+        uses: actions/setup-node@v2-beta
+        with:
+          node-version: '12'
+
+      - name: Build
+        shell: bash
+        run: |
+          npm install -g @quasar/cli
+          npm install -g cordova
+          npm install
+          quasar build -m ios
+          ls -lah dist
+          ls -lah dist/cordova
+
+
+      - uses: actions/upload-artifact@v2
+        with:
+          name: dadadash-app.apk
+          path: dist/cordova/android/apk/release/dadadash-app.apk
+

@@ -1,53 +1,59 @@
 <template xmlns:v-slot="http://www.w3.org/1999/XSL/Transform">
-  <q-page>
-    <div class="flex flex-center">
-      <div style="min-width: 30%">
-        <div class="q-pa-md">
-          <h3>Sign up</h3>
 
-          <q-form
-            @submit="onSubmit"
-            class="q-gutter-md"
-          >
-            <q-input
-              filled
-              v-model="email"
-              label="Email"
-              lazy-rules
-              :rules="[ val => val && val.length > 0 || 'Please type something']"
-            />
+  <div class="row">
+    <div class="col-6 offset-3 col-sm-6 col-xs-12">
 
-            <q-input
-              filled
-              type="password"
-              v-model="password"
-              label="Password"
-              lazy-rules
-            />
-            <q-input
-              filled
-              type="password"
-              v-model="passwordConfirm"
-              label="Confirm Password"
-              lazy-rules
-            />
+      <div class="flex flex-center">
+        <q-card flat style="min-width: 300px; width: 30vw" class="q-pa-md">
+          <q-card-section>
+            <span class="text-h4">Create a new account</span>
+
+          </q-card-section>
+          <q-card-section>
+            <q-form autofocus
+              @submit="onSubmit"
+              class="q-gutter-md"
+            >
+              <q-input
+                filled
+                v-model="email"
+                label="Email"
+                lazy-rules
+                :rules="[ val => val && val.length > 0 || 'Please type something']"
+              />
+
+              <q-input
+                filled
+                type="password"
+                v-model="password"
+                label="Password"
+                lazy-rules
+              />
+              <q-input
+                filled
+                type="password"
+                v-model="passwordConfirm"
+                label="Confirm Password"
+                lazy-rules
+              />
 
 
-            <div>
-              <q-btn class="float-left" label="Sign up" type="submit" color="primary"/>
-              <q-btn class="float-right" label="Login" @click="$router.push('/login')" type="reset" color="secondary"
-                     flat/>
-            </div>
-          </q-form>
+              <div>
+                <q-btn class="float-left" label="Sign up" type="submit" color="primary"/>
+                <q-btn class="float-right" label="Login" @click="$router.push('/login')" type="reset" color="secondary"
+                       flat/>
+              </div>
+            </q-form>
 
-        </div>
-      </div>
-      <div class="col-10">
+          </q-card-section>
+        </q-card>
+
 
       </div>
     </div>
+  </div>
 
-  </q-page>
+
 </template>
 
 <script>
@@ -56,7 +62,7 @@ import {mapActions} from 'vuex';
 export default {
   name: 'PageSignup',
   methods: {
-    ...mapActions(['executeAction']),
+    ...mapActions(['executeAction', 'setToken']),
     onSubmit() {
       var that = this;
       that.executeAction({
@@ -90,16 +96,28 @@ export default {
             password: that.password,
           }
         }).then(function (e) {
-          console.log("Sign in successful", arguments);
-          that.$router.push('/workspace')
+          for (var i = 0; i < e.length; i++) {
+            if (e[i].ResponseType === "client.notify") {
+              that.$q.notify(e[i].Attributes);
+            }
+          }
+          that.setToken();
+          that.$router.push("/workspace");
         }).catch(function (e) {
           console.log("Failed to sign in", arguments);
           that.$q.notify("Error", "Failed to login");
           that.$router.push('/login');
         })
-      }).catch(function (responses) {
-        that.$q.notify("Error", "Failed to signup");
-        console.log("Failed to register", responses)
+      }).catch(function (res) {
+        var e = res.response.data;
+        console.log("Failed to register", e);
+
+        for (var i = 0; i < e.length; i++) {
+          if (e[i].ResponseType === "client.notify") {
+            that.$q.notify(e[i].Attributes);
+          }
+        }
+
       })
     },
   },

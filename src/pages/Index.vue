@@ -2,27 +2,12 @@
   <q-page-container>
     <q-page>
 
-      <div class="q-pa-md q-gutter-sm">
-        <q-breadcrumbs>
-          <template v-slot:separator>
-            <q-icon
-              size="1.2em"
-              name="arrow_forward"
-            />
-          </template>
-
-          <q-breadcrumbs-el :label="serverConfig.hostname" icon="fas fa-home"/>
-        </q-breadcrumbs>
-      </div>
-      <q-separator></q-separator>
-
-
-      <div class="row" style="overflow-y: scroll; height: 90vh">
+      <div class="row" style="overflow-y: scroll; height: calc(100vh - 12px); background: #F2F1F9">
 
         <div class="col-8 col-md-8 col-xs-12 col-lg-9 col-sm-6">
           <div class="row">
-            <div class="col-6 col-md-6 col-lg-4 col-xl-4 col-xs-12 col-sm-12 q-pa-md q-gutter-sm">
-              <q-card>
+            <div class="col-6 col-md-6 col-lg-4 col-xl-4 col-xs-12 col-sm-12 q-pa-sm q-gutter-sm">
+              <q-card class="bg-white">
 
 
                 <q-card-section>
@@ -33,7 +18,7 @@
                       </q-avatar>
                     </q-item-section>
                     <q-item-section>
-                      <span class="text-h4" v-if="!showHostnameEdit">Users</span>
+                      <span class="text-h5" v-if="!showHostnameEdit">Users</span>
                       <span class="text-bold" v-if="!showHostnameEdit">@ {{ serverConfig.hostname }}</span>
                       <q-input @keypress.enter="saveHostname()" v-if="showHostnameEdit" :value="serverConfig.hostname"
                                v-model="serverConfig.hostname"
@@ -51,7 +36,7 @@
 
 
                 <q-card-section>
-                  <div class="row q-pa-md">
+                  <div class="row q-pa-sm">
                     <div class="col-4">
                       <span class="text-bold">Total</span>
                     </div>
@@ -59,21 +44,21 @@
                       {{ userAggregate.count }}
                     </div>
                   </div>
-                  <div class="row q-pa-md">
+                  <div class="row q-pa-sm">
                     <div class="col-4">
                       <span class="text-bold">User registrations</span>
                     </div>
                     <div class="col-6 text-right">
                       <q-btn-toggle @click="updateSignupActionPermission()" size="sm" flat color="white"
-                                    toggle-color="primary" toggle-text-color="primary"
+                                    toggle-color="primary" toggle-text-color="black"
                                     text-color="black"
                                     :options="[
           {label: signUpPublicAvailable == '2097057' ? 'Enabled' : 'Enable', value: '2097057', disable: signUpPublicAvailable == '2097057'},
-          {label: signUpPublicAvailable != '2097057' ? 'Disabled' : 'Disable', value: '2097024', disable: !(signUpPublicAvailable == '2097057')},
+          {label: signUpPublicAvailable != '2097057' ? 'Disabled' : 'Disable', value: '2097025', disable: !(signUpPublicAvailable == '2097057')},
         ]" v-model="signUpPublicAvailable"></q-btn-toggle>
                     </div>
                   </div>
-                  <div class="row q-pa-md">
+                  <div class="row q-pa-sm">
                     <div class="col-4">
                       <span class="text-bold">Password Reset</span>
                     </div>
@@ -93,8 +78,8 @@
             </div>
 
 
-            <div class="col-6  col-md-6 col-lg-4 col-xl-3 col-xs-12 col-sm-12 q-pa-md q-gutter-sm">
-              <q-card>
+            <div class="col-6  col-md-6 col-lg-4 col-xl-3 col-xs-12 col-sm-12 q-pa-sm q-gutter-sm">
+              <q-card class="bg-white">
 
                 <q-card-section>
                   <q-item>
@@ -104,14 +89,14 @@
                       </q-avatar>
                     </q-item-section>
                     <q-item-section>
-                      <span class="text-h4">Data tables</span>
+                      <span class="text-h5">Data tables</span>
                     </q-item-section>
                   </q-item>
                 </q-card-section>
 
 
                 <q-card-section>
-                  <div class="row q-pa-md">
+                  <div class="row q-pa-sm">
                     <div class="col-4">
                       <span class="text-bold">Total</span>
                     </div>
@@ -123,7 +108,7 @@
                 </q-card-section>
                 <q-card-section>
                   <div class="row ">
-                    <div class="col-12 q-pa-md q-gutter-sm">
+                    <div class="col-12 q-pa-sm q-gutter-sm">
                       <q-btn class="float-right" @click="$router.push('/tables')" icon="list" round></q-btn>
                       <q-btn class="float-right" @click="$router.push('/tables/create')" round icon="add"></q-btn>
                     </div>
@@ -133,8 +118,8 @@
               </q-card>
             </div>
 
-            <div class="col-6 col-md-6 col-lg-4 col-xl-3 col-xs-12 col-sm-12 q-pa-md q-gutter-sm">
-              <q-card>
+            <div class="col-6 col-md-6 col-lg-4 col-xl-3 col-xs-12 col-sm-12 q-pa-sm q-gutter-sm">
+              <q-card class="bg-white">
 
                 <q-card-section>
                   <q-item>
@@ -144,14 +129,14 @@
                       </q-avatar>
                     </q-item-section>
                     <q-item-section>
-                      <span class="text-h4">Sites</span>
+                      <span class="text-h5">Sites</span>
                     </q-item-section>
                   </q-item>
                 </q-card-section>
 
 
                 <q-card-section>
-                  <div class="row q-pa-md">
+                  <div class="row q-pa-sm">
                     <div class="col-4">
                       <span class="text-bold">Active</span>
                     </div>
@@ -161,7 +146,7 @@
                   </div>
 
 
-                  <div class="row q-pa-md">
+                  <div class="row q-pa-sm">
                     <div class="col-4">
                       <span class="text-bold">Total</span>
                     </div>
@@ -170,7 +155,7 @@
                     </div>
                   </div>
 
-                  <div class="row q-pa-md">
+                  <div class="row q-pa-sm">
                     <div class="col-4">
                       <span class="text-bold">Cloud stores</span>
                     </div>
@@ -182,7 +167,7 @@
                 </q-card-section>
                 <q-card-section>
                   <div class="row ">
-                    <div class="col-12 q-pa-md q-gutter-sm">
+                    <div class="col-12 q-pa-sm q-gutter-sm">
                       <q-btn @click="$router.push('/cloudstore/sites')" class="float-right" round icon="list"></q-btn>
                     </div>
                   </div>
@@ -191,8 +176,8 @@
               </q-card>
             </div>
 
-            <div class="col-6  col-md-6 col-lg-4 col-xl-3 col-xs-12 col-sm-12 q-pa-md q-gutter-sm">
-              <q-card>
+            <div class="col-6  col-md-6 col-lg-4 col-xl-3 col-xs-12 col-sm-12 q-pa-sm q-gutter-sm">
+              <q-card class="bg-white">
                 <q-card-section>
                   <q-item>
                     <q-item-section avatar>
@@ -201,14 +186,14 @@
                       </q-avatar>
                     </q-item-section>
                     <q-item-section>
-                      <span class="text-h4">Integrations</span>
+                      <span class="text-h5">Integrations</span>
                     </q-item-section>
                   </q-item>
                 </q-card-section>
 
 
                 <q-card-section>
-                  <div class="row q-pa-md">
+                  <div class="row q-pa-sm">
                     <div class="col-4">
                       <span class="text-bold">API Specs</span>
                     </div>
@@ -216,7 +201,7 @@
                       {{ integrationAggregate.count }}
                     </div>
                   </div>
-                  <div class="row q-pa-md">
+                  <div class="row q-pa-sm">
                     <div class="col-4">
                       <span class="text-bold">Actions</span>
                     </div>
@@ -228,7 +213,7 @@
 
                 <q-card-section>
                   <div class="row ">
-                    <div class="col-12 q-pa-md q-gutter-sm">
+                    <div class="col-12 q-pa-sm q-gutter-sm">
                       <q-btn class="float-right" label="Add API Spec"></q-btn>
                       <q-btn class="float-right" label="Create an action"></q-btn>
                     </div>
@@ -240,10 +225,10 @@
 
           </div>
         </div>
-        <div class="col-4  col-md-4 col-lg-3 col-xl-3 col-xs-12 col-sm-6 q-pa-md q-gutter-sm">
+        <div class="col-4  col-md-4 col-lg-3 col-xl-3 col-xs-12 col-sm-6 q-pa-sm q-gutter-sm">
           <div class="row">
             <div class="col-12">
-              <q-card>
+              <q-card class="bg-white">
                 <q-card-section>
                   <q-item>
                     <q-item-section avatar>
@@ -252,14 +237,14 @@
                       </q-avatar>
                     </q-item-section>
                     <q-item-section>
-                      <span class="text-h4">Services</span>
+                      <span class="text-h5">Services</span>
                     </q-item-section>
                   </q-item>
                 </q-card-section>
 
 
                 <q-card-section>
-                  <div class="row q-pa-md">
+                  <div class="row q-pa-sm">
                     <q-tooltip>
                       Resync configuration is required when you make a change to any of the following <br/>
                       <ul>
@@ -282,7 +267,7 @@
                     </div>
                   </div>
 
-                  <div class="row q-pa-md">
+                  <div class="row q-pa-sm">
                     <div class="col-6">
                       <span class="text-bold">JSON API endpoint</span>
                     </div>
@@ -292,7 +277,7 @@
                   </div>
 
 
-                  <div class="row q-pa-md">
+                  <div class="row q-pa-sm">
                     <div class="col-6">
                       <span class="text-bold">FTP service</span>
                     </div>
@@ -307,7 +292,7 @@
         ]" v-model="serverConfig['ftp.enable']"></q-btn-toggle>
                     </div>
                   </div>
-                  <div class="row q-pa-md">
+                  <div class="row q-pa-sm">
                     <div class="col-6">
                       <span class="text-bold">GraphQL endpoint</span>
                     </div>
@@ -321,7 +306,7 @@
 
                     </div>
                   </div>
-                  <div class="row q-pa-md">
+                  <div class="row q-pa-sm">
                     <div class="col-6">
                       <span class="text-bold">IMAP endpoint</span>
                     </div>
@@ -331,7 +316,7 @@
 
                     </div>
                   </div>
-                  <div class="row q-pa-md">
+                  <div class="row q-pa-sm">
                     <div class="col-6">
                       <span class="text-bold">Connection limit / IP</span>
                     </div>
@@ -347,7 +332,7 @@
                          @click="editMaxConnections = false"></i>
                     </div>
                   </div>
-                  <div class="row q-pa-md">
+                  <div class="row q-pa-sm">
                     <div class="col-6">
                       <span class="text-bold">Allowed rate limit</span>
                     </div>
@@ -376,10 +361,6 @@
       </div>
 
 
-      <q-page-sticky v-if="!showHelp" position="top-right" :offset="[0, 0]">
-        <q-btn flat @click="showHelp = true" fab icon="fas fa-question"/>
-      </q-page-sticky>
-
       <q-drawer overlay :width="400" side="right" v-model="showHelp">
         <q-scroll-area class="fit" v-if="showHelp">
           <help-page @closeHelp="showHelp = false">
@@ -389,6 +370,10 @@
 
 
     </q-page>
+    <!--    <q-page-sticky v-if="!showHelp" position="top-right" :offset="[0, 0]">-->
+    <!--      <q-btn flat @click="showHelp = true" fab icon="fas fa-question"/>-->
+    <!--    </q-page-sticky>-->
+
   </q-page-container>
 </template>
 
@@ -439,17 +424,17 @@ export default {
 
 
       that.updateRow({
-        tableName: "world",
-        id: that.selectedTable.reference_id,
-        permission: JSON.stringify(that.tableSchema),
+        tableName: "action",
+        id: signUpAction.reference_id,
+        permission: that.signUpPublicAvailable,
       }).then(function () {
         that.$q.notify({
           message: "Saved"
         });
       }).catch(function (e) {
-        console.log("Failed to remove group from default groups", e);
+        console.log("Failed to enable signup action permissions", e);
         that.$q.notify({
-          message: "Failed to save"
+          message: "Failed to enable signup action permissions"
         });
       });
 
@@ -540,7 +525,7 @@ export default {
         console.log("Failed to restart daptin", err)
       })
     },
-    ...mapActions(['loadData', 'loadAggregates', 'loadServerConfig', 'executeAction', 'saveConfig', 'loadTables'])
+    ...mapActions(['loadData', 'loadAggregates', 'loadServerConfig', 'executeAction', 'saveConfig', 'loadTables', 'updateRow'])
   },
 
   data() {

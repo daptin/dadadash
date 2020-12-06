@@ -1,170 +1,166 @@
 <template>
-  <q-layout>
 
-    <q-page-container style="height: 100vh; overflow: hidden;" >
-
-
-
-      <q-page>
-        <div style="height: 100vh; overflow-y: scroll" class="row">
-          <div class="col-2 col-sm-12 col-md-2 col-lg-2 col-xl-2 col-xs-12">
-            <q-card v-if="selectedFile && !selectedFile.is_dir" flat style="background: transparent;">
-              <q-card-section>
-                <span class="text-bold">{{ selectedFile.name }}</span><br/>
-              </q-card-section>
-              <q-card-section>
-                Size <span class="text-bold">{{ parseInt(selectedFile.document_content[0].size / 1024) }} Kb</span>
-                <br/>
-                Type <span class="text-bold">{{ selectedFile.mime_type }}</span>
-              </q-card-section>
-              <q-card-section>
-                <q-list separator bordered>
-                  <q-item clickable @click="fileDownload(selectedFile)">
-                    <q-item-section>Download</q-item-section>
-                  </q-item>
-                  <q-item clickable v-if="isEditable(selectedFile)"
-                          @click="openEditor(selectedFile)">
-                    <q-item-section>Open</q-item-section>
-                  </q-item>
-                  <q-item clickable v-if="isViewable(selectedFile)"
-                          @click="openViewer(selectedFile)">
-                    <q-item-section>View</q-item-section>
-                  </q-item>
-                </q-list>
-              </q-card-section>
-            </q-card>
+  <q-page-container style="padding-top: 0;">
+    <q-page style="overflow: hidden; height:calc(100vh  - 38px); min-height: 0">
+      <div style="height: 100vh; overflow-y: scroll" class="row">
+        <div class="col-2 col-sm-12 col-md-2 col-lg-2 col-xl-2 col-xs-12">
+          <q-card v-if="selectedFile && !selectedFile.is_dir" flat style="background: transparent;">
+            <q-card-section>
+              <span class="text-bold">{{ selectedFile.name }}</span><br/>
+            </q-card-section>
+            <q-card-section>
+              Size <span class="text-bold">{{ parseInt(selectedFile.document_content[0].size / 1024) }} Kb</span>
+              <br/>
+              Type <span class="text-bold">{{ selectedFile.mime_type }}</span>
+            </q-card-section>
+            <q-card-section>
+              <q-list separator bordered>
+                <q-item clickable @click="fileDownload(selectedFile)">
+                  <q-item-section>Download</q-item-section>
+                </q-item>
+<!--                <q-item clickable v-if="isEditable(selectedFile)"-->
+<!--                        @click="openEditor(selectedFile)">-->
+<!--                  <q-item-section>Open</q-item-section>-->
+<!--                </q-item>-->
+                <q-item clickable v-if="isViewable(selectedFile)"
+                        @click="openViewer(selectedFile)">
+                  <q-item-section>View</q-item-section>
+                </q-item>
+              </q-list>
+            </q-card-section>
+          </q-card>
 
 
-            <q-card flat style="background: white">
-              <q-card-section>
-                <q-list bordered separator>
-                  <q-item @click="$router.push('/apps/document/new')" clickable>
-                    <q-item-section>New document</q-item-section>
-                  </q-item>
-                  <q-item @click="$router.push('/apps/spreadsheet/new')" clickable>
-                    <q-item-section>New spreadsheet</q-item-section>
-                  </q-item>
-                  <q-item clickable
-                          @click="() => {(newNamePrompt = true) ; (newName = '') ; ( newNameType = 'folder')}">
-                    <q-item-section>New folder</q-item-section>
-                  </q-item>
-                </q-list>
-              </q-card-section>
-              <q-card-section>
+          <q-card flat style="background: white">
+            <q-card-section>
+              <q-list bordered separator>
+                <!--                <q-item @click="$router.push('/apps/document/new')" clickable>-->
+                <!--                  <q-item-section>New document</q-item-section>-->
+                <!--                </q-item>-->
+                <!--                <q-item @click="$router.push('/apps/spreadsheet/new')" clickable>-->
+                <!--                  <q-item-section>New spreadsheet</q-item-section>-->
+                <!--                </q-item>-->
+                <q-item clickable
+                        @click="() => {(newNamePrompt = true) ; (newName = '') ; ( newNameType = 'folder')}">
+                  <q-item-section>New folder</q-item-section>
+                </q-item>
+              </q-list>
+            </q-card-section>
+            <q-card-section>
 
-              </q-card-section>
+            </q-card-section>
 
-            </q-card>
-            <q-card
-              style="border: 1px dashed black; font-size: 10px; box-shadow: none; background: white; margin: 10px">
-              <file-upload
-                :multiple="true"
-                style="height: 300px; width: 100%; text-align: left"
-                ref="upload"
-                :drop="true"
-                :drop-directory="true"
-                v-model="uploadedFiles"
-                post-action="/post.method"
-                put-action="/put.method"
-                @input-file="uploadFile"
-              >
-                <div class="container">
+          </q-card>
+          <q-card
+            style="border: 1px dashed black; font-size: 10px; box-shadow: none; background: white; margin: 10px">
+            <file-upload
+              :multiple="true"
+              style="height: 300px; width: 100%; text-align: left"
+              ref="upload"
+              :drop="true"
+              :drop-directory="true"
+              v-model="uploadedFiles"
+              post-action="/post.method"
+              put-action="/put.method"
+              @input-file="uploadFile"
+            >
+              <div class="container">
 
-                  <div class="row q-pa-xs">
-                    <div class="col-12 ">
-                      <table style="width: 100%">
-                        <thead v-if="uploadedFiles.length > 0">
-                        <tr>
-                          <th style="text-align: left">File</th>
-                          <th style="text-align: right">Size</th>
-                          <th style="text-align: right">Status</th>
-                        </tr>
-                        </thead>
-                        <tbody>
-                        <tr v-for="file in uploadedFiles">
-                          <td style="text-align: left"> {{ file.name }}</td>
-                          <td style="text-align: right">{{ parseInt(file.size / 1024) }} Kb</td>
-                          <td style="text-align: right">{{ file.status }}</td>
-                        </tr>
-                        </tbody>
-                      </table>
-                    </div>
+                <div class="row q-pa-xs">
+                  <div class="col-12 ">
+                    <table style="width: 100%">
+                      <thead v-if="uploadedFiles.length > 0">
+                      <tr>
+                        <th style="text-align: left">File</th>
+                        <th style="text-align: right">Size</th>
+                        <th style="text-align: right">Status</th>
+                      </tr>
+                      </thead>
+                      <tbody>
+                      <tr v-for="file in uploadedFiles">
+                        <td style="text-align: left"> {{ file.name }}</td>
+                        <td style="text-align: right">{{ parseInt(file.size / 1024) }} Kb</td>
+                        <td style="text-align: right">{{ file.status }}</td>
+                      </tr>
+                      </tbody>
+                    </table>
                   </div>
-                  <div style="padding: 10px" class="row">
-                    <div class="col-12" style="height: 100%; ">
+                </div>
+                <div style="padding: 10px" class="row">
+                  <div class="col-12" style="height: 100%; ">
                 <span class="vertical-middle" v-if="uploadedFiles.length === 0">
                   Click here to select files, or drag and drop files here to upload</span>
-                    </div>
                   </div>
-
                 </div>
-              </file-upload>
 
-            </q-card>
+              </div>
+            </file-upload>
 
-          </div>
-          <div class="col-10 col-sm-12 col-md-10 col-lg-10 col-xl-10 col-xs-12" style="background: #F2F1F9">
-            <paginated-table-view v-if="viewMode === 'table'"
-                                  @item-deleted="itemDelete"
-                                  @item-rename="itemRename"
-                                  @item-double-clicked="fileDblClicked"
-                                  @item-clicked="fileClicked"
-                                  :items="files"></paginated-table-view>
-            <paginated-card-view v-if="viewMode === 'card'"
-                                 @item-deleted="itemDelete"
-                                 @item-rename="itemRename"
-                                 @item-clicked="fileClicked"
-                                 @item-double-clicked="fileDblClicked"
-                                 :items="files"></paginated-card-view>
-          </div>
+          </q-card>
+
         </div>
-        <!--      <q-page-sticky :offset="[10, 10]" v-if="showUploadComponent">-->
-        <!--        -->
-        <!--      </q-page-sticky>-->
-      </q-page>
+        <div class="col-10 col-sm-12 col-md-10 col-lg-10 col-xl-10 col-xs-12" style="background: #F2F1F9">
+          <paginated-table-view v-if="viewMode === 'table'"
+                                @item-deleted="itemDelete"
+                                @item-rename="itemRename"
+                                @item-double-clicked="fileDblClicked"
+                                @item-clicked="fileClicked"
+                                :items="files"></paginated-table-view>
+          <paginated-card-view v-if="viewMode === 'card'"
+                               @item-deleted="itemDelete"
+                               @item-rename="itemRename"
+                               @item-clicked="fileClicked"
+                               @item-double-clicked="fileDblClicked"
+                               :items="files"></paginated-card-view>
+        </div>
+      </div>
+      <!--      <q-page-sticky :offset="[10, 10]" v-if="showUploadComponent">-->
+      <!--        -->
+      <!--      </q-page-sticky>-->
+    </q-page>
 
-      <q-dialog v-model="newNamePrompt" persistent>
-        <q-card style="min-width: 350px">
-          <q-card-section>
-            <div class="text-h6">Name</div>
-          </q-card-section>
+    <q-dialog v-model="newNamePrompt" persistent>
+      <q-card style="min-width: 350px">
+        <q-card-section>
+          <div class="text-h6">Name</div>
+        </q-card-section>
 
-          <q-card-section class="q-pt-none">
-            <q-input dense v-model="newName" autofocus @keyup.enter="createNew()"/>
-          </q-card-section>
+        <q-card-section class="q-pt-none">
+          <q-input dense v-model="newName" autofocus @keyup.enter="createNew()"/>
+        </q-card-section>
 
-          <q-card-actions align="right" class="text-primary">
-            <q-btn flat label="Cancel" v-close-popup/>
-            <q-btn flat label="Create" @click="createNew()" v-close-popup/>
-          </q-card-actions>
-        </q-card>
-      </q-dialog>
+        <q-card-actions align="right" class="text-primary">
+          <q-btn flat label="Cancel" v-close-popup/>
+          <q-btn flat label="Create" @click="createNew()" v-close-popup/>
+        </q-card-actions>
+      </q-card>
+    </q-dialog>
 
 
-      <q-menu context-menu>
-        <q-list dense style="min-width: 100px">
-          <q-item @click="() => {(newNamePrompt = true) ; (newName = '') ; ( newNameType = 'file')}" clickable
-                  v-close-popup>
-            <q-item-section>New file</q-item-section>
-          </q-item>
-          <q-separator/>
-          <q-item @click="() => {(newNamePrompt = true) ; (newName = '') ; ( newNameType = 'folder')}" clickable
-                  v-close-popup>
-            <q-item-section>New folder</q-item-section>
-          </q-item>
-          <q-separator/>
+    <q-menu context-menu>
+      <q-list dense style="min-width: 100px">
+        <q-item @click="() => {(newNamePrompt = true) ; (newName = '') ; ( newNameType = 'file')}" clickable
+                v-close-popup>
+          <q-item-section>New file</q-item-section>
+        </q-item>
+        <q-separator/>
+        <q-item @click="() => {(newNamePrompt = true) ; (newName = '') ; ( newNameType = 'folder')}" clickable
+                v-close-popup>
+          <q-item-section>New folder</q-item-section>
+        </q-item>
+        <q-separator/>
 
-        </q-list>
-      </q-menu>
+      </q-list>
+    </q-menu>
 
-    </q-page-container>
+  </q-page-container>
 
-  </q-layout>
 
 </template>
 <script>
 
 import {mapActions, mapGetters} from "vuex";
+import moment from "moment";
 
 function base64ToArrayBuffer(base64) {
   var binaryString = window.atob(base64);
@@ -205,7 +201,7 @@ export default {
   watch: {
     'currentPath': function (newVal) {
       console.log("Current path changed", newVal);
-      localStorage.setItem("_last_current_path", newVal)
+      localStorage.setItem("_last_current_path_" + this.baseItem.reference_id, newVal)
     }
   },
   methods: {
@@ -308,7 +304,7 @@ export default {
           console.log("one level up %s", newPath)
           this.currentPath = newPath
         } else {
-          that.currentPath = file.document_path + file.name
+          that.currentPath = that.currentPath + "/" + file.name
         }
         that.refreshData();
       } else {
@@ -343,11 +339,11 @@ export default {
         tableName: "document",
         document_extension: this.newName.indexOf(".") > -1 ? this.newName.split(".")[1] : "",
         mime_type: '',
-        document_path: this.currentPath + "/",
+        document_path: this.pathNamespace + "/" + (this.currentPath ? this.currentPath + "/" : ""),
         document_content: [{
           name: this.newName,
           type: "text/plain",
-          path: this.currentPath,
+          path: this.pathNamespace + "/" + (this.currentPath ? this.currentPath + "/" : ""),
           contents: "data:base64," + btoa(""),
         }],
       }
@@ -446,15 +442,17 @@ export default {
       let queryPayload = {
         tableName: "document",
         params: {
-          query: JSON.stringify([{
-            column: "document_path",
-            operator: "is",
-            value: that.currentPath + "/"
-          }, {
-            column: "mime_type",
-            operator: "not like",
-            value: "workspace"
-          }]),
+          query: JSON.stringify([
+            {
+              column: "document_path",
+              operator: "is",
+              value: that.pathNamespace + "/" + (that.currentPath ? that.currentPath + "/" : "")
+            },
+            {
+              column: "mime_type",
+              operator: "not like",
+              value: "workspace"
+            }]),
           page: {
             size: 100,
           }
@@ -463,6 +461,10 @@ export default {
       if (searchTerm && searchTerm.trim().length > 0) {
         queryPayload.params.query = JSON.stringify([
           {
+            column: "document_path",
+            operator: "like",
+            value: that.pathNamespace + "/"
+          }, {
             column: "document_name",
             operator: "contains",
             value: searchTerm
@@ -557,11 +559,11 @@ export default {
           reader.onload = function (fileResult) {
             // console.log("File loaded", fileToUpload, fileResult);
             file.status = "Uploading"
-            let documentPath = that.currentPath + "/";
+            let documentPath = that.pathNamespace + "/" + (that.currentPath ? that.currentPath + "/" : "");
             if (fileToUpload.webkitRelativePath && fileToUpload.webkitRelativePath.length > 0) {
               var relPath = fileToUpload.webkitRelativePath.split("/");
               relPath.pop(); //remove name
-              documentPath = that.currentPath + "/" + relPath.join("/") + "/"
+              documentPath = that.pathNamespace + "/" + (that.currentPath ? that.currentPath + "/" : "") + relPath.join("/") + "/"
             }
             var pathParts = documentPath.split("/")
             if (pathParts.length > 2) {
@@ -619,6 +621,7 @@ export default {
       ...mapGetters(['endpoint']),
       directoryEnsureCache: {},
       newNamePrompt: false,
+      pathNamespace: null,
       viewMode: 'card',
       uploadedFiles: [],
       newName: '',
@@ -639,12 +642,13 @@ export default {
     document.onpaste = null;
     document.ondrop = null;
   },
+  props: ["baseItem"],
   mounted() {
     const that = this;
     this.containerId = "id-" + new Date().getMilliseconds();
-    console.log("Mounted FilesBrowser", this.containerId);
-
-    var lastPath = localStorage.getItem("_last_current_path")
+    console.log("Mounted FilesBrowser", this.containerId, this.baseItem);
+    this.pathNamespace = this.baseItem.document_path + "/" + this.baseItem.reference_id;
+    var lastPath = localStorage.getItem("_last_current_path_" + this.baseItem.reference_id)
     if (lastPath) {
       this.currentPath = lastPath;
     }
@@ -702,7 +706,8 @@ export default {
           var blob = item.getAsFile();
           console.log("Upload blob", blob)
           let nameParts = blob.name.split(".");
-          let newName = nameParts[0] + " pasted at " + new Date().toLocaleString() + "." + nameParts[1]
+          let newName = nameParts[0] + " pasted at " + moment().format('YYYY_MM_DD_hh_mm_ss_a');
+          +"." + nameParts[1]
           that.uploadFile({
             file: blob,
           }, newName)

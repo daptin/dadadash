@@ -10,6 +10,7 @@
   "scripts": {
     "test": "echo \"No test specified\" && exit 0",
     "dev": "quasar dev",
+    "dev-electron": "quasar dev -m electron --publish always",
     "build": "quasar build -m spa"
   },
   "dependencies": {
@@ -50,6 +51,7 @@
     "tabulator-tables": "^4.6.2",
     "uuid": "^8.3.1",
     "vue-context": "^6.0.0",
+    "vue-horizontal-scroll": "^0.2.4",
     "vue-i18n": "^8.0.0",
     "vue-jstree": "^2.1.6",
     "vue-upload-component": "^2.8.20",
@@ -60,8 +62,10 @@
     "@quasar/quasar-app-extension-qmarkdown": "^1.0.27",
     "devtron": "^1.4.0",
     "electron": "^9.3.2",
+    "electron-builder": "^22.9.1",
     "electron-debug": "^3.1.0",
     "electron-devtools-installer": "^3.1.1",
+    "electron-packager": "^14.2.1",
     "vue2-ace-editor": "0.0.15"
   },
   "engines": {

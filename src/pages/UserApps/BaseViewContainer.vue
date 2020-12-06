@@ -3,74 +3,88 @@
 
     <q-page-container>
       <q-page>
+        <div class="row" style="width: 100vw; height: 30px;">
 
-        <div class="row">
+          <q-btn flat class="text-primary tabMenuButton" id="listTableButton" icon="fas fa-bars">
+            <q-menu>
+              <q-list style="min-width: 280px">
+                <q-item clickable v-close-popup
+                        @click="$router.push('/workspace/' + workspaceName + '/' + baseName + '/' + item.document_name)"
+                        v-for="item in baseConfig.items"
+                        :key="item.document_name">
+                  <q-item-section>{{ item.document_name }}</q-item-section>
+                  <q-item-section avatar>
+                    <q-icon :name="baseItemTypes[item.document_extension] ? baseItemTypes[item.document_extension].icon : item.document_extension"></q-icon>
+                  </q-item-section>
+                </q-item>
+                <q-separator/>
 
-          <div class="col-12">
-            <q-bar style="height: 50px" dark>
-              <q-tabs
-                class="text-black"
-                inline-label
-              >
-                <q-route-tab
-                  :key="item.reference_id"
-                  v-if="item.type !== 'summary'" v-for="item in baseConfig.items"
-                  :to="'/workspace/' + workspaceName + '/' + baseName + '/' + item.label" exact replace
-                >
-                  <span><q-icon :name="itemIconMap[item.type]"></q-icon> &nbsp;&nbsp;&nbsp;</span>{{ item.label }}
-                  <!--                  <span>&nbsp; &nbsp; &nbsp;-->
-                  <!--                    <q-icon name="fas fa-cog"></q-icon>-->
+              </q-list>
+            </q-menu>
+          </q-btn>
 
-                  <!--                  </span>-->
-                  <q-menu context-menu style="min-width: 300px">
-                    <q-list>
+          <q-tabs style="max-width: calc(100vw - 150px); height: 30px"
+                  class="text-black"
+                  inline-label
+                  shrink
+                  outside-arrows
 
-                      <q-item clickable disable>
-                        <q-item-section>
-                          <q-item-label>Customise item</q-item-label>
-                        </q-item-section>
-                      </q-item>
-                      <q-item clickable @click="renameBaseItem(item)">
-                        <q-item-section>
-                          <q-item-label>Rename item</q-item-label>
-                        </q-item-section>
-                      </q-item>
-                      <q-item clickable @click="deleteBaseItem(item)">
-                        <q-item-section>
-                          <q-item-label>Delete item</q-item-label>
-                        </q-item-section>
-                      </q-item>
-                    </q-list>
-                  </q-menu>
-                </q-route-tab>
+          >
+            <q-route-tab
+              :key="item.reference_id"
+              v-if="item.type !== 'summary'" v-for="item in baseConfig.items"
+              :to="'/workspace/' + workspaceName + '/' + baseName + '/' + item.document_name" exact replace
+            >
+              <span><q-icon :name="baseItemTypes[item.document_extension] ? baseItemTypes[item.document_extension].icon : item.document_extension"></q-icon> &nbsp;&nbsp;&nbsp;</span>{{
+                item.document_name
+              }}
+              <q-menu context-menu
+                      style="min-width: 300px">
+                <q-list>
+                  <q-item clickable>
+                    <q-item-section @click="configureBaseItem(item)">
+                      <q-item-label>Configure</q-item-label>
+                    </q-item-section>
+                  </q-item>
+                  <q-item clickable @click="renameBaseItem(item)">
+                    <q-item-section>
+                      <q-item-label>Rename</q-item-label>
+                    </q-item-section>
+                  </q-item>
+                  <q-item clickable @click="deleteBaseItem(item)">
+                    <q-item-section>
+                      <q-item-label>Delete</q-item-label>
+                    </q-item-section>
+                  </q-item>
+                </q-list>
+              </q-menu>
+            </q-route-tab>
 
 
-              </q-tabs>
-              <q-btn flat class="text-primary" id="newTableButton" icon="fas fa-plus">
-                <q-menu>
-                  <q-list style="min-width: 280px">
+          </q-tabs>
+          <q-btn flat class="text-primary tabMenuButton" id="newTableButton" icon="fas fa-plus">
+            <q-menu>
+              <q-list style="min-width: 280px">
 
-                    <q-item :disable="item.disabled" clickable @click="addBaseItem(item)" v-close-popup
-                            v-for="item in baseItemTypes"
-                            :key="item.label">
-                      <q-item-section>{{ item.label }}</q-item-section>
-                      <q-item-section avatar>
-                        <q-icon :name="item.icon"></q-icon>
-                      </q-item-section>
-                    </q-item>
-                    <q-separator/>
+                <q-item :disable="item.disabled" clickable @click="addBaseItem(item)" v-close-popup
+                        v-for="item in baseItemTypes"
+                        :key="item.label">
+                  <q-item-section>{{ item.label }}</q-item-section>
+                  <q-item-section avatar>
+                    <q-icon :name="item.icon"></q-icon>
+                  </q-item-section>
+                </q-item>
+                <q-separator/>
 
-                  </q-list>
-                </q-menu>
-              </q-btn>
+              </q-list>
+            </q-menu>
+          </q-btn>
 
-            </q-bar>
-          </div>
-
-          <q-separator></q-separator>
         </div>
 
-        <base-view-router v-if="baseLoaded && selectedBaseItem" :base-config="baseConfig"
+        <q-separator></q-separator>
+
+        <base-view-router ref="viewRouter" v-if="baseLoaded && selectedBaseItem" :base-config="baseConfig"
                           :baseItem="selectedBaseItem"></base-view-router>
 
 
@@ -91,7 +105,7 @@
             {icon: 'fas fa-trash', event: 'delete-base'},
           ],
         }" :onBack="() => {$router.push('/workspace/' + $route.params.workspaceName)}"
-                     :title='"[Workspace] " + $route.params.workspaceName
+                     :title='$route.params.workspaceName
                      + "&nbsp;&nbsp; › &nbsp;&nbsp;" + ($route.params.baseName)
                      + ( $route.params.itemName ? "&nbsp;&nbsp; › &nbsp;&nbsp;" + ($route.params.itemName) : "" )  '
     ></user-header-bar>
@@ -121,7 +135,7 @@
           <span class="text-h5">Rename item</span>
         </q-card-section>
         <q-card-section>
-          <q-input v-model="newName"></q-input>
+          <q-input id="newBaseNameField" v-model="newName"></q-input>
         </q-card-section>
         <q-card-actions align="right">
           <q-btn label="Update" @click="renameBaseItem" color="primary"></q-btn>
@@ -132,16 +146,60 @@
     <q-dialog v-model="showDeleteConfirmDialog">
       <q-card style="background: white">
         <q-card-section>
-          <span class="h5">Delete</span>
+          <span class="text-h5">Delete</span>
         </q-card-section>
         <q-card-section>
           Are you sure you want to delete this item
         </q-card-section>
         <q-card-actions align="right">
-          <q-btn label="Delete" color="danger" @click="deleteBaseItem"></q-btn>
+          <q-btn label="Delete" color="negative" @click="deleteBaseItem"></q-btn>
         </q-card-actions>
       </q-card>
     </q-dialog>
+
+    <q-drawer overlay :width="450" side="right" v-model="showBaseConfigurationModel">
+      <q-list class="q-pa-md">
+        <q-item>
+          <q-item-section>
+            <span class="text-bold">Configure</span>
+            <span class="text-h6">{{ itemConfiguration.document_name }}</span>
+          </q-item-section>
+
+        </q-item>
+        <q-item>
+          <q-item-section>
+            <div class="row">
+              <div class="col-12">
+                <span class="text-bold">Read access</span>
+              </div>
+              <div class="col-12">
+                <div class="row">
+                  <div class="col-12">
+                    <q-checkbox label="Allow guests to see this item"
+                                v-model="itemConfiguration.allowGuests"></q-checkbox>
+                  </div>
+                  <div class="col-12">
+                    <q-checkbox label="Show this on frontpage"
+                                v-model="itemConfiguration.showOnFrontpage"></q-checkbox>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </q-item-section>
+        </q-item>
+        <q-item>
+          <q-item-section>
+            <div class="row">
+              <div class="col-12">
+                <q-btn class="float-right" @click="saveItemPermissions" color="primary" label="Save"></q-btn>
+              </div>
+            </div>
+          </q-item-section>
+        </q-item>
+
+      </q-list>
+
+    </q-drawer>
 
 
   </q-layout>
@@ -149,12 +207,34 @@
 </template>
 <style>
 
+.q-tab {
+  border: 1px solid black;
+  border-radius: 4px;
+  height: 39px;
+  top: 4px;
+  margin-left: 2px;
+  margin-right: 2px;
 
-#newTableButton i {
+}
+
+.q-tab .q-tab__content {
+  left: -20px;
+  margin-top: -4px;
+}
+
+.q-tab span i.q-icon {
+  margin-top: -5px;
+  left: 12px;
+}
+
+.tabMenuButton i {
   border: 1px solid #DDDBDA;
-  font-size: 14px;
+  font-size: 1em !important;
   color: #5034A4;
   border-radius: 4px;
+  margin-top: -5px;
+  width: 35px;
+  height: 20px;
 }
 
 
@@ -194,7 +274,7 @@ const DEFAULT_ITEM_MAP = {
 
 
 export default {
-  name: "BaseData",
+  name: "BaseViewContainer",
   components: {BaseViewRouter},
   meta() {
     return {
@@ -205,6 +285,53 @@ export default {
   },
 
   methods: {
+    saveItemPermissions() {
+      const that = this;
+      this.showBaseConfigurationModel = false;
+      console.log("save config", this.itemConfiguration);
+      if (this.itemConfiguration.allowGuests) {
+        that.updateRow({
+          tableName: "document",
+          id: this.itemBeingEdited.reference_id,
+          permission: 2097059
+        }).then(function (res) {
+          that.$q.notify({
+            message: "Updated permission for document"
+          })
+        }).catch(function (res) {
+          that.$q.notify({
+            message: "Failed to update document permission: " + JSON.stringify(res.data)
+          });
+          this.showBaseConfigurationModel = true;
+        })
+      } else {
+        that.updateRow({
+          tableName: "document",
+          id: this.itemBeingEdited.reference_id,
+          permission: 2097025
+        }).then(function (res) {
+          that.$q.notify({
+            message: "Updated permission for document"
+          })
+        }).catch(function (res) {
+          that.$q.notify({
+            message: "Failed to update document permission: " + JSON.stringify(res.data)
+          });
+          this.showBaseConfigurationModel = true;
+        })
+      }
+    },
+    configureBaseItem(item) {
+      this.itemBeingEdited = item;
+      this.showBaseConfigurationModel = true;
+      this.itemConfiguration = {
+        permission: item.permission,
+        allowGuests: false,
+        document_name: item.document_name,
+        usersWithWriteAccess: [],
+        showOnFrontpage: false,
+      };
+    },
     deleteBaseItem(item) {
       console.log("Delete base item", item, this.itemBeingEdited)
       if (!this.showDeleteConfirmDialog) {
@@ -222,16 +349,22 @@ export default {
         that.$q.notify({
           message: "Item deleted"
         });
-        delete that.baseItemMap[that.itemBeingEdited.label];
+        delete that.baseItemMap[that.itemBeingEdited.document_name];
         var indexToDelete = -1;
         for (var i = 0; i < that.baseConfig.items.length; i++) {
-          if (that.baseConfig.items[i].label === that.itemBeingEdited.label) {
+          if (that.baseConfig.items[i].document_name === that.itemBeingEdited.document_name) {
             indexToDelete = i;
             break
           }
+
         }
         console.log("Item to remove from base config", indexToDelete)
         if (indexToDelete > -1) {
+          var item = that.baseConfig.items[indexToDelete]
+          if (item.type === "table") {
+            console.log("target table details,", item);
+            that.deleteTableByName(item.targetTable.TableName)
+          }
           that.baseConfig.items.splice(indexToDelete, 1);
         }
       })
@@ -241,15 +374,19 @@ export default {
       console.log("Rename base item", this.itemBeingEdited);
       if (this.showRenameBaseViewModel !== true) {
         this.itemBeingEdited = item;
-        this.newName = this.itemBeingEdited.label;
+        this.newName = this.itemBeingEdited.document_name;
         this.showRenameBaseViewModel = true;
+        that.$nextTick().then(function () {
+          // document.getElementById("newBaseNameField").focus();
+          // document.getElementById("newBaseNameField").
+        })
         return
       }
       console.log("Updated name", this.newName)
-      if (this.newName !== this.itemBeingEdited.label) {
+      if (this.newName !== this.itemBeingEdited.document_name) {
         console.log("Update item");
-        const originalTitle = this.itemBeingEdited.label;
-        this.itemBeingEdited.label = this.newName;
+        const originalTitle = this.itemBeingEdited.document_name;
+        this.itemBeingEdited.document_name = this.newName;
         that.updateRow({
           tableName: "document",
           id: that.itemBeingEdited.reference_id,
@@ -257,6 +394,7 @@ export default {
         }).then(function (res) {
           console.log("Updated item name", res);
           that.baseItemMap[that.newName] = that.baseItemMap[originalTitle];
+          // that.$refs.viewRouter.reloadBaseItem()
           delete that.baseItemMap[originalTitle];
           if (originalTitle === that.selectedItem) {
             that.$router.push('/workspace/' + that.workspaceName + "/" + that.baseName + "/" + that.newName)
@@ -271,21 +409,22 @@ export default {
     addBaseItem(item) {
       const that = this;
       console.log("Add new item to base", item);
+      let newItemLabel = "New " + item.type + " - " + Math.floor(Math.random() * 90 + 10);
       let newItem = {
         type: item.type,
-        label: "New " + item.type
+        label: newItemLabel
       };
       if (DEFAULT_ITEM_MAP[item.type]) {
         newItem = DEFAULT_ITEM_MAP[item.type]
-        newItem.type = item.type;
-        newItem.label = "New " + item.type;
+        newItem.document_extension = item.type;
+        newItem.document_name = newItemLabel;
       }
 
 
       var newRow = null;
 
       newRow = {
-        document_name: "New " + item.type,
+        document_name: newItemLabel,
         tableName: "document",
         document_extension: item.type,
         mime_type: 'workspace/' + item.type,
@@ -294,7 +433,7 @@ export default {
           name: item.type + "-" + uuidv4() + ".json",
           type: "workspace/" + item.type,
           path: "/" + that.workspaceName + "/" + that.baseName,
-          contents: "workspace/" + item.type + "," + btoa(JSON.stringify(item))
+          contents: "workspace/" + item.type + "," + btoa(JSON.stringify(newItem))
         }],
       }
 
@@ -304,10 +443,19 @@ export default {
       that.createRow(newRow).then(function (res) {
         console.log("New workspace item created", res)
         newItem.reference_id = res.data.reference_id;
-        that.baseConfig.items.push(newItem);
-        that.baseItemMap[newItem.label] = res.data;
+        var finalNewItem = {...newItem, ...res.data}
+        that.baseConfig.items.push(finalNewItem);
+        that.baseItemMap[newItem.label] = finalNewItem;
+
         that.ensureBaseTables();
+
+        that.selectedBaseItem = finalNewItem;
+        that.$nextTick().then(function () {
+          that.$refs.viewRouter.reloadBaseItem()
+          that.renameBaseItem(finalNewItem);
+        })
       }).catch(function (err) {
+        console.log("Failed to create new item", err)
         that.$q.notify({
           message: "Failed to create new item - " + JSON.stringify(err)
         })
@@ -347,14 +495,8 @@ export default {
           for (var i = 0; i < that.baseConfig.items.length; i++) {
             var item = that.baseConfig.items[i];
             if (item.type === "table") {
-              console.log("target table details,", item)
-              // promises.push(that.executeAction({
-              //   tableName: "world",
-              //   actionName: "remove_table",
-              //   params: {
-              //     world_id: ""
-              //   }
-              // }))
+              console.log("target table details,", item);
+              that.deleteTableByName(item.targetTable.TableName)
             }
           }
         }
@@ -391,7 +533,7 @@ export default {
     showUploadData() {
 
     },
-    ...mapActions(['loadData', 'getTableSchema', 'updateRow', 'createRow', 'deleteRow', 'executeAction', 'loadModel']),
+    ...mapActions(['loadData', 'getTableSchema', 'updateRow', 'createRow', 'deleteRow', 'executeAction', 'loadModel', 'deleteTableByName']),
     refreshBaseData() {
       const that = this;
       that.baseItemMap = {};
@@ -479,11 +621,9 @@ export default {
               try {
                 var item = res.data[i];
                 var itemConfig = JSON.parse(atob(item.document_content[0].contents))
-                itemConfig.type = item.document_extension;
-                itemConfig.label = item.document_name;
-                itemConfig.reference_id = item.reference_id;
+                item = {...item, ...itemConfig}
                 that.baseItemMap[item.document_name] = item;
-                that.baseConfig.items.push(itemConfig);
+                that.baseConfig.items.push(item);
               } catch (e) {
                 console.log("failed to parse item data", e)
               }
@@ -538,14 +678,14 @@ export default {
               }
             }
 
-            console.log("No target table exists for this item, creating one", baseItem.label, targetTableConfig.TableName);
+            console.log("No target table exists for this item, creating one", baseItem.document_name, targetTableConfig.TableName);
             updateSchema.Tables.push(targetTableConfig);
             baseItem.targetTable = targetTableConfig;
 
-            that.baseItemMap[baseItem.label].document_content[0].contents = btoa(JSON.stringify(baseItem))
-            console.log("Update base request", that.baseItemMap[baseItem.label])
-            that.baseItemMap[baseItem.label].tableName = "document";
-            promises.push(that.updateRow(that.baseItemMap[baseItem.label]))
+            that.baseItemMap[baseItem.document_name].document_content[0].contents = btoa(JSON.stringify(baseItem))
+            console.log("Update base request", that.baseItemMap[baseItem.document_name])
+            that.baseItemMap[baseItem.document_name].tableName = "document";
+            promises.push(that.updateRow(that.baseItemMap[baseItem.document_name]))
           }
         }
       }
@@ -568,18 +708,21 @@ export default {
                 }]
               }
             }).then(function (res) {
+              that.$q.loadingBar.stop();
               console.log("Tables created", res);
               that.$q.notify({
                 message: "Base tables created, please wait while we generate random data to begin"
               });
-              that.$q.loadingBar.stop();
-              that.$q.loadingBar.start(5);
+              // that.$nextTick().then(function () {
+              //   that.$q.loadingBar.start();
+              // })
 
 
               console.log("Try to create random data for the new base");
               that.$q.notify({
                 message: "Generating random data for " + updateSchema.Tables.length + " tables"
               });
+              that.$q.loadingBar.start();
               var randomDataPromises = []
               randomDataPromises = updateSchema.Tables.map(function (table) {
                 console.log("Create random data for ", table.TableName);
@@ -599,11 +742,11 @@ export default {
                         console.log("Generate random data response", res)
                         if (!res || res === "") {
                           console.log("data generate failed, try again", res)
-                          that.$q.loadingBar.increment(1000 / updateSchema.Tables.length);
+                          that.$q.loadingBar.increment(5);
                           generateRandomDataAndLoad()
                           return
                         }
-                        that.$q.loadingBar.increment(100 / updateSchema.Tables.length);
+                        that.$q.loadingBar.increment(5);
                         console.log("Random data generated for table", table.TableName)
                         resolve();
 
@@ -650,14 +793,12 @@ export default {
       const that = this;
       that.newRowData = [];
       that.sourceMap = {};
-      console.log("Refresh daata, update the selected item", that.selectedItem, that.baseItemMap);
+      console.log("Refresh data, update the selected item", that.selectedItem, that.baseItemMap);
       console.log("Updated base ", that.selectedItem, that.baseName, that.selectedBaseItem);
 
       that.selectedItem = that.$route.params.itemName;
       that.baseName = that.$route.params.baseName;
       that.selectedBaseItem = that.baseItemMap[that.selectedItem]
-
-
       that.baseLoaded = true;
       return Promise.resolve();
 
@@ -666,7 +807,9 @@ export default {
   props: ["baseConfiguration"],
   data() {
     return {
+      showBaseConfigurationModel: false,
       baseItemMap: {},
+      itemConfiguration: {},
       showRenameBaseViewModel: false,
       showDeleteConfirmDialog: false,
       itemBeingEdited: null,
@@ -674,45 +817,6 @@ export default {
       baseLoaded: false,
       dataUploadFile: null,
       selectedBaseItem: null,
-      baseItemTypes: {
-        "table": {
-          label: "Data table",
-          type: "table",
-          icon: 'fas fa-table'
-        },
-        "view": {
-          label: "View",
-          type: "view",
-          icon: 'fas fa-eye'
-        },
-        "spreadsheet": {
-          label: "Spreadsheet",
-          type: "spreadsheet",
-          icon: 'table_view'
-        },
-        "document": {
-          label: "Document",
-          type: "document",
-          icon: 'fas fa-file-alt'
-        },
-        "folder": {
-          label: "Folder",
-          type: "folder",
-          icon: 'folder_open'
-        },
-        "calendar": {
-          label: "Calendar",
-          type: "calendar",
-          icon: 'fas fa-table'
-        },
-        "mailbox": {
-          label: "Mailbox",
-          type: "mailbox",
-          icon: 'all_inbox',
-          disabled: true
-        },
-
-      },
       itemIconMap: {
         'table': 'fas fa-table',
         'view': 'fas fa-eye',
@@ -747,7 +851,7 @@ export default {
     }
   },
   computed: {
-    ...mapGetters(['endpoint', 'authToken', 'tables'])
+    ...mapGetters(['endpoint', 'authToken', 'tables', 'baseItemTypes'])
   },
   updated() {
   },
@@ -763,13 +867,11 @@ export default {
   watch: {
     '$route.params.baseName': function () {
       const that = this;
-      that.baseLoaded = false;
       console.log("base name changed", arguments)
       this.refreshData();
     },
     '$route.params.itemName': function () {
       const that = this;
-      that.baseLoaded = false;
       console.log("item name changed", arguments)
       this.refreshData();
     }

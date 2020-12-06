@@ -2,46 +2,24 @@
   <q-page-container>
 
     <q-page>
-
-      <div class="q-pa-md q-gutter-sm">
-        <q-breadcrumbs>
-          <template v-slot:separator>
-            <q-icon
-              size="1.2em"
-              name="arrow_forward"
-            />
-          </template>
-
-          <q-breadcrumbs-el label="User" icon="fas fa-user"/>
-          <q-breadcrumbs-el label="Profile" icon="fas fa-id-card"/>
-        </q-breadcrumbs>
-      </div>
-      <q-separator></q-separator>
-
-
       <q-card flat style="width: 100%">
         <q-card-section>
           <div class="row" v-if="user">
             <div class="col-1 col-xl-2 col-lg-2 col-xs-6 col-sm-4 q-pa-md">
               <q-img :src="decodedAuthToken.picture"></q-img>
             </div>
-            <div class="col-11 col-xs-6 col-sm-6 q-pa-md">
+            <div class="col-6 col-xs-6 col-sm-6 q-pa-md">
               <span class="text-h6">{{ user.name }}</span> <br/>
               <span class="text-bold">{{ user.email }}</span>
             </div>
-          </div>
-        </q-card-section>
-        <q-card-section>
-          <div class="row">
-            <div class="col-12">
-              <q-btn class="float-right" label="Reset password"></q-btn>
+            <div class="col-5">
+              <q-btn color="warning" class="float-right text-black" label="Reset password"></q-btn>
+
             </div>
           </div>
         </q-card-section>
       </q-card>
     </q-page>
-
-
 
 
   </q-page-container>

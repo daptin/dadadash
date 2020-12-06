@@ -5,25 +5,6 @@
       <div class="row" style="">
         <q-bar style="padding-left: 0; width: 100% ; background: white">
 
-
-<!--          <q-btn size="sm" flat icon="fas fa-bars">-->
-<!--            <q-menu>-->
-<!--              <q-card style="background: white; min-width: 300px">-->
-<!--                <q-card-section>-->
-<!--                  <q-list>-->
-<!--                    <q-item clickable v-for="column in newRowData">-->
-<!--                      <q-item-section>-->
-<!--                        <q-checkbox v-model="column.meta.IsHidden"></q-checkbox>-->
-<!--                      </q-item-section>-->
-<!--                      <q-item-section>-->
-<!--                        {{ column.meta.ColumnName }}-->
-<!--                      </q-item-section>-->
-<!--                    </q-item>-->
-<!--                  </q-list>-->
-<!--                </q-card-section>-->
-<!--              </q-card>-->
-<!--            </q-menu>-->
-<!--          </q-btn>-->
           <q-btn size="sm" @click="showNewRowDrawer()" flat label="New row"></q-btn>
           <q-btn size="sm" @click="showPermissionsDrawer()" color="primary" flat label="Table Permissions"></q-btn>
           <q-btn size="sm" flat label="Table Options">
@@ -49,7 +30,7 @@
 
       <div class="row">
         <div class="col-12" style="background: rgb(242, 241, 249)">
-          <div id="spreadsheet" style="height: calc(100vh - 70px); width: 100vw; border-top: 1px solid black"></div>
+          <div id="spreadsheet" style="height: calc(100vh - 82px); width: 100vw; border-top: 1px solid black"></div>
         </div>
       </div>
 
@@ -173,6 +154,10 @@
   border-radius: 4px;
 }
 
+.tabulator-row.tabulator-selected {
+  background-color: rgb(233, 232, 246);
+}
+
 .tabulator-row:hover .row-selection-checkbox input {
   display: block;
 }
@@ -277,7 +262,7 @@ div.tabulator-col:nth-child(1) > div:nth-child(1) > div:nth-child(1) > div:nth-c
 }
 
 .tabulator-row.tabulator-selectable:hover {
-  background: #FFF8E8;
+  background: rgb(233, 232, 246);
 }
 
 
@@ -1072,8 +1057,8 @@ const tableComponent = {
               });
             } else {
               obj = cell._cell.row.data;
-              // console.log("Create new row with data", obj, Object.values(obj));
-              if (Object.values(obj).filter(e => !!e && e !== "").length === 1) {
+              console.log("Create new row with data", obj, Object.values(obj).filter(e => !!e && e !== "" && !(e instanceof  Array && e.length === 0)), Object.values(obj));
+              if (Object.values(obj).filter(e => !!e && e !== "" && !(e instanceof  Array && e.length === 0)).length === 1) {
                 that.spreadsheet.addData([{}])
               }
               obj["tableName"] = that.tableName;
@@ -1081,6 +1066,7 @@ const tableComponent = {
                 that.$q.notify({
                   message: "Saved"
                 });
+                // that.spreadsheet.addRow({})
               }).catch(function (e) {
                 console.log("Failed to save", e)
                 that.$q.notify({
@@ -1156,6 +1142,11 @@ const tableComponent = {
                   var columnsToLoad = assetColumns.filter(function (columnName) {
                     return !!e.attributes[columnName]
                   })
+
+                  if (columnsToLoad.length === 0) {
+                    resolve();
+                    return
+                  }
 
                   that.loadData({
                     tableName: that.tableName,

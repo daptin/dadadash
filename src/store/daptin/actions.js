@@ -41,7 +41,7 @@ export function updateConnectionStatus({commit, state}) {
 
 export function loadTables({commit}) {
   console.log("Load tables");
-  daptinClient.worldManager.loadModels(false).then(function (worlds) {
+  return daptinClient.worldManager.loadModels(false).then(function (worlds) {
     console.log("All models loaded", arguments);
     commit('setTables', worlds)
   }).catch(function (e) {
@@ -89,6 +89,37 @@ export function executeAction({commit}, params) {
 }
 
 export function deleteTableByName({commit}, tableName) {
+  return new Promise(function (resolve, reject) {
+    console.log("Delete table by name", tableName);
+    daptinClient.jsonApi.findAll("world", {
+      query: JSON.stringify([{
+        column: "table_name",
+        operator: "is",
+        value: tableName
+      }]),
+      page: {
+        size: 1,
+      },
+      fields: "reference_id"
+    }).then(function (res) {
+      console.log("Table reference id for deletion ", res.data);
+
+      daptinClient.actionManager.doAction("world", "remove_table", {
+        world_id: res.data[0].reference_id
+      }).then(function (res) {
+        console.log("Table deletion response", res);
+        resolve(tableName);
+      }).catch(function (err) {
+        console.log("Failed to load table id for deletion", err)
+        reject(tableName)
+      })
+
+
+    }).catch(function (err) {
+      console.log("Failed to load table id for deletion", err)
+      reject(tableName)
+    })
+  })
 
 }
 
@@ -181,4 +212,75 @@ export function refreshTableSchema({commit}, tableName) {
     console.log("Failed to connect to backend", e);
   });
   return daptinClient.worldManager.refreshWorld(tableName, true);
+}
+
+export function setWorkspaceByName({commit}, workspaceName) {
+  daptinClient.jsonApi.findAll("")
+}
+
+export function loadTable({commit}, tableName) {
+  return new Promise(function (resolve, reject) {
+    daptinClient.jsonApi.findAll("world", {
+      query: JSON.stringify([{
+        column: "table_name",
+        operator: "is",
+        value: tableName
+      }]),
+      page: {
+        size: 1
+      }
+    }).then(function (res) {
+      // console.log("Loaded table", tableName, res)
+      if (res.data.length > 0) {
+        commit("setTable", res.data[0]);
+      }
+      resolve(res.data[0])
+    }).catch(reject)
+  })
+}
+
+export function loadWorkspaces({commit}, workspaceName) {
+
+  return new Promise(function (resolve, reject) {
+    let queryPayload = {
+      tableName: "document",
+      params: {
+        query: [{
+          column: "document_path",
+          operator: "is",
+          value: "/"
+        }, {
+          column: "mime_type",
+          operator: "like",
+          value: "workspace/root"
+        }],
+        page: {
+          size: 100,
+        },
+      }
+    };
+    if (workspaceName && workspaceName.length > 0) {
+      queryPayload.params.query = [
+        {
+          column: "document_name",
+          operator: "contains",
+          value: workspaceName
+        }
+      ]
+      queryPayload.params.page.size = 1;
+    }
+    queryPayload.params.query = JSON.stringify(queryPayload.params.query)
+
+    daptinClient.jsonApi.findAll("document", queryPayload).then(function (res) {
+      console.log("Workspaces loaded", res);
+    });
+
+  });
+
+
+}
+
+
+export function setCurrent({commit}, currentData) {
+  commit("setCurrent", currentData)
 }

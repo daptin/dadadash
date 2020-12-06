@@ -1,7 +1,25 @@
 <template>
 
 
-  <router-view @logout="logout()" v-if="loaded"/>
+  <div>
+    <router-view @logout="logout()" v-if="loaded"/>
+    <q-dialog persistent v-model="showOfflineDialog" position="bottom">
+      <q-card style="width: 350px">
+        <q-linear-progress :value="1" color="red"/>
+
+        <q-card-section class="row items-center no-wrap">
+          <div>
+            <div class="text-weight-bold">No server</div>
+            <div class="text-grey">We are offline</div>
+          </div>
+
+          <q-space/>
+
+          <q-btn @click="$router.push('/offline/index')" color="primary" label="Go to server selector page" icon="fast_forward"/>
+        </q-card-section>
+      </q-card>
+    </q-dialog>
+  </div>
 
 </template>
 <style>
@@ -56,9 +74,10 @@ export default {
     return {
       showHelp: false,
       showDrawerFull: false,
+      showOfflineDialog: false,
       showAdminDrawerMini: false,
       showAdminDrawerStick: false,
-      ...mapGetters(['loggedIn', 'drawerLeft', 'authToken', 'decodedAuthToken']),
+      ...mapGetters(['loggedIn', 'drawerLeft', 'authToken', 'decodedAuthToken', 'userGroupTable']),
       essentialLinks: [],
       drawer: false,
       userDrawer: true,
@@ -70,7 +89,6 @@ export default {
   },
   mounted() {
     const that = this;
-    console.log("Mounted main layout");
     if (that.decodedAuthToken()) {
       let decodedAuthToken = that.decodedAuthToken();
       let isLoggedOut = decodedAuthToken.exp * 1000 < new Date().getTime();
@@ -88,7 +106,33 @@ export default {
 
     that.loadModel(["cloud_store", "user_account", "usergroup", "world",
       "action", 'site', 'integration', 'calendar', 'document']).then(async function () {
-      that.loaded = true;
+      Promise.all([that.loadTable("world"), that.loadTable("document"), that.loadTable("usergroup")]).then(function () {
+        console.log("Loaded world and document", arguments)
+        let userGroupTable = that.userGroupTable();
+        console.log("Mounted main layout - ", userGroupTable);
+
+        if (userGroupTable.permission !== 2097057) {
+          that.isAdmin = true;
+          that.executeAction({
+            tableName: 'world',
+            actionName: "become_an_administrator"
+          }).then(function (res) {
+
+            that.$q.notify({
+              message: "You have become the administrator of this instance"
+            });
+            that.loadTable("world");
+
+
+          }).catch(function (err) {
+            console.log("Failed to become admin", err);
+          })
+        }
+
+        that.loaded = true;
+      }).catch(function (err) {
+        console.log("Failed to load table ", err)
+      })
       that.getDefaultCloudStore();
       that.loadData({
         tableName: "user_account",
@@ -96,9 +140,12 @@ export default {
         const users = res.data;
         console.log("Users: ", users);
         that.isUser = true;
+
+
       });
 
     }).catch(function (err) {
+      that.showOfflineDialog = true;
       console.log("Failed to load model for cloud store", err);
       that.$q.notify({
         message: "Failed to load model for cloud store"
@@ -107,7 +154,7 @@ export default {
 
   },
   methods: {
-    ...mapActions(['getDefaultCloudStore', 'loadModel', 'executeAction', 'loadData', 'setDecodedAuthToken']),
+    ...mapActions(['getDefaultCloudStore', 'loadModel', 'executeAction', 'loadData', 'setDecodedAuthToken', 'loadTable']),
     logout() {
       localStorage.removeItem("token");
       localStorage.removeItem("user");

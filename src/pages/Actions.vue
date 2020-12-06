@@ -267,7 +267,7 @@ OutFields:`)
           }
         }
       }).then(function (data) {
-        console.log("Loaded tables data", data);
+        // console.log("Loaded tables data", data);
         let tables = data.data.filter(function (e) {
           return e.table_name.indexOf("_has_") === -1;
         });

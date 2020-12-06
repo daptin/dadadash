@@ -1,0 +1,47 @@
+name: Build/web-spa
+
+on:
+  push:
+    branches:
+      - master
+
+jobs:
+  release:
+    runs-on: ${{ matrix.os }}
+
+    strategy:
+      matrix:
+        os: [ ubuntu-latest ]
+
+    steps:
+      - name: Check out Git repository
+        uses: actions/checkout@v1
+
+      - name: Install node
+        uses: actions/setup-node@v2-beta
+        with:
+          node-version: '12'
+
+      - name: Install Libraries
+        shell: bash
+        run: |
+          npm install -g @quasar/cli
+          npm install -g cordova
+          npm install
+
+
+      - name: Build
+        run: |
+          quasar build -m spa
+
+
+      - uses: actions/upload-artifact@v2
+        with:
+          name: web-spa
+          path: dist/spa
+      - name: Build and push
+        run: |
+          docker build -t daptin/dadadash:latest .
+          docker login -u="${{ secrets.DOCKER_USERNAME }}" -p="${{ secrets.DOCKER_PASSWORD }}"
+          docker push daptin/dadadash:latest
+

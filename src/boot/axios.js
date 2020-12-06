@@ -9,6 +9,7 @@ import HelpPage from '../pages/HelpPage'
 import FileBrowser from 'pages/UserApps/FileBrowser.vue';
 import DaptinDocumentUploader from 'pages/UserApps/Components/DaptinDocumentUploader.vue';
 import UserHeaderBar from "pages/UserApps/UserHeaderBar";
+import GuestHeaderBar from "pages/UserApps/GuestHeaderBar";
 
 const VueUploadComponent = require('vue-upload-component');
 const AceEditor = require('vue2-ace-editor');
@@ -23,14 +24,17 @@ import EditDataTableComponent from "pages/UserApps/Components/EditDataTableCompo
 import CalendarComponent from "pages/UserApps/Calendar.vue";
 import DocumentEditorComponent from "pages/UserApps/DocumentEditor.vue";
 import SpreadsheetEditor from "pages/UserApps/SpreadsheetEditor";
+import HorizontalScroll from 'vue-horizontal-scroll'
 
 
 // import CKEditor from '@ckeditor/ckeditor5-vue'
 // Vue.use(CKEditor)
 
+Vue.component('vue-horizontal-scroll', HorizontalScroll);
 Vue.component('v-jstree', VJstree);
 Vue.component('ace-editor', AceEditor);
 Vue.component('user-header-bar', UserHeaderBar);
+Vue.component('guest-header-bar', GuestHeaderBar);
 Vue.component('new-workspace-screen', NewWorkspaceScreen);
 Vue.component('workspace-view', WorkspaceView);
 Vue.component('add-base-view', AddBaseView);

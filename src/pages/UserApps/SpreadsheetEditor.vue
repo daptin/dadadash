@@ -1,9 +1,9 @@
 <template>
   <q-page-container style="padding-top: 0;">
 
-    <q-page style="overflow: hidden; height:calc(100vh  - 40px); min-height: 0">
+    <q-page style="overflow: hidden; height:calc(100vh  - 38px); min-height: 0">
       <div id="luckysheet"
-           style="margin:0px;padding:0px;position:absolute;width:100%; height:calc(100vh - 10px); left: 0px; top: -21px"></div>
+           style="margin:0px;padding:0px;position:absolute;width:100%; height:calc(100vh - 28px); left: 0px; top: -21px"></div>
 
       <q-dialog v-model="newNameDialog">
         <q-card style="min-width: 400px">
@@ -150,11 +150,8 @@ export default {
       if (this.loading) {
         return
       }
-      // console.log("Contents changed", arguments)
-      if (this.saveDebounced === null) {
-        this.saveDebounced = debounce(this.saveDocument, 3000, true)
-      }
-      this.saveDebounced();
+      console.log("Contents changed", arguments)
+      // this.saveDebounced();
     }
   },
   methods: {
@@ -163,6 +160,10 @@ export default {
     },
     loadEditor() {
       const that = this;
+      if (that.saveDebounced === null) {
+        that.saveDebounced = debounce(that.saveDocument, 300, false)
+      }
+
       setTimeout(function () {
 
         console.log("Create sheet")
@@ -171,8 +172,18 @@ export default {
           showinfobar: false,
           title: that.document ? that.document.document_name : "New document",
           userInfo: that.decodedAuthToken() !== null ? that.decodedAuthToken().email : 'Anonymous',
+          hook: {
+            cellEditAfter: function () {
+              console.log("Cell edited")
+            },
+            cellRenderAfter: function () {
+              // console.log("Cell red");
+
+              that.saveDebounced();
+            },
+          }
         }
-        console.log("l", luckysheet)
+        // console.log("l", luckysheet)
 
         luckysheet.destroy();
         if (that.contents.length > 0) {
@@ -203,22 +214,6 @@ export default {
         if (that.decodedAuthToken() === null) {
           return;
         }
-        setInterval(function () {
-          that.loading = false;
-          let newData = luckysheet.getluckysheetfile();
-          if (!newData) {
-            return
-          }
-          newData = newData.map(function (sheet) {
-            // console.log("Get grid data for sheet", sheet)
-            sheet.celldata = luckysheet.getGridData(sheet.data)
-            // delete sheet.data
-            return sheet;
-          })
-          var newContents = JSON.stringify(newData);
-          that.contents = newContents;
-          window.localStorage.setItem("d", newContents)
-        }, 10000)
 
       }, 300)
     },
@@ -279,6 +274,21 @@ export default {
       if (this.decodedAuthToken() === null) {
         return
       }
+
+      that.loading = false;
+      let newData = luckysheet.getluckysheetfile();
+      if (!newData) {
+        return
+      }
+      newData = newData.map(function (sheet) {
+        // console.log("Get grid data for sheet", sheet)
+        sheet.celldata = luckysheet.getGridData(sheet.data)
+        // delete sheet.data
+        return sheet;
+      })
+      var newContents = JSON.stringify(newData);
+      that.contents = newContents;
+      window.localStorage.setItem("d", newContents)
 
 
       var zip = new JSZip();

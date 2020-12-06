@@ -3,7 +3,7 @@
   <q-page-container style="padding-top: 0">
     <q-page style="height:calc(100vh  - 75px);">
       <div class="row">
-        <div :class="{'col-2': showSideBar}">
+        <div style="max-width: 250px" :class="{'col-2 col-sm-3': showSideBar}">
           <!--          <div class="row q-pa-md">-->
           <!--            <div class="col-12">-->
           <!--              &nbsp;<q-btn style="border: 1px solid black" flat label="Today"-->
@@ -32,7 +32,7 @@
             </div>
           </div>
         </div>
-        <div style="border-left: 1px solid black" :class="{'col-10': showSideBar, 'col-12': !showSideBar}">
+        <div style="border-left: 1px solid black" :class="{'col-10 col-sm-9': showSideBar, 'col-12': !showSideBar}">
           <div class="row">
             <div class="col-12">
               <q-toolbar>
@@ -41,23 +41,25 @@
 
 
                 <q-btn flat @click="calendar.refetchEvents()" icon="fas fa-sync-alt"></q-btn>
-                <span class="text-h6">{{ monthNames[date.getMonth()] }} {{ date.getFullYear() }}</span>
+                <span v-if="calendar" class="text-h6">{{
+                    monthNames[calendar.getDate().getMonth()]
+                  }} {{ calendar.getDate().getFullYear() }}</span>
                 <q-btn @click="(showEventDialogTarget = true) && (showEventDialog = true)" icon="fas fa-plus" flat>
                   <q-menu :target="showEventDialogTarget" ref="newEventDialog" style="overflow: hidden">
-                    <q-bar>
-                      <div class="text-weight-bold ">
+                    <q-bar class="bg-black text-white">
+                      <span class="text-weight-bold ">
                         New event
-                      </div>
+                      </span>
                     </q-bar>
-                    <q-card style="min-width: 450px; overflow: hidden;" class="q-pa-md">
+                    <q-card style="min-width: 450px; overflow: hidden;" class="q-pa-md bg-white">
 
                       <q-card-section>
-                        <q-input label="Title" v-model="newEvent.event_title"></q-input>
+                        <q-input label="Title" v-model="newEvent.title"></q-input>
                       </q-card-section>
                       <q-card-section style="padding-left: 10px">
                         <div class="row">
                           <div class="col-6">
-                            <q-btn-toggle size="sm" style="padding: 5px;" dense v-model="newEvent.event_type" flat
+                            <q-btn-toggle size="sm" style="padding: 5px;" dense v-model="newEvent.type" flat
                                           :options="[
                               {label: 'Event', value: 'event'},
                               {label: 'Reminder', value: 'reminder'},
@@ -66,22 +68,22 @@
                             </q-btn-toggle>
                           </div>
                           <div class="col-6">
-                            <q-checkbox v-model="newEvent.all_day" label="Full day event"></q-checkbox>
+                            <q-checkbox v-model="newEvent.allDay" label="Full day event"></q-checkbox>
                           </div>
                         </div>
 
 
                       </q-card-section>
 
-                      <q-tab-panels v-model="newEvent.event_type" class="shadow-2 rounded-borders bg-transparent">
+                      <q-tab-panels v-model="newEvent.type" class="shadow-2 rounded-borders bg-transparent">
                         <q-tab-panel class="new-event-panel" name="event">
                           <q-card-section>
 
-                            <q-input label="Event date and time" filled v-model="newEvent.date">
+                            <q-input label="Event date and time" filled v-model="newEvent.start">
                               <template v-slot:prepend>
                                 <q-icon name="event" class="cursor-pointer">
                                   <q-popup-proxy transition-show="scale" transition-hide="scale">
-                                    <q-date v-model="newEvent.date" mask="YYYY-MM-DD HH:mm">
+                                    <q-date v-model="newEvent.start" mask="YYYY-MM-DD HH:mm">
                                       <div class="row items-center justify-end">
                                         <q-btn v-close-popup label="Close" color="primary" flat/>
                                       </div>
@@ -93,7 +95,7 @@
                               <template v-slot:append>
                                 <q-icon name="access_time" class="cursor-pointer">
                                   <q-popup-proxy transition-show="scale" transition-hide="scale">
-                                    <q-time v-model="newEvent.date" mask="YYYY-MM-DD HH:mm" format24h>
+                                    <q-time v-model="newEvent.start" mask="YYYY-MM-DD HH:mm" format24h>
                                       <div class="row items-center justify-end">
                                         <q-btn v-close-popup label="Close" color="primary" flat/>
                                       </div>
@@ -106,11 +108,11 @@
                           </q-card-section>
 
                           <q-card-section v-if="newEventConfig.showAddDescription">
-                            <q-editor label="Description" v-model="newEvent.event_description">
+                            <q-editor label="Description" v-model="newEvent.description">
                             </q-editor>
                           </q-card-section>
                           <q-card-section v-if="newEventConfig.showAddLocation">
-                            <q-input label="Event location" v-model="newEvent.event_location">
+                            <q-input label="Event location" v-model="newEvent.location">
                             </q-input>
                           </q-card-section>
                         </q-tab-panel>
@@ -118,11 +120,11 @@
                         <q-tab-panel class="new-event-panel" name="reminder">
                           <q-card-section>
 
-                            <q-input label="Event date and time" filled v-model="newEvent.date">
+                            <q-input label="Event date and time" filled v-model="newEvent.start">
                               <template v-slot:prepend>
                                 <q-icon name="event" class="cursor-pointer">
                                   <q-popup-proxy transition-show="scale" transition-hide="scale">
-                                    <q-date v-model="newEvent.date" mask="YYYY-MM-DD HH:mm">
+                                    <q-date v-model="newEvent.start" mask="YYYY-MM-DD HH:mm">
                                       <div class="row items-center justify-end">
                                         <q-btn v-close-popup label="Close" color="primary" flat/>
                                       </div>
@@ -134,7 +136,7 @@
                               <template v-slot:append>
                                 <q-icon name="access_time" class="cursor-pointer">
                                   <q-popup-proxy transition-show="scale" transition-hide="scale">
-                                    <q-time v-model="newEvent.date" mask="YYYY-MM-DD HH:mm" format24h>
+                                    <q-time v-model="newEvent.start" mask="YYYY-MM-DD HH:mm" format24h>
                                       <div class="row items-center justify-end">
                                         <q-btn v-close-popup label="Close" color="primary" flat/>
                                       </div>
@@ -150,11 +152,11 @@
                         <q-tab-panel class="new-event-panel" name="task">
 
                           <q-card-section>
-                            <q-input label="Event date and time" filled v-model="newEvent.date">
+                            <q-input label="Event date and time" filled v-model="newEvent.start">
                               <template v-slot:prepend>
                                 <q-icon name="event" class="cursor-pointer">
                                   <q-popup-proxy transition-show="scale" transition-hide="scale">
-                                    <q-date v-model="newEvent.date" mask="YYYY-MM-DD HH:mm">
+                                    <q-date v-model="newEvent.start" mask="YYYY-MM-DD HH:mm">
                                       <div class="row items-center justify-end">
                                         <q-btn v-close-popup label="Close" color="primary" flat/>
                                       </div>
@@ -166,7 +168,7 @@
                               <template v-slot:append>
                                 <q-icon name="access_time" class="cursor-pointer">
                                   <q-popup-proxy transition-show="scale" transition-hide="scale">
-                                    <q-time v-model="newEvent.date" mask="YYYY-MM-DD HH:mm" format24h>
+                                    <q-time v-model="newEvent.start" mask="YYYY-MM-DD HH:mm" format24h>
                                       <div class="row items-center justify-end">
                                         <q-btn v-close-popup label="Close" color="primary" flat/>
                                       </div>
@@ -196,27 +198,27 @@
                 <q-space/>
                 <q-btn-dropdown :label="calendarView" flat>
                   <q-list>
-                    <q-item v-close-popup @click="setCalenderView('day')" clickable>
+                    <q-item v-close-popup @click="setCalendarView('day')" clickable>
                       <q-item-section>Day</q-item-section>
                     </q-item>
-                    <q-item v-close-popup @click="setCalenderView('week')" clickable>
+                    <q-item v-close-popup @click="setCalendarView('week')" clickable>
                       <q-item-section>Week</q-item-section>
                     </q-item>
-                    <q-item v-close-popup @click="setCalenderView('month')" clickable>
+                    <q-item v-close-popup @click="setCalendarView('month')" clickable>
                       <q-item-section>Month</q-item-section>
                     </q-item>
-                    <q-item v-close-popup @click="setCalenderView('schedule')" clickable>
+                    <q-item v-close-popup @click="setCalendarView('schedule')" clickable>
                       <q-item-section>Day Schedule</q-item-section>
                     </q-item>
-                    <q-item v-close-popup @click="setCalenderView('week schedule')" clickable>
+                    <q-item v-close-popup @click="setCalendarView('week schedule')" clickable>
                       <q-item-section>Week Schedule</q-item-section>
                     </q-item>
                   </q-list>
                 </q-btn-dropdown>
               </q-toolbar>
             </div>
-            <div class="col-12 q-pa-md">
-              <div :id="containerId" style="height: calc(100vh - 30%)"></div>
+            <div class="col-12 " style="height: calc(100vh - 100px);">
+              <div class="my-calendar-container1 q-pa-md" style="height: calc(100vh - 200px)" :id="containerId"></div>
             </div>
           </div>
         </div>
@@ -254,6 +256,38 @@ import timeGridPlugin from '@fullcalendar/timegrid';
 import interactionPlugin from '@fullcalendar/interaction';
 import listPlugin from '@fullcalendar/list';
 import {mapActions} from "vuex";
+import {v4 as uuidv4} from "uuid";
+
+
+const DEFAULT_OPTIONS = {
+  initialView: 'dayGridMonth',
+  selectable: true,
+  editable: true,
+  nowIndicator: true,
+  height: document.body.scrollHeight - 200,
+  headerToolbar: {
+    start: '', // will normally be on the left. if RTL, will be on the right
+    center: '',
+    end: '' // will normally be on the right. if RTL, will be on the left
+  },
+  buttonIcons: {
+    prev: 'left-single-arrow',
+    next: 'right-single-arrow',
+    prevYear: 'left-double-arrow',
+    nextYear: 'right-double-arrow'
+  },
+  buttonText: {
+    today: 'today',
+    month: 'month',
+    next: '>',
+    prev: '<',
+    week: 'week',
+    day: 'day',
+    list: 'list'
+  },
+  navLinks: true,
+  events: [],
+};
 
 export default {
 
@@ -261,6 +295,7 @@ export default {
   data() {
     return {
       searchInput: '',
+      calendarConfig: null,
       showEventDialog: false,
       showEventDialogTarget: true,
       monthNames: ["January", "February", "March", "April", "May", "June",
@@ -271,16 +306,7 @@ export default {
         showAddDescription: false,
         showAddLocation: false,
       },
-      newEvent: {
-        event_title: 'New event',
-        event_type: 'event',
-        event_description: null,
-        event_location: null,
-        all_day: false,
-        date: new Date(),
-        event_start_date: new Date(),
-        event_end_date: null,
-      },
+      newEvent: {},
       calendarView: 'month',
       date: new Date(),
       showSearchInput: false,
@@ -292,9 +318,39 @@ export default {
       },
       containerId: "id-" + new Date().getMilliseconds(),
       screenWidth: (window.screen.width < 1200 ? window.screen.width : 1200) + "px",
+      eventMap: {}
     }
   },
   methods: {
+    generateNewEvent() {
+      return {
+        id: uuidv4(),
+        groupId: uuidv4(),
+        title: 'New event',
+        url: '',
+        type: 'event',
+        classNames: '',
+        editable: true,
+        startEditable: true,
+        durationEditable: true,
+        resourceEditable: true,
+        display: 'auto',
+        overlap: true,
+        description: null,
+        constraint: null,
+        backgroundColor: null,
+        borderColor: null,
+        textColor: null,
+        extendedProps: null,
+        source: null,
+        location: null,
+        allDay: false,
+        start: new Date(),
+        startStr: "",
+        end: null,
+        endStr: "",
+      }
+    },
     eventTrashed() {
       console.log("Event trashed", arguments)
     },
@@ -302,29 +358,10 @@ export default {
     createEvent() {
       const that = this;
       console.log("Create new event", this.newEvent);
-      this.newEvent.tableName = "calendar";
-      this.newEvent.event_start_date = this.newEvent.date;
-      this.createRow(this.newEvent).then(function (res) {
-        console.log("created event", res)
-        that.calendar.refetchEvents();
-        that.$refs.newEventDialog.hide();
-        that.newEvent = {
-          event_title: that.newEvent.event_title,
-          event_type: that.newEvent.event_type,
-          event_description: null,
-          event_location: null,
-          all_day: false,
-          date: new Date(),
-          event_start_date: new Date(),
-          event_end_date: null,
-        }
-      }).catch(function (err) {
-        console.log("Failed to create event", err);
-        that.$q.notify({
-          message: "Failed to create event " + JSON.stringify(err)
-        })
-
-      })
+      that.calendar.addEvent(this.newEvent);
+      this.newEvent = this.generateNewEvent();
+      that.$refs.newEventDialog.hide();
+      that.saveCalendar()
     },
     setDate(date) {
       console.log("set date", date)
@@ -336,7 +373,7 @@ export default {
       this.date = date;
       this.calendar.gotoDate(date);
     },
-    setCalenderView(view) {
+    setCalendarView(view) {
       this.calendarView = view;
       switch (view) {
         case "week":
@@ -358,6 +395,46 @@ export default {
     },
     addNewEvent() {
       console.log("Add new event")
+    },
+    eventDrop(dropInfo) {
+      const that = this;
+      console.log("drop info", dropInfo)
+      that.saveCalendar()
+    },
+    dateClickedEvent(info) {
+      const that = this;
+      if (that.showEventDialog) {
+        that.showEventDialogTarget = true;
+        that.showEventDialog = false;
+        that.$refs.newEventDialog.hide();
+        return
+      }
+      console.log('Clicked on : ', info);
+      that.newEvent.start = info.date;
+      that.showEventDialog = true;
+      that.showEventDialogTarget = info.dayEl;
+      that.$refs.newEventDialog.show();
+      // change the day's background color just for fun
+      // info.dayEl.style.backgroundColor = 'red';
+    },
+    fetchEvents(info, successCallback, failureCallback) {
+      const that = this;
+      if (!that.calendar || !that.calendar.events) {
+        return that.calendarConfig.events ? successCallback(that.calendarConfig.events) : successCallback([]);
+      }
+      successCallback(that.calendar.events)
+    },
+    saveCalendar() {
+      const that = this;
+
+      that.calendarConfig.events = that.calendar.getEvents();
+      that.$emit("save-base-item-contents", btoa(JSON.stringify(that.calendarConfig)))
+
+    },
+    eventResize(dropInfo) {
+      const that = this;
+      console.log("event resized", dropInfo, that.calendar)
+      that.saveCalendar();
     }
   },
   computed: {},
@@ -368,10 +445,33 @@ export default {
       // this.calendar.gotoDate(this.date.toString())
     }
   },
+  beforeDestroy() {
+    window.onresize = null;
+  },
+  props: ["baseItem"],
   mounted() {
     const that = this;
     that.containerId = "id-" + new Date().getMilliseconds();
-    console.log("Mounted Calendar", that.containerId);
+    console.log("Mounted Calendar", that.containerId, this.baseItem);
+    that.newEvent = that.generateNewEvent();
+    that.eventMap = {
+      eventResize: that.eventResize,
+      events: that.fetchEvents,
+      dateClick: that.dateClickedEvent,
+      eventDrop: that.eventDrop,
+    }
+    var file = this.baseItem.file;
+    var calendarConfig = DEFAULT_OPTIONS;
+    if (file) {
+      try {
+        var savedConfig = JSON.parse(atob(file))
+        calendarConfig = savedConfig;
+        console.log("Restore saved calendar", calendarConfig)
+      } catch (e) {
+        console.log("Failed to parse existing data", e)
+      }
+    }
+    that.calendarConfig = calendarConfig;
 
     window.onresize = function () {
       if (document.body.clientWidth > 1400 && !that.showSideBar) {
@@ -383,127 +483,14 @@ export default {
     window.onresize();
 
     setTimeout(function () {
-      that.calendar = new Calendar(document.getElementById(that.containerId), {
-        plugins: [dayGridPlugin, timeGridPlugin, listPlugin, interactionPlugin],
-        initialView: 'dayGridMonth',
-        selectable: true,
-        editable: true,
-        eventResize: function (dropInfo) {
-          console.log("drop info", dropInfo)
-          var referenceId = dropInfo.oldEvent._def.extendedProps.reference_id;
-          that.updateRow({
-            tableName: "calendar",
-            id: referenceId,
-            event_end_date: dropInfo.event.end
-          }).then(function (res) {
-            console.log("Event saved");
-          }).catch(function (err) {
-            console.log("Failed to save event", err);
-            that.calendar.refetchEvents();
-            that.$q.notify({
-              message: "Failed to save event: " + JSON.stringify(err)
-            })
-          })
-        },
-        eventDrop: function (dropInfo) {
-          console.log("drop info", dropInfo)
-          var referenceId = dropInfo.oldEvent._def.extendedProps.reference_id;
-          that.updateRow({
-            tableName: "calendar",
-            id: referenceId,
-            event_start_date: dropInfo.event.start,
-            event_end_date: dropInfo.event.end
-          }).then(function (res) {
-            console.log("Event saved");
-          }).catch(function (err) {
-            console.log("Failed to save event", err);
-            dropInfo.revert()
-            that.$q.notify({
-              message: "Failed to save event: " + JSON.stringify(err)
-            })
-          })
-        },
-        eventClick: function (info) {
-          console.log("Event clicked", info)
-        },
-
-        events: function (info, successCallback, failureCallback) {
-          console.log("get events for date: ", info);
-          that.loadData({
-            tableName: 'calendar',
-            params: {
-              query: JSON.stringify([
-                {
-                  column: "event_start_date",
-                  operator: "after",
-                  value: info.start
-                },
-                {
-                  column: "event_start_date",
-                  operator: "before",
-                  value: info.end
-                }
-              ])
-            }
-          }).then(function (res) {
-            console.log("Events", res.data)
-            successCallback(res.data.map(function (e) {
-              e.title = e.event_title;
-              e.start = e.event_start_date;
-              e.end = e.event_end_date;
-              e.id = e.reference_id
-              return e;
-            }));
-          }).catch(function (err) {
-            console.log("Failed to load events", err)
-            that.$q.notify({
-              message: "Failed to load events: " + JSON.stringify(err)
-            });
-            failureCallback(err)
-          })
-        },
-        dateClick: function (info) {
-          if (that.showEventDialog) {
-            that.showEventDialogTarget = true;
-            that.showEventDialog = false;
-            that.$refs.newEventDialog.hide();
-            return
-          }
-          console.log('Clicked on : ', info);
-          that.newEvent.date = info.date;
-          that.showEventDialog = true;
-          that.showEventDialogTarget = info.dayEl;
-          that.$refs.newEventDialog.show();
-          // change the day's background color just for fun
-          // info.dayEl.style.backgroundColor = 'red';
-        },
-        nowIndicator: true,
-        height: window.screen.height - 200,
-        headerToolbar: {
-          start: '', // will normally be on the left. if RTL, will be on the right
-          center: '',
-          end: '' // will normally be on the right. if RTL, will be on the left
-        },
-        buttonIcons: {
-          prev: 'left-single-arrow',
-          next: 'right-single-arrow',
-          prevYear: 'left-double-arrow',
-          nextYear: 'right-double-arrow'
-        },
-        buttonText: {
-          today: 'today',
-          month: 'month',
-          next: '>',
-          prev: '<',
-          week: 'week',
-          day: 'day',
-          list: 'list'
-        },
-        navLinks: true,
-      });
+      that.calendar = new Calendar(document.getElementById(that.containerId),
+        {
+          ...that.calendarConfig,
+          ...that.eventMap,
+          plugins: [dayGridPlugin, timeGridPlugin, listPlugin, interactionPlugin],
+        });
       that.calendar.render();
-
-    }, 300)
+    }, 200)
   }
 }
 </script>
