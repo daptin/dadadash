@@ -1,0 +1,8 @@
+name: dadadash
+base: daptin
+version: '0.0.1'
+summary: Office productivitiy application suuite
+description: |
+  Office productivitiy application suuite
+grade: stable
+confinement: strict

@@ -1,7 +1,25 @@
 <template>
 
 
-  <router-view @logout="logout()" v-if="loaded"/>
+  <div>
+    <router-view @logout="logout()" v-if="loaded"/>
+    <q-dialog persistent v-model="showOfflineDialog" position="bottom">
+      <q-card style="width: 350px">
+        <q-linear-progress :value="1" color="red"/>
+
+        <q-card-section class="row items-center no-wrap">
+          <div>
+            <div class="text-weight-bold">No server</div>
+            <div class="text-grey">We are offline</div>
+          </div>
+
+          <q-space/>
+
+          <q-btn @click="$router.push('/offline/index')" color="primary" label="Go to server selector page" icon="fast_forward"/>
+        </q-card-section>
+      </q-card>
+    </q-dialog>
+  </div>
 
 </template>
 <style>
@@ -56,6 +74,7 @@ export default {
     return {
       showHelp: false,
       showDrawerFull: false,
+      showOfflineDialog: false,
       showAdminDrawerMini: false,
       showAdminDrawerStick: false,
       ...mapGetters(['loggedIn', 'drawerLeft', 'authToken', 'decodedAuthToken', 'userGroupTable']),
@@ -126,6 +145,7 @@ export default {
       });
 
     }).catch(function (err) {
+      that.showOfflineDialog = true;
       console.log("Failed to load model for cloud store", err);
       that.$q.notify({
         message: "Failed to load model for cloud store"

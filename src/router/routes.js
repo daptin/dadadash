@@ -9,6 +9,15 @@ const routes = [
     ]
   },
   {
+    path: '/offline',
+    component: () => import('layouts/OfflineLayout'),
+    children: [
+      {
+        path: 'index', component: () => import('pages/Offline/OfflineIndex.vue')
+      }
+    ]
+  },
+  {
     path: '/guest',
     component: () => import('layouts/GuestLayout.vue'),
     children: [
