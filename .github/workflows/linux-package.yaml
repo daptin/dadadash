@@ -1,0 +1,46 @@
+name: Build/Linux-AppImage/SnapCraft
+
+on:
+  push:
+    branches:
+      - master
+
+jobs:
+  release:
+    runs-on: ${{ matrix.os }}
+
+    strategy:
+      matrix:
+        os: [ ubuntu-latest ]
+
+    steps:
+      - name: Check out Git repository
+        uses: actions/checkout@v1
+
+
+      - name: Install node
+        uses: actions/setup-node@v2-beta
+        with:
+          node-version: '12'
+
+      - name: Build
+        shell: bash
+        run: |
+          npm install -g @quasar/cli
+          npm install -g cordova
+          npm install
+          quasar build -m electron
+          ls -lah dist
+          ls -lah dist/electron
+
+
+      - uses: actions/upload-artifact@v2
+        with:
+          name: dadadash.AppImage
+          path: dist/electron/Packaged/*.AppImage
+
+      - uses: actions/upload-artifact@v2
+        with:
+          name: dadadash.snap
+          path: dist/electron/Packaged/*.snap
+

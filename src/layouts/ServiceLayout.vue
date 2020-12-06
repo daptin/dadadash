@@ -1,6 +1,6 @@
 <template>
   <q-layout>
-    Service layout
+    <router-view/>
   </q-layout>
 </template>
 

@@ -10,7 +10,6 @@ export default function () {
     current: {
 
     },
-    endpoint: window.location.hostname === "site.daptin.com" && window.location.port === "8080" ? "http://localhost:6336" : window.location.protocol + "//" + window.location.hostname + (window.location.port === "80" ? "" : ':' + window.location.port),
     appConnectionStatus: false,
     endpoint: window.location.hostname === "site.daptin.com" && window.location.port === "8080" ? "http://localhost:6336" : window.location.protocol + "//" + window.location.hostname + (window.location.port === "80" ? "" : ':' + window.location.port),
   }
