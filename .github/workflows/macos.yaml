@@ -1,4 +1,4 @@
-name: Build/Linux-AppImage/SnapCraft
+name: Build/MacOS-DMG
 
 on:
   push:
@@ -12,7 +12,7 @@ jobs:
 
     strategy:
       matrix:
-        os: [ 'mac' ]
+        os: [ 'macOS-latest' ]
 
     steps:
       - name: Check out Git repository

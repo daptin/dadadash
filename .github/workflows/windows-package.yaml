@@ -1,4 +1,4 @@
-name: Build/Linux-AppImage/SnapCraft
+name: Build/Windows-EXE
 
 on:
   push:
@@ -12,7 +12,7 @@ jobs:
 
     strategy:
       matrix:
-        os: [ 'windows_amd64' ]
+        os: [ 'windows-latest' ]
 
     steps:
       - name: Check out Git repository
