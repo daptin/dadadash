@@ -1,24 +1,46 @@
 import {DaptinClient} from 'daptin-client';
+import {Platform} from 'quasar'
 
 // const daptinClient = new DaptinClient(window.location.protocol + "//" + window.location.hostname, false, function () {
-let endpoint = window.location.hostname === "site.daptin.com" ? "http://localhost:6336" : window.location.protocol + "//" + window.location.hostname + (window.location.port === "80" ? "" : ':' + window.location.port);
 
-console.log("Daptin endpoint is:", endpoint)
+var daptinClient = null;
 var appIsOnline = false;
-try {
-  var daptinClient = new DaptinClient(endpoint, false, {
-    getToken: function () {
-      return localStorage.getItem("token");
+
+export function initDaptinClient({commit, state}) {
+
+  return new Promise(function (resolve, reject) {
+    console.log("Platform ", Platform)
+
+    let endpoint = window.location.hostname === "site.daptin.com" ? "http://localhost:6336" :
+      window.location.protocol + "//" + window.location.hostname + (window.location.port === "80" ?
+      "" : ':' + window.location.port);
+
+    if (Platform.is.electron) {
+
     }
-  });
-  daptinClient.worldManager.init().then(function () {
-    console.log("Daptin client loaded", arguments)
-    appIsOnline = true;
-  }).catch(function (err) {
-    console.log("Failed to create client", err)
+
+    console.log("Daptin endpoint is:", endpoint)
+
+    try {
+      daptinClient = new DaptinClient(endpoint, false, {
+        getToken: function () {
+          return localStorage.getItem("token");
+        }
+      });
+      daptinClient.worldManager.init().then(function () {
+        console.log("Daptin client loaded", arguments);
+        resolve();
+        appIsOnline = true;
+      }).catch(function (err) {
+        reject(err)
+        console.log("Failed to create client", err)
+      })
+    } catch (err) {
+      console.log("Failed to create daptin client", err);
+      reject(err)
+    }
   })
-} catch (err) {
-  console.log("Failed to create daptin client", err)
+
 }
 
 // daptinClient.worldManager.init();

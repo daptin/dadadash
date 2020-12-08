@@ -30,7 +30,7 @@ export default {
     }
   },
   methods: {
-    ...mapActions([])
+    ...mapActions(['initDaptinClient'])
   },
   name: 'App',
   watch: {
@@ -39,17 +39,22 @@ export default {
     }
   },
   mounted() {
-    let appConnectionStatus = this.appConnectionStatus();
-    console.log("Loaded app user is ", this.loggedIn(), appConnectionStatus);
 
-    if (!appConnectionStatus) {
-      this.$router.push('/backend')
-      return
-    }
+    this.initDaptinClient().then(function (){
 
-    if (!this.loggedIn()) {
-      this.$router.push("/login")
-    }
+      let appConnectionStatus = this.appConnectionStatus();
+      console.log("Loaded app user is ", this.loggedIn(), appConnectionStatus);
+
+      if (!appConnectionStatus) {
+        this.$router.push('/backend')
+        return
+      }
+
+      if (!this.loggedIn()) {
+        this.$router.push("/login")
+      }
+    })
+
 
   }
 }

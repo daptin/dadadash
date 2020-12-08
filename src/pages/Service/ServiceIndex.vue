@@ -1,10 +1,11 @@
 <template>
   <q-page-container>
     <q-page>
-      <div class="row">
-        <div class="col-10 ">
-          <img class="q-pa-sm" style="width: 50px; height: 50px" src="statics/icons/app-logo-128x128.png"/>
-          <span class="text-h3 q-pa-md">Daptin</span>
+      <div class="row ">
+        <img class="q-pa-sm" style="width: 50px;height: 50px;margin-right: -13px; margin-top: 15px"
+             src="statics/icons/app-logo-128x128.png"/>
+        <div class="col-10 q-pa-md">
+          <span class="text-h3 ">Daptin</span>
         </div>
         <div class="col-12 q-pa-md">
           <q-splitter
@@ -69,19 +70,21 @@
                 </q-tab-panel>
 
                 <q-tab-panel name="Connect to existing local server">
-                  <div class="text-h4 q-mb-md">Enter endpoint</div>
+                  <div class="text-h4 q-mb-md">Enter daptin endpoint</div>
 
                   <div class="row">
-                    <div class="col-12">
-                      <q-input label="Endpoint" value="http://localhost:6336"></q-input>
-                    </div>
                     <div class="col-4">
-                      <q-btn label="Test connection"></q-btn>
+                      <q-input label="Endpoint" v-model="newEndpoint" value="http://localhost:6336"></q-input>
                     </div>
-                    <div class="col-8">
-                      <q-btn label="Connect"></q-btn>
+                  </div>
+                  <div class="row" style="padding-top: 10px">
+                    <div class="col-2">
+                      <q-btn @click="testConnectionWithEndpoint()" label="Test connection"
+                             class="bg-yellow-9 float-left"></q-btn>
                     </div>
-
+                    <div class="col-2">
+                      <q-btn @click="connectAndResumeApp()" color="primary" class="float-right" label="Connect"></q-btn>
+                    </div>
                   </div>
                 </q-tab-panel>
 
@@ -120,6 +123,8 @@
 <script>
 const {Octokit} = require("@octokit/rest");
 
+import axios from "axios";
+
 var request = require('request');
 var fs = require('fs');
 const octokit = new Octokit();
@@ -129,6 +134,16 @@ const DEFAULT_DOWNLOAD_CONFIG = require("./default-download-config.json");
 export default {
   name: "ServiceIndex",
   methods: {
+    testConnectionWithEndpoint() {
+      console.log("Test with endpoint", this.newEndpoint);
+      axios({
+        url: this.newEndpoint + "/meta?query=column_types"
+      }).then(function (res) {
+        console.log("meta response", res)
+      }).catch(function (err) {
+        console.log("Failed to connect with the instance", err);
+      })
+    },
     async downloadByPlatform(downloadOption) {
       const that = this;
       console.log("Download by url", downloadOption);
@@ -192,6 +207,7 @@ export default {
     return {
       splitterModel: 30,
       platformTab: null,
+      newEndpoint: 'http://localhost:8080',
       downloadProgress: null,
       selected: 'Start new locally',
       latestRelease: DEFAULT_DOWNLOAD_CONFIG,
@@ -208,15 +224,15 @@ export default {
           children: [
             {
               label: 'Start new locally',
-              icon: 'restaurant_menu'
+              icon: 'fas fa-play'
             },
             {
               label: 'Connect to existing local server',
-              icon: 'room_service'
+              icon: 'fas fa-link'
             },
             {
               label: 'Discover servers',
-              icon: 'photo'
+              icon: 'fas fa-wifi'
             }
           ]
         },
@@ -225,11 +241,11 @@ export default {
           children: [
             {
               label: 'Create new server',
-              icon: 'restaurant_menu'
+              icon: 'fas fa-chevron-circle-up'
             },
             {
               label: 'Connect to existing server',
-              icon: 'room_service'
+              icon: 'fas fa-link'
             },
           ]
         },
