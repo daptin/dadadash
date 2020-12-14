@@ -33,6 +33,7 @@ jobs:
           quasar build -m ios
           ls -lah dist
           ls -lah dist/cordova
+          find dist/cordova
 
 
       - uses: actions/upload-artifact@v2
