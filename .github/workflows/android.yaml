@@ -40,3 +40,13 @@ jobs:
           name: dadadash-app.apk
           path: dist/cordova/android/apk/release/dadadash-app.apk
 
+
+      - name: Release
+        uses: softprops/action-gh-release@v1
+        if: startsWith(github.ref, 'refs/tags/')
+        with:
+          draft: true
+          files: |
+            dist/cordova/android/apk/release/dadadash-app.apk
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
