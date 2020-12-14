@@ -45,3 +45,14 @@ jobs:
           docker login -u="${{ secrets.DOCKER_USERNAME }}" -p="${{ secrets.DOCKER_PASSWORD }}"
           docker push daptin/dadadash:latest
 
+
+
+      - name: Release
+        uses: softprops/action-gh-release@v1
+        if: startsWith(github.ref, 'refs/tags/')
+        with:
+          draft: true
+          files: |
+            ./dist/spa
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
