@@ -4,6 +4,7 @@ on:
   push:
     branches:
       - "ios-ci"
+      - master
 
 jobs:
   release:
