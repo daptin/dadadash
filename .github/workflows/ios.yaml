@@ -39,5 +39,15 @@ jobs:
       - uses: actions/upload-artifact@v2
         with:
           name: dadadash-app.apk
-          path: dist/cordova/android/apk/release/dadadash-app.apk
+          path: dist/cordova/ios/DadaDash.app
 
+
+      - name: Release
+        uses: softprops/action-gh-release@v1
+        if: startsWith(github.ref, 'refs/tags/')
+        with:
+          draft: true
+          files: |
+            dist/cordova/ios/DadaDash.app
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
