@@ -15,7 +15,7 @@
 
           <q-space/>
 
-          <q-btn @click="$router.push('/offline/index')" color="primary" label="Go to server selector page" icon="fast_forward"/>
+          <q-btn @click="$router.push('/backend')" color="primary" label="Go to server selector page" icon="fast_forward"/>
         </q-card-section>
       </q-card>
     </q-dialog>

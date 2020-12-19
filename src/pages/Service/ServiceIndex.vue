@@ -56,7 +56,7 @@
                       <q-tab-panels v-model="platformTab">
                         <q-tab-panel :key="platform" :name="platform"
                                      v-for="platform in Object.keys(downloadOptions)">
-                          <q-btn size="lg" align="center" color="primary" :label="'Download for ' + platform"
+                          <q-btn size="lg" align="center" color="green" :label="'Download for ' + platform"
                                  @click="downloadByPlatform(downloadOptions[platform])"></q-btn>
                         </q-tab-panel>
                       </q-tab-panels>
@@ -64,7 +64,7 @@
                     <div class="col-8 offset-2" v-if="downloadProgress !== null">
                       <q-linear-progress style=" border: 1px solid black; border-radius: 4px"
                                          size="20px" :value="downloadProgress"
-                                         dark stripe rounded color="primary" class="q-mt-sm"/>
+                                         dark stripe rounded color="green" class="q-mt-sm"/>
                     </div>
                   </div>
                 </q-tab-panel>
@@ -80,10 +80,10 @@
                   <div class="row" style="padding-top: 10px">
                     <div class="col-2">
                       <q-btn @click="testConnectionWithEndpoint()" label="Test connection"
-                             class="bg-yellow-9 float-left"></q-btn>
+                             class="bg-grey-1 float-left"></q-btn>
                     </div>
                     <div class="col-2">
-                      <q-btn @click="connectAndResumeApp()" color="primary" class="float-right" label="Connect"></q-btn>
+                      <q-btn @click="connectAndResumeApp()" color="green" class="float-right" label="Connect"></q-btn>
                     </div>
                   </div>
                 </q-tab-panel>
@@ -135,13 +135,43 @@ export default {
   name: "ServiceIndex",
   methods: {
     testConnectionWithEndpoint() {
+      const that = this;
       console.log("Test with endpoint", this.newEndpoint);
       axios({
         url: this.newEndpoint + "/meta?query=column_types"
       }).then(function (res) {
-        console.log("meta response", res)
+        console.log("meta response", res);
+        that.$q.notify({
+          type: "positive",
+          message: "Connection was successful"
+        })
       }).catch(function (err) {
         console.log("Failed to connect with the instance", err);
+        that.$q.notify({
+          type: "negative",
+          message: "Failed to connect at " + that.newEndpoint
+        })
+      })
+    },
+    connectAndResumeApp() {
+      const that = this;
+      console.log("Test with endpoint", this.newEndpoint);
+      axios({
+        url: this.newEndpoint + "/meta?query=column_types"
+      }).then(function (res) {
+        that.$q.notify({
+          type: "positive",
+          message: "Redirecting"
+        })
+        localStorage.setItem("DAPTIN_ENDPOINT", that.newEndpoint);
+        localStorage.removeItem("token");
+        window.location = "/";
+      }).catch(function (err) {
+        console.log("Failed to connect with the instance", err);
+        that.$q.notify({
+          type: "negative",
+          message: "Failed to connect at " + that.newEndpoint
+        })
       })
     },
     async downloadByPlatform(downloadOption) {

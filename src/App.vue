@@ -40,18 +40,19 @@ export default {
   },
   mounted() {
 
-    this.initDaptinClient().then(function (){
+    const that = this;
+    that.initDaptinClient().then(function (){
 
-      let appConnectionStatus = this.appConnectionStatus();
-      console.log("Loaded app user is ", this.loggedIn(), appConnectionStatus);
+      let appConnectionStatus = that.appConnectionStatus;
+      console.log("Loaded app user is ", that.loggedIn(), appConnectionStatus);
 
       if (!appConnectionStatus) {
-        this.$router.push('/backend')
+        that.$router.push('/backend')
         return
       }
 
-      if (!this.loggedIn()) {
-        this.$router.push("/login")
+      if (!that.loggedIn()) {
+        that.$router.push("/login")
       }
     })
 

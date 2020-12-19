@@ -4,7 +4,7 @@ import {Platform} from 'quasar'
 // const daptinClient = new DaptinClient(window.location.protocol + "//" + window.location.hostname, false, function () {
 
 var daptinClient = null;
-var appIsOnline = false;
+let appIsOnline = false;
 
 export function initDaptinClient({commit, state}) {
 
@@ -15,8 +15,11 @@ export function initDaptinClient({commit, state}) {
       window.location.protocol + "//" + window.location.hostname + (window.location.port === "80" ?
       "" : ':' + window.location.port);
 
-    if (Platform.is.electron) {
-
+    if (Platform.is.win) {
+      let newEndpoint = localStorage.getItem("DAPTIN_ENDPOINT")
+      if (newEndpoint && newEndpoint.startsWith("http")) {
+        endpoint = newEndpoint;
+      }
     }
 
     console.log("Daptin endpoint is:", endpoint)

@@ -3,7 +3,7 @@
 
     <q-page-container>
       <q-page>
-        <div class="row" style="width: 100vw; height: 30px;">
+        <div class="row" style="width: 100vw; height: 40px;">
 
           <q-btn flat class="text-primary tabMenuButton" id="listTableButton" icon="fas fa-bars">
             <q-menu>
@@ -23,14 +23,14 @@
             </q-menu>
           </q-btn>
 
-          <q-tabs style="max-width: calc(100vw - 150px); height: 30px"
+          <q-tabs style="max-width: calc(100vw - 150px); height: 40px"
                   class="text-black"
                   inline-label
                   shrink
                   outside-arrows
 
           >
-            <q-route-tab
+            <q-route-tab style="border: 1px solid black; border-radius: 4px"
               :key="item.reference_id"
               v-if="item.type !== 'summary'" v-for="item in baseConfig.items"
               :to="'/workspace/' + workspaceName + '/' + baseName + '/' + item.document_name" exact replace
@@ -205,22 +205,22 @@
   </q-layout>
 
 </template>
-<style>
+<style scoped>
 
-.q-tab {
-  border: 1px solid black;
-  border-radius: 4px;
-  height: 39px;
-  top: 4px;
-  margin-left: 2px;
-  margin-right: 2px;
+/*.q-tab {*/
+/*  border: 1px solid black;*/
+/*  border-radius: 4px;*/
+/*  height: 39px;*/
+/*  top: 4px;*/
+/*  margin-left: 2px;*/
+/*  margin-right: 2px;*/
 
-}
+/*}*/
 
-.q-tab .q-tab__content {
-  left: -20px;
-  margin-top: -4px;
-}
+/*.q-tab .q-tab__content {*/
+/*  left: -20px;*/
+/*  margin-top: -4px;*/
+/*}*/
 
 .q-tab span i.q-icon {
   margin-top: -5px;
