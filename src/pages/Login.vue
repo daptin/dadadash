@@ -1,7 +1,7 @@
 <template xmlns:v-slot="http://www.w3.org/1999/XSL/Transform">
 
   <div class="row">
-    <div class="col-6 offset-xs-0 offset-sm-1 offset-3  col-sm-6 col-xs-12">
+    <div class="col-6 offset-3 col-sm-6 col-xs-12">
 
       <div class="flex flex-center">
         <q-card flat style="min-width: 300px; width: 30vw" class="q-pa-md">
@@ -16,7 +16,6 @@
             >
               <q-input
                 filled
-                style="min-width: 40%"
                 v-model="email"
                 label="Email"
                 lazy-rules
@@ -25,7 +24,6 @@
 
               <q-input
                 filled
-                style="min-width: 40%"
                 type="password"
                 v-model="password"
                 label="Password"

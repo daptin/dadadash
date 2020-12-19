@@ -1,0 +1,42 @@
+name: Build/Windows-EXE
+
+on:
+  push:
+    branches:
+      - master
+      - "offline-first"
+
+jobs:
+  release:
+    runs-on: ${{ matrix.os }}
+
+    strategy:
+      matrix:
+        os: [ 'windows-latest' ]
+
+    steps:
+      - name: Check out Git repository
+        uses: actions/checkout@v1
+
+
+      - name: Install node
+        uses: actions/setup-node@v2-beta
+        with:
+          node-version: '12'
+
+      - name: Build
+        shell: bash
+        run: |
+          npm install -g @quasar/cli
+          npm install -g cordova
+          npm install
+          quasar build -m electron
+          ls -lah dist
+          ls -lah dist/electron
+
+
+      - uses: actions/upload-artifact@v2
+        with:
+          name: dadadash.exe
+          path: dist/electron/Packaged/*.exe
+

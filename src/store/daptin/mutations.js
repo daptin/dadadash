@@ -4,10 +4,13 @@ var jwtDecode = require('jwt-decode');
 
 export function setToken(state, token) {
   state.token = token;
-  var decodedAuthToken = jwtDecode(token);
-  state.decodedAuthToken = decodedAuthToken;
+  state.decodedAuthToken = jwtDecode(token);
 
 
+}
+
+export function updateAppConnectionStatus(state, newStatus) {
+  state.appConnectionStatus = newStatus;
 }
 
 export function setTableRow(state, tableRow) {

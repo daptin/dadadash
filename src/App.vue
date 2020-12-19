@@ -26,18 +26,36 @@ export default {
   data() {
     return {
       showLogin: false,
-      ...mapGetters(['loggedIn'])
+      ...mapGetters(['loggedIn', 'appConnectionStatus'])
     }
   },
   methods: {
-    ...mapActions([])
+    ...mapActions(['initDaptinClient'])
   },
   name: 'App',
-  mounted() {
-    console.log("Loaded app user is ", this.loggedIn());
-    if (!this.loggedIn()) {
-      this.$router.push("/login")
+  watch: {
+    'appConnectionStatus': function () {
+      console.log("App connection status changed", arguments)
     }
+  },
+  mounted() {
+
+    const that = this;
+    that.initDaptinClient().then(function (){
+
+      let appConnectionStatus = that.appConnectionStatus;
+      console.log("Loaded app user is ", that.loggedIn(), appConnectionStatus);
+
+      if (!appConnectionStatus) {
+        that.$router.push('/backend')
+        return
+      }
+
+      if (!that.loggedIn()) {
+        that.$router.push("/login")
+      }
+    })
+
 
   }
 }
