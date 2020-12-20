@@ -5,6 +5,7 @@
       v-model="showAdminDrawer"
       :mini-width="50"
       :width="250"
+      :mini="showAdminDrawerStick"
       :breakpoint="1400"
       content-class=""
       elevated>
@@ -12,7 +13,7 @@
 
         <q-list class="bg-black">
           <q-item clickable>
-            <q-item-section @click="$router.push('/')" style="text-transform: capitalize;
+            <q-item-section @click="$router.push('/admin')" style="text-transform: capitalize;
 font-weight: bold;
 font-size: 22px;
 text-align: center;
@@ -247,7 +248,7 @@ text-align: center;
     </q-drawer>
 
     <router-view v-if="isAdmin || isUser"/>
-    <user-header-bar :buttons="{before: [], after: []}" :on-back="false"></user-header-bar>
+    <user-header-bar  :buttons="{before: [], after: []}" :on-back="false"></user-header-bar>
 
   </q-layout>
 </template>

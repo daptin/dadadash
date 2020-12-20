@@ -16,9 +16,16 @@
             <q-card flat class="bg-grey-3">
 
               <q-card-section>
-                <q-select @input="saveTablePermissionModel()" option-value="value" map-options emit-value
-                          option-label="label" v-model="selectedPermissionOption"
-                          :options="simplePermissionOptions"></q-select>
+                <q-select
+                  @popup-hide="saveTablePermissionModel()"
+                  option-value="value"
+                  multiple
+                  map-options emit-value
+                  option-label="label"
+                  use-input
+                  input-debounce="0"
+                  v-model="selectedPermissionOption"
+                  :options="simplePermissionOptions"></q-select>
 
               </q-card-section>
             </q-card>
@@ -177,17 +184,35 @@ export default {
       });
     },
     saveTablePermissionModel() {
-      console.log("new table permission", this.selectedPermissionOption)
       const that = this;
+      var newPermission = 1;
+      for (var i in that.selectedPermissionOption) {
+        console.log("new permission", newPermission, that.selectedPermissionOption[i]);
+        newPermission = newPermission | that.selectedPermissionOption[i].value;
+        console.log(newPermission)
+      }
+      console.log("new table permission", this.selectedPermissionOption, newPermission);
       that.updateRow({
         tableName: "world",
         id: that.selectedTable.reference_id,
-        permission: that.selectedPermissionOption,
-        default_permission: that.selectedPermissionOption
+        permission: newPermission,
+        default_permission: newPermission
       }).then(function (usersOfGroup) {
         console.log("Updated table permission", usersOfGroup);
         that.loadTableGroups();
+        that.executeAction({
+          tableName: "world",
+          actionName: "restart_daptin"
+        }).then(function () {
+          console.log("reconfig complete")
+        }).catch(function (err) {
+          console.log("configuration resync failed", err)
+          that.$q.notify({
+            message: "Reconfiguration failed, changes will not take effect until next config re-sync"
+          })
+        })
       }).catch(function (err) {
+        console.log("Failed to update table permission")
         that.$q.notify({
           message: "Failed to update table permission"
         })
@@ -315,42 +340,24 @@ export default {
       this.groupChangeFor = 'newRowGroups';
       this.addToGroup = true
     },
-    ...mapActions(['loadData', 'loadModel', 'loadDataRelations', 'updateRow', 'removeRelation', 'addRelation', 'addManyRelation', 'loadDataRelations']),
+    ...mapActions(['loadData', 'loadModel', 'loadDataRelations',
+      'updateRow', 'removeRelation', 'addRelation',
+      'addManyRelation', 'loadDataRelations', 'executeAction']),
     refresh() {
       const that = this;
       console.log("Table schema json", that.selectedTable);
-      that.selectedPermissionOption = that.selectedTable.permission;
+      that.selectedPermissionOption = [];
+      var tablePermission = that.selectedTable.permission;
+      for (var i = 0; i < that.simplePermissionOptions.length; i++) {
+        var permission = that.simplePermissionOptions[i];
+        if ((tablePermission & permission.value) === permission.value) {
+          that.selectedPermissionOption.push(permission);
+        }
+      }
 
       that.tableSchema = JSON.parse(that.selectedTable.world_schema_json);
 
       var permissionValue = that.selectedTable.permission;
-      that.parsedGuestPermission = {
-        canPeek: (permissionValue & that.permissionStructure.GuestPeek) === that.permissionStructure.GuestPeek,
-        canRead: (permissionValue & that.permissionStructure.GuestRead) === that.permissionStructure.GuestRead,
-        canCreate: (permissionValue & that.permissionStructure.GuestCreate) === that.permissionStructure.GuestCreate,
-        canUpdate: (permissionValue & that.permissionStructure.GuestUpdate) === that.permissionStructure.GuestUpdate,
-        canDelete: (permissionValue & that.permissionStructure.GuestDelete) === that.permissionStructure.GuestDelete,
-        canRefer: (permissionValue & that.permissionStructure.GuestRefer) === that.permissionStructure.GuestRefer,
-        canExecute: (permissionValue & that.permissionStructure.GuestExecute) === that.permissionStructure.GuestExecute,
-      };
-      that.parsedOwnerPermission = {
-        canPeek: (permissionValue & that.permissionStructure.UserPeek) === that.permissionStructure.UserPeek,
-        canRead: (permissionValue & that.permissionStructure.UserRead) === that.permissionStructure.UserRead,
-        canCreate: (permissionValue & that.permissionStructure.UserCreate) === that.permissionStructure.UserCreate,
-        canUpdate: (permissionValue & that.permissionStructure.UserUpdate) === that.permissionStructure.UserUpdate,
-        canDelete: (permissionValue & that.permissionStructure.UserDelete) === that.permissionStructure.UserDelete,
-        canRefer: (permissionValue & that.permissionStructure.UserRefer) === that.permissionStructure.UserRefer,
-        canExecute: (permissionValue & that.permissionStructure.UserExecute) === that.permissionStructure.UserExecute,
-      };
-      that.parsedGroupPermission = {
-        canPeek: (permissionValue & that.permissionStructure.GroupPeek) === that.permissionStructure.GroupPeek,
-        canRead: (permissionValue & that.permissionStructure.GroupRead) === that.permissionStructure.GroupRead,
-        canCreate: (permissionValue & that.permissionStructure.GroupCreate) === that.permissionStructure.GroupCreate,
-        canUpdate: (permissionValue & that.permissionStructure.GroupUpdate) === that.permissionStructure.GroupUpdate,
-        canDelete: (permissionValue & that.permissionStructure.GroupDelete) === that.permissionStructure.GroupDelete,
-        canRefer: (permissionValue & that.permissionStructure.GroupRefer) === that.permissionStructure.GroupRefer,
-        canExecute: (permissionValue & that.permissionStructure.GroupExecute) === that.permissionStructure.GroupExecute,
-      };
       this.loadTableGroups();
     },
     loadTableGroups() {
@@ -372,26 +379,49 @@ export default {
   data() {
     return {
       text: '',
-      selectedPermissionOption: null,
-      simplePermissionOptions: [{
-        label: 'Guests cannot see the data in this table',
-        value: 2097024
-      }, {
-        label: 'Guests can read rows',
-        value: 2097027
-      }, {
-        label: 'Guests can read rows or execute actions on them',
-        value: 2097059
-      }, {
-        label: 'Guests can read and create rows',
-        value: 2097031
-      }, {
-        label: 'Guests can read, create rows and execute some actions on them',
-        value: 2097063
-      }, {
-        label: 'Guests CANNOT read, create rows BUT execute some actions on them',
-        value: 2097056
-      }],
+      selectedPermissionOption: [],
+      simplePermissionOptions: [
+        {
+          label: 'Guests can read',
+          value: 1 << 1
+        },
+        {
+          label: 'Guests can create',
+          value: 1 << 2
+        },
+        {
+          label: 'Guests can update',
+          value: 1 << 3
+        },
+        {
+          label: 'Guests can delete',
+          value: 1 << 4
+        },
+        {
+          label: 'Guests can execute actions',
+          value: 1 << 5
+        },
+        {
+          label: 'Owner can read',
+          value: 1 << 8
+        },
+        {
+          label: 'Owner can create',
+          value: 1 << 9
+        },
+        {
+          label: 'Owner can update',
+          value: 1 << 10
+        },
+        {
+          label: 'Owner can delete',
+          value: 1 << 11
+        },
+        {
+          label: 'Owner can execute actions',
+          value: 1 << 12
+        },
+      ],
       permissionTypeTab: 'basic',
       newOwnerId: null,
       ownerSelectionBox: false,

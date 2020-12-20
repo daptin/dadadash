@@ -178,10 +178,10 @@
                     <q-checkbox label="Allow guests to see this item"
                                 v-model="itemConfiguration.allowGuests"></q-checkbox>
                   </div>
-                  <div class="col-12">
-                    <q-checkbox label="Show this on frontpage"
-                                v-model="itemConfiguration.showOnFrontpage"></q-checkbox>
-                  </div>
+<!--                  <div class="col-12">-->
+<!--                    <q-checkbox label="Show this on frontpage"-->
+<!--                                v-model="itemConfiguration.showOnFrontpage"></q-checkbox>-->
+<!--                  </div>-->
                 </div>
               </div>
             </div>

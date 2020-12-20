@@ -2,16 +2,16 @@
   <q-page-container style="padding-top: 0; background: rgb(242, 241, 249)">
     <q-page style="overflow: hidden">
 
-      <div class="row" style="">
+      <div v-if="decodedAuthToken" class="row" style="">
         <q-bar style="padding-left: 0; width: 100% ; background: white">
 
           <q-btn size="sm" @click="showNewRowDrawer()" flat label="New row"></q-btn>
           <q-btn size="sm" @click="showPermissionsDrawer()" color="primary" flat label="Table Permissions"></q-btn>
           <q-btn size="sm" flat label="Table Options">
-            <q-menu anchor="bottom left" self="top left">
+            <q-menu auto-close anchor="bottom left" self="top left">
               <q-item clickable>
                 <q-item-section>
-                  <q-checkbox size="xs" @change="refreshData()" label="Show column filters"
+                  <q-checkbox  size="xs" @change="refreshData()" label="Show column filters"
                               v-model="tabulatorOptions.headerFilter"></q-checkbox>
                 </q-item-section>
               </q-item>
@@ -1185,7 +1185,6 @@ const tableComponent = {
               }
               return e.attributes
             });
-            responseList.push({})
             return {
               last_page: response.links.last_page,
               data: responseList
@@ -1359,7 +1358,7 @@ const tableComponent = {
         });
       }
     },
-    ...mapGetters(['endpoint', 'authToken', 'tables'])
+    ...mapGetters(['endpoint', 'authToken', 'tables', 'decodedAuthToken'])
   },
   mounted() {
     const that = this;
