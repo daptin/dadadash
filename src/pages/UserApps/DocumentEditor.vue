@@ -10,6 +10,7 @@
                  :style="{
               'min-height': pageSetting.height + 'px',
               'width': pageSetting.width  + 'px',
+              'margin-left': '-300'  + 'px',
               'padding-left': pageSetting.margin.left  + 'px',
               'padding-right': pageSetting.margin.right  + 'px',
               'padding-top': pageSetting.margin.top  + 'px',
@@ -210,7 +211,7 @@ export default {
   },
   watch: {
     'contents': function (newVal, oldVal) {
-      // console.log("Contents changed", arguments)
+      console.log("Contents changed", arguments)
     }
   },
   methods: {
@@ -343,6 +344,7 @@ export default {
 
         }
 
+        console.log("loading ckeditor", that.decodedAuthToken())
         CKSource.Editor
           .create({
             "page-1": document.querySelector('#page-1'),
@@ -355,7 +357,7 @@ export default {
             const saveMethod = debounce(that.saveDocument, 800, false)
             if (that.decodedAuthToken()) {
               editor.onChange((res) => { //提供onChange方法获取数据
-                // console.log("Editor on change", res)
+                console.log("Editor on change", res)
                 that.contents = editor.getData()["page-1"];
                 // console.log("Editor contents", that.contents)
                 saveMethod();
@@ -421,8 +423,13 @@ export default {
       zip.file("page-setting.json", JSON.stringify(this.pageSetting));
 
 
+      console.log("generate zip")
       zip.generateAsync({type: "base64"}).then(function (base64) {
+        console.log("emit save event")
+
         that.$emit("save-base-item-contents", base64)
+      }).catch(function (err) {
+        console.log("Failed to generate zip file", err)
       });
 
 

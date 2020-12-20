@@ -1,6 +1,6 @@
 <template>
 
-  <edit-data-table v-if="tableName"
+  <edit-data-table style="margin-top:50px" v-if="tableName"
                    :base-item="{targetTable: {TableName: this.$route.params.tableName}}"></edit-data-table>
 
 </template>

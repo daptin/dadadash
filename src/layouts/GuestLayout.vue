@@ -3,12 +3,12 @@
 
     <div v-if="documents.length === 0">
 
-      <q-page-container>
-        <q-page>
-          <router-view></router-view>
+<!--      <q-page-container>-->
+<!--        <q-page>-->
+<!--          <router-view></router-view>-->
 
-        </q-page>
-      </q-page-container>
+<!--        </q-page>-->
+<!--      </q-page-container>-->
 
 
     </div>
@@ -37,11 +37,11 @@
                   @click="currentItem = item" v-for="item in workspaceMap[workspace].items"
                   :key="item.document_name">
             <q-item-section avatar>
-              <q-icon :name="baseItemTypes()[item.document_extension].icon"/>
+              <q-icon v-if="baseItemTypes()[item.document_extension]" :name="baseItemTypes()[item.document_extension].icon"/>
             </q-item-section>
             <q-item-section>
               <q-item-label lines="1">{{ item.document_name }}</q-item-label>
-              <q-item-section side class="text-white">{{ item.document_path.split("/")[2] }}</q-item-section>
+              <q-item-section side class="text-black">{{ item.document_path.split("/")[2] }}</q-item-section>
             </q-item-section>
           </q-item>
         </q-list>
@@ -110,7 +110,7 @@ export default {
     const that = this;
     that.$q.loading.show();
 
-    that.loadModel(["world", "document"]).then(async function () {
+    that.loadModel(["world", "document", "user_account"]).then(async function () {
 
       that.loadData({
         tableName: 'document',
