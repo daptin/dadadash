@@ -102,6 +102,9 @@ export default {
         this.$router.push("/login");
         return
       }
+    } else {
+      this.$router.push("/login");
+      return
     }
 
     that.loadModel(["cloud_store", "user_account", "usergroup", "world",
@@ -111,7 +114,7 @@ export default {
         let userGroupTable = that.userGroupTable();
         console.log("Mounted main layout - ", userGroupTable);
 
-        if (userGroupTable.permission !== 2097057) {
+        if (userGroupTable.permission !== 2097057 && that.decodedAuthToken()) {
           that.isAdmin = true;
           that.executeAction({
             tableName: 'world',

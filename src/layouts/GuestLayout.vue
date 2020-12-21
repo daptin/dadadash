@@ -3,12 +3,12 @@
 
     <div v-if="documents.length === 0">
 
-      <!--      <q-page-container>-->
-      <!--        <q-page>-->
-      <!--          <router-view></router-view>-->
+            <q-page-container>
+              <q-page>
+                <router-view></router-view>
 
-      <!--        </q-page>-->
-      <!--      </q-page-container>-->
+              </q-page>
+            </q-page-container>
 
 
     </div>
