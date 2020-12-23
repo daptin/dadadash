@@ -2,4 +2,4 @@ build:
   docker:
     web: Dockerfile
 run:
-  web: /opt/daptin/daptin -port $PORT
+  web: /opt/daptin/daptin -port_variable PORT
