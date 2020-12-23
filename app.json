@@ -2,7 +2,7 @@
 
   "stack": "container",
   "formation": {
-    "worker": {
+    "web": {
       "quantity": 1
     }
   }
