@@ -1,5 +1,5 @@
 build:
   docker:
-    web: Dockerfile
+    worker: Dockerfile
 run:
-  web: /opt/daptin/daptin -port $PORT
+  worker: /opt/daptin/daptin -port $PORT
