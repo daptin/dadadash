@@ -609,11 +609,11 @@ export default {
         that.loadData(queryPayload).then(function (res) {
           console.log("loaded base document", res)
           var baseRow = res.data[0];
+          that.baseRow = baseRow
           if (!baseRow.document_content) {
             alert("Base configuration is empty - " + baseRow)
             return
           }
-          that.baseRow = baseRow
           var baseConfigString = baseRow.document_content[0].contents;
           that.baseConfig = JSON.parse(atob(baseConfigString));
           that.baseConfig.name = that.baseName;
