@@ -125,9 +125,9 @@ export default {
         currentDocumentPermission = 2097024;
       }
       console.log("Update permission for site", currentDocumentPermission, this.basePermission.read);
-      var promimses = [];
+      var promises = [];
       if (document.permission !== currentDocumentPermission) {
-        promimses.push(that.updateRow({
+        promises.push(that.updateRow({
           tableName: 'world',
           id: document.reference_id,
           permission: currentDocumentPermission,
@@ -135,13 +135,13 @@ export default {
       }
 
       if (that.worldTable().permission !== currentDocumentPermission) {
-        promimses.push(that.updateRow({
+        promises.push(that.updateRow({
           tableName: 'world',
           id: that.worldTable().reference_id,
           permission: currentDocumentPermission,
         }))
       }
-      Promise.all(promimses).then(function (res) {
+      Promise.all(promises).then(function (res) {
         that.$q.notify({
           message: "Table permissions updated"
         })
