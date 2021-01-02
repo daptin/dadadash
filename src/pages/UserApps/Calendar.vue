@@ -357,8 +357,9 @@ export default {
     ...mapActions(['createRow', "loadData", "updateRow"]),
     createEvent() {
       const that = this;
+      window.thatRef = that;
       console.log("Create new event", this.newEvent);
-      that.calendar.addEvent(this.newEvent);
+      that.calendar.addEvent({...this.newEvent}, true);
       this.newEvent = this.generateNewEvent();
       that.$refs.newEventDialog.hide();
       that.saveCalendar()
@@ -420,14 +421,17 @@ export default {
     fetchEvents(info, successCallback, failureCallback) {
       const that = this;
       if (!that.calendar || !that.calendar.events) {
+        console.log("Fetch events early return", info, that.calendarConfig.events);
         return that.calendarConfig.events ? successCallback(that.calendarConfig.events) : successCallback([]);
       }
+      console.log("Fetch events", info, that.calendar.events);
       successCallback(that.calendar.events)
     },
     saveCalendar() {
       const that = this;
 
       that.calendarConfig.events = that.calendar.getEvents();
+      console.log("Calender events", that.calendarConfig);
       that.$emit("save-base-item-contents", btoa(JSON.stringify(that.calendarConfig)))
 
     },

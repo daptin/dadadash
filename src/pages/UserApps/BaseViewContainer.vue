@@ -14,7 +14,8 @@
                         :key="item.document_name">
                   <q-item-section>{{ item.document_name }}</q-item-section>
                   <q-item-section avatar>
-                    <q-icon :name="baseItemTypes[item.document_extension] ? baseItemTypes[item.document_extension].icon : item.document_extension"></q-icon>
+                    <q-icon
+                      :name="baseItemTypes[item.document_extension] ? baseItemTypes[item.document_extension].icon : item.document_extension"></q-icon>
                   </q-item-section>
                 </q-item>
                 <q-separator/>
@@ -35,10 +36,16 @@
                          v-if="item.document_extension !== 'summary'" v-for="item in baseConfig.items"
                          :to="'/workspace/' + workspaceName + '/' + baseName + '/' + item.document_name" exact replace
             >
-              <span><q-icon
-                :name="baseItemTypes[item.document_extension] ? baseItemTypes[item.document_extension].icon : item.document_extension"></q-icon> &nbsp;&nbsp;&nbsp;</span>{{
+              <span>
+                <q-icon
+                  :name="baseItemTypes[item.document_extension] ? baseItemTypes[item.document_extension].icon : item.document_extension"></q-icon> &nbsp;&nbsp;&nbsp;
+              </span>
+              {{
                 item.document_name
               }}
+              <q-tooltip>
+                Right click for menu
+              </q-tooltip>
               <q-menu context-menu
                       style="min-width: 300px">
                 <q-list>
@@ -63,7 +70,7 @@
 
 
           </q-tabs>
-          <q-btn flat class="text-primary tabMenuButton" id="newTableButton" icon="fas fa-plus">
+          <q-btn ref="newItemMenuButton" flat class="text-primary tabMenuButton" id="newTableButton" icon="fas fa-plus">
             <q-menu>
               <q-list style="min-width: 280px">
 
@@ -89,11 +96,41 @@
                           :baseItem="selectedBaseItem"></base-view-router>
         <div v-if="!selectedBaseItem" class="row">
           <div class="col-6 offset-3 q-pa-md q-gutter-sm">
-            No item selected
-             <ul>
-               <li>click a tab or</li>
-               <li><q-btn label="Add new item"></q-btn></li>
-             </ul>
+            <q-card>
+              <q-card-section>
+                <div class="row">
+                  <div class="col-6">
+                    Select an item to open
+                    <q-list>
+                      <q-item :key="item.reference_id"
+                              v-if="item.document_extension !== 'summary'" v-for="item in baseConfig.items"
+                      >
+                        <q-btn
+                          @click="$router.push('/workspace/' + workspaceName + '/' + baseName + '/' + item.document_name)"
+                          exact replace
+                        >
+                      <span>
+                        <q-icon
+                          :name="baseItemTypes[item.document_extension] ? baseItemTypes[item.document_extension].icon : item.document_extension"></q-icon> &nbsp;&nbsp;&nbsp;
+                      </span>
+                          {{
+                            item.document_name
+                          }}
+                        </q-btn>
+
+                      </q-item>
+                    </q-list>
+
+
+                  </div>
+                  <div class="col-6">
+                    Or <br/>
+                    <q-btn @click="showAddNewItemMenu()" label="Add new item"></q-btn>
+                  </div>
+                </div>
+
+              </q-card-section>
+            </q-card>
           </div>
         </div>
 
@@ -295,6 +332,9 @@ export default {
   },
 
   methods: {
+    showAddNewItemMenu() {
+      document.getElementById("newTableButton").click()
+    },
     saveItemPermissions() {
       const that = this;
       this.showBaseConfigurationModel = false;
