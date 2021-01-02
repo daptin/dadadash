@@ -35,7 +35,7 @@
     "install": "^0.13.0",
     "interactjs": "^1.9.22",
     "jquery": "^3.5.1",
-    "js-yaml": "^3.14.0",
+    "js-yaml": "^3.14.1",
     "jsonwebtoken": "^8.5.1",
     "jspdf": "^2.1.1",
     "jszip": "^3.5.0",

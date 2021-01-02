@@ -274,7 +274,7 @@ export default {
       showAdminDrawer: false,
       showAdminDrawerMini: true,
       showAdminDrawerStick: false,
-      ...mapGetters(['loggedIn', 'drawerLeft', 'authToken', 'decodedAuthToken']),
+      ...mapGetters(['loggedIn', 'drawerLeft', 'authToken', 'decodedAuthToken', 'userGroupTable']),
       essentialLinks: [],
       drawer: false,
       userDrawer: false,
@@ -300,7 +300,7 @@ export default {
       }
     }
 
-    that.loadModel(["cloud_store", "user_account", "usergroup", "world", "action", 'site', 'integration']).then(async function () {
+    that.loadModel(["cloud_store", "user_account", "usergroup", "world", "action", 'site', 'integration']).then(function () {
       that.loaded = true;
       that.getDefaultCloudStore();
 
@@ -308,11 +308,10 @@ export default {
         tableName: "user_account",
       }).then(function (res) {
         const users = res.data;
+        // let userGroupTable = that.userGroupTable();
         console.log("Users: ", users);
 
-        if (users.length === 2) {
-          that.isAdmin = true;
-          that.showAdminDrawer = true;
+        if (users[0].permission !== 2097057 && that.decodedAuthToken()) {
           that.executeAction({
             tableName: 'world',
             actionName: "become_an_administrator"
@@ -325,14 +324,11 @@ export default {
           }).catch(function (err) {
             console.log("Failed to become admin", err);
           })
-        } else if (users.length > 2) {
-          that.isAdmin = true;
-          that.showAdminDrawer = true;
-          that.isUser = false;
-        } else {
-          that.isUser = true;
-          // that.$router.push('/apps/workspace')
         }
+        that.isAdmin = true;
+        that.showAdminDrawer = true;
+        that.isUser = false;
+
       });
 
     }).catch(function (err) {

@@ -14,7 +14,9 @@
       <!--      </form>-->
       <q-btn :key="btn.icon" v-for="btn in buttons.before" flat @click="buttonClicked(btn)" :icon="btn.icon"></q-btn>
       <q-btn :key="btn.icon" v-for="btn in buttons.after" flat @click="buttonClicked(btn)" :label="btn.label"
-             :icon="btn.icon"></q-btn>
+             :icon="btn.icon">
+        <q-tooltip v-if="btn.tooltip">{{btn.tooltip}}</q-tooltip>
+      </q-btn>
       <q-space/>
       <q-btn flat :icon="basePermission.read === 'public' ? 'fas fa-eye':  'fas fa-eye-slash'"
              v-if="documentTable() !== null"

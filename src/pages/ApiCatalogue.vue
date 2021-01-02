@@ -263,11 +263,22 @@ export default {
 
           case "yaml":
             try {
-              var spec = yaml.load(specContentText);
-              newIntegration.name = spec.info ? spec.info.name : spec.host;
+              specContentText = specContentText.replace(/[^\x20-\x7E\n\t\r]/g, '')
+              var spec = yaml.load(specContentText, 'utf8');
+              newIntegration.name = spec.info ? spec.info.name || spec.info.title || spec.info["x-providerName"] : spec.servers ? spec.servers[0].url : spec.host;
+              that.$q.notify({
+                message: "YAML spec parsed, uploading...",
+                type: "positive"
+              })
 
             } catch (e) {
-              console.log("Failed to parse yaml content", e)
+              that.$q.notify({
+                message: "Failed to parse YAML file: " + e.message,
+                type: "negative"
+              })
+              console.log("Failed to parse yaml content", e);
+              console.log(specContentText)
+              return;
             }
 
             if (!newIntegration.name || newIntegration.name.length === 0) {

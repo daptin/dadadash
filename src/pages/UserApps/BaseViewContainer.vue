@@ -148,8 +148,8 @@
             // {icon: 'fas fa-search', event: 'search'},
           ],
         after: [
-            {icon: 'fas fa-sync-alt', event: 'reload-bases'},
-            {icon: 'fas fa-trash', event: 'delete-base'},
+            {icon: 'fas fa-sync-alt', tooltip: 'Reload base and all items', event: 'reload-bases'},
+            {icon: 'fas fa-trash', tooltip: 'Delete this base and all items in it. To delete a single item, right click on the tab', event: 'delete-base'},
           ],
         }" :onBack="() => {$router.push('/workspace/' + $route.params.workspaceName)}"
                      :title='$route.params.workspaceName
@@ -818,7 +818,7 @@ export default {
 
                       }).catch(function (err) {
                         generateRandomDataAndLoad()
-                        console.log("Failed to generate random data for ", table.TableName, err)
+                        console.log("Failed to generate random data for ", table.TableName, "Trying again in 5 seconds")
                       })
                     }, 5000)
 
