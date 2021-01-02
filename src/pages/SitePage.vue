@@ -3,120 +3,102 @@
 
     <q-page>
 
-    <div class="q-pa-md q-gutter-sm">
-      <q-breadcrumbs>
-        <template v-slot:separator>
-          <q-icon
-            size="1.2em"
-            name="arrow_forward"
-            color="black"
-          />
-        </template>
-
-        <q-breadcrumbs-el label="Storage" icon="fas fa-archive"/>
-        <q-breadcrumbs-el label="Site" icon="fas fa-list"/>
-      </q-breadcrumbs>
-    </div>
-    <q-separator></q-separator>
-
-    <div class="row q-pa-md q-gutter-sm">
-
-      <div class="col-4 col-xl-2 col-lg-3 col-xs-12 col-sm-6 q-pa-md" v-for="site in sites">
-        <q-card>
-          <q-card-section>
-            <q-item>
-              <q-item-section>
-                <span class="text-h6">{{site.name}}</span>
-              </q-item-section>
-              <!--              <q-item-section avatar>-->
-              <!--                <q-btn @click="syncSite(site)" icon="fas fa-sync-alt" size="sm" round flat></q-btn>-->
-              <!--              </q-item-section>-->
-            </q-item>
-          </q-card-section>
-
-          <q-card-section>
-            <q-list>
-              <q-item>
-                <q-item-section>
-                  <span>HTTPS</span>
-                </q-item-section>
-
-                <q-item-section avatar v-if="showHttpEdit">
-                  <q-checkbox @input="showHttpEdit = false" size="sm" class="float-right"
-                              v-model="site.enable_https"></q-checkbox>
-                </q-item-section>
-
-                <q-item-section avatar>
-                  <q-item-label>
-                    <q-icon color="primary" size="xs"
-                            :name="!!site.enable_https ? 'fas fa-check':'fas fa-times'"></q-icon>
-                  </q-item-label>
-                </q-item-section>
-              </q-item>
-              <q-item>
-                <q-item-section>
-                  <span>FTP enabled</span>
-                </q-item-section>
-
-                <q-item-section avatar v-if="showHttpEdit">
-                  <q-checkbox @input="showHttpEdit = false" size="sm" class="float-right"
-                              v-model="site.enable_https"></q-checkbox>
-                </q-item-section>
-
-                <q-item-section avatar>
-                  <q-item-label>
-                    <q-icon color="primary" size="xs"
-                            :name="!!site.ftp_enabled ? 'fas fa-check':'fas fa-times'"></q-icon>
-                  </q-item-label>
-                </q-item-section>
-              </q-item>
-
-              <q-item>
-                <q-item-section>
-                  <span>Site type</span>
-                </q-item-section>
-
-                <q-item-section avatar>
-                  <q-item-label>
-                    <span class="text-bold">{{site.site_type}}</span>
-                  </q-item-label>
-                </q-item-section>
-              </q-item>
-
-            </q-list>
-          </q-card-section>
-
-          <q-card-section>
-            <div class="row">
-              <div class="col-12">
-                <q-btn size="sm"
-                       @click="$router.push('/site/' + site.reference_id + '/browse')"
-                       label="Browse files"
-                       text-color="primary"
-                       class="float-right"></q-btn>
-                <q-btn @click="showEditSite(site)" size="sm"
-                       label="Edit site" class="float-right"></q-btn>
-              </div>
-            </div>
-          </q-card-section>
-        </q-card>
+      <div class="row q-pa-md q-gutter-sm">
+        <div class="col-12">
+          <q-btn @click="showCreateSiteDrawer = true" fab icon="add" color="primary"/>
+        </div>
       </div>
 
-    </div>
+
+      <div class="row q-pa-md q-gutter-sm">
+        <div class="col-4 col-xl-2 col-lg-3 col-xs-12 col-sm-6" v-for="site in sites">
+          <q-card>
+            <q-card-section>
+              <q-item>
+                <q-item-section>
+                  <span class="text-h6">{{ site.name }}</span>
+                </q-item-section>
+              </q-item>
+            </q-card-section>
+
+            <q-card-section>
+              <q-list>
+                <q-item>
+                  <q-item-section>
+                    <span>HTTPS</span>
+                  </q-item-section>
+
+                  <q-item-section avatar v-if="showHttpEdit">
+                    <q-checkbox @input="showHttpEdit = false" size="sm" class="float-right"
+                                v-model="site.enable_https"></q-checkbox>
+                  </q-item-section>
+
+                  <q-item-section avatar>
+                    <q-item-label>
+                      <q-icon color="primary" size="xs"
+                              :name="!!site.enable_https ? 'fas fa-check':'fas fa-times'"></q-icon>
+                    </q-item-label>
+                  </q-item-section>
+                </q-item>
+                <q-item>
+                  <q-item-section>
+                    <span>FTP enabled</span>
+                  </q-item-section>
+
+                  <q-item-section avatar v-if="showHttpEdit">
+                    <q-checkbox @input="showHttpEdit = false" size="sm" class="float-right"
+                                v-model="site.enable_https"></q-checkbox>
+                  </q-item-section>
+
+                  <q-item-section avatar>
+                    <q-item-label>
+                      <q-icon color="primary" size="xs"
+                              :name="!!site.ftp_enabled ? 'fas fa-check':'fas fa-times'"></q-icon>
+                    </q-item-label>
+                  </q-item-section>
+                </q-item>
+
+                <q-item>
+                  <q-item-section>
+                    <span>Site type</span>
+                  </q-item-section>
+
+                  <q-item-section avatar>
+                    <q-item-label>
+                      <span class="text-bold">{{ site.site_type }}</span>
+                    </q-item-label>
+                  </q-item-section>
+                </q-item>
+
+              </q-list>
+            </q-card-section>
+
+            <q-card-section>
+              <div class="row">
+                <div class="col-12">
+                  <q-btn size="sm"
+                         @click="$router.push('/site/' + site.reference_id + '/browse')"
+                         label="Browse files"
+                         text-color="primary"
+                         class="float-right"></q-btn>
+                  <q-btn @click="showEditSite(site)" size="sm"
+                         label="Edit site" class="float-right"></q-btn>
+                </div>
+              </div>
+            </q-card-section>
+          </q-card>
+        </div>
+      </div>
 
 
-    <q-page-sticky style="z-index: 3000" position="bottom-right" :offset="[20, 20]">
-      <q-btn @click="showCreateSiteDrawer = true" fab icon="add" color="primary"/>
-    </q-page-sticky>
-
-    <q-drawer :breakpoint="1400" overlay content-class="bg-grey-3" side="right" v-model="showCreateSiteDrawer">
-      <q-scroll-area class="fit row">
-        <div class="q-pa-md">
-          <span class="text-h6">Create site</span>
-          <q-form class="q-gutter-md">
-            <q-input label="Hostname" v-model="newSite.hostname"></q-input>
-            <q-input value="/new-site" label="Path" v-model="newSite.path"></q-input>
-            <q-select :options="[{label: 'Hugo', value: 'hugo'}, {label: 'Static', value: 'static'}]" value="static"
+      <q-drawer :breakpoint="1400" overlay content-class="bg-grey-3" side="right" v-model="showCreateSiteDrawer">
+        <q-scroll-area class="fit row">
+          <div class="q-pa-md">
+            <span class="text-h6">Create site</span>
+            <q-form class="q-gutter-md">
+              <q-input label="Hostname" v-model="newSite.hostname"></q-input>
+              <q-input value="/new-site" label="Path" v-model="newSite.path"></q-input>
+              <q-select :options="[{label: 'Hugo', value: 'hugo'}, {label: 'Static', value: 'static'}]" value="static"
                       label="Site type" v-model="newSite.site_type" emit-value map-options></q-select>
 
             <q-select label="Cloud store" :options="stores" option-label="name" option-value="id"

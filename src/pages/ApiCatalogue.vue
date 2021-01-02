@@ -3,25 +3,12 @@
 
     <q-page>
 
-      <div class="q-pa-md q-gutter-sm">
-        <q-breadcrumbs>
-          <template v-slot:separator>
-            <q-icon
-              size="1.2em"
-              name="arrow_forward"
-              color="black"
-            />
-          </template>
-
-          <q-breadcrumbs-el label="Integrations" icon="fas fa-bolt"/>
-          <q-breadcrumbs-el label="API Catalogue" icon="fas fa-plug"/>
-        </q-breadcrumbs>
-      </div>
-      <q-separator></q-separator>
-
-      <div class="row">
-        <div class="col-xl-3 col-lg-4 col-6 col-sm-8 col-xs-12 q-pa-md">
+      <div class="row q-pa-md q-gutter-sm">
+        <div class="col-xl-3 col-lg-4 col-6 col-sm-8 col-xs-12 ">
           <q-input label="Search" v-model="filterWord"></q-input>
+        </div>
+        <div class="col-6 q-pa-md">
+          <q-btn @click="showCreateIntegrationDrawer = true" fab icon="add" color="primary"/>
         </div>
       </div>
       <div class="row">
@@ -45,8 +32,8 @@
                 <div class="col-12">
                   <!--                <q-btn size="sm" @click="listFiles(integration)" label="Browse files" color="primary"-->
                   <!--                       class="float-right"></q-btn>-->
-                  <q-btn @click="showEditIntegration(integration)" size="sm"
-                         label="Edit integration" class="float-right"></q-btn>
+                  <q-btn @click="showEditIntegration(integration)" size="sm" label="Edit integration"
+                         class="float-right"></q-btn>
                 </div>
               </div>
             </q-card-section>
@@ -55,13 +42,8 @@
 
       </div>
 
-
-      <q-page-sticky style="z-index: 3000" position="bottom-right" :offset="[20, 20]">
-        <q-btn @click="showCreateIntegrationDrawer = true" fab icon="add" color="primary"/>
-      </q-page-sticky>
-
-      <q-drawer overlay :width="400" side="right" v-model="showCreateIntegrationDrawer">
-        <q-card flat>
+      <q-drawer overlay content-class="bg-grey-3" :width="400" side="right" v-model="showCreateIntegrationDrawer">
+        <q-card flat class="bg-grey-3">
           <q-card-section>
             <span class="text-h6">Create integration</span>
           </q-card-section>
@@ -99,8 +81,8 @@
             </q-form>
           </q-card-section>
           <q-card-actions align="right">
-            <q-btn @click="showCreateIntegrationDrawer = false">Cancel</q-btn>
-            <q-btn color="primary" :loading="fileIsBeingLoaded" @click="createIntegration()">Create</q-btn>
+            <q-btn color="negative" @click="showCreateIntegrationDrawer = false">Cancel</q-btn>
+            <!--            <q-btn color="primary" :loading="fileIsBeingLoaded" @click="createIntegration()">Create</q-btn>-->
           </q-card-actions>
 
         </q-card>
@@ -370,18 +352,21 @@ export default {
       that.createRow(newIntegration).then(function (res) {
         that.user = {};
         that.$q.notify({
-          message: "cloud integration created"
+          message: "Integration specification imported, re-sync to start using in actions",
+          type: "positive"
         });
         that.refresh();
         // that.showCreateIntegrationDrawer = false;
       }).catch(function (e) {
-        if (e instanceof Array) {
+        if (e["0"] || e[0]) {
           that.$q.notify({
-            message: e[0].title
+            message: "Failed to create integration" + e[0].title,
+            type: "negative"
           })
         } else {
           that.$q.notify({
-            message: "Failed to create integration"
+            message: "Failed to create integration: " + (e.message ? e.message : JSON.stringify(e)),
+            type: "negative"
           })
         }
       });

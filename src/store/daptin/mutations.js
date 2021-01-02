@@ -10,6 +10,7 @@ export function setToken(state, token) {
 }
 
 export function updateAppConnectionStatus(state, newStatus) {
+  console.log("set app connection status", newStatus)
   state.appConnectionStatus = newStatus;
 }
 
@@ -43,6 +44,7 @@ export function clearTablesCache(state) {
 
 export function setTables(state, tables) {
   state.tables = {}
+  console.log("set tables", tables)
   for (var tableName in tables) {
     Vue.set(state.tables, tableName, tables[tableName])
   }
@@ -50,6 +52,7 @@ export function setTables(state, tables) {
 }
 
 export function setTable(state, table) {
+  console.log("set table", table)
   Vue.set(state.tables, table.table_name, table)
-  console.log("Tables set to ", state.tables)
+  console.log("Table set to ", state.tables)
 }

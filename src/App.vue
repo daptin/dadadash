@@ -43,7 +43,7 @@ export default {
     const that = this;
     that.initDaptinClient().then(function (){
 
-      let appConnectionStatus = that.appConnectionStatus;
+      let appConnectionStatus = that.appConnectionStatus();
       console.log("Loaded app user is ", that.loggedIn(), appConnectionStatus);
 
       if (!appConnectionStatus) {

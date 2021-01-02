@@ -2,56 +2,42 @@
   <q-page-container>
     <q-page>
 
-    <div class="q-pa-md q-gutter-sm">
-      <q-breadcrumbs>
-        <template v-slot:separator>
-          <q-icon
-            size="1.2em"
-            name="arrow_forward"
-            color="black"
-          />
-        </template>
 
-        <q-breadcrumbs-el label="Storage" icon="fas fa-archive"/>
-        <q-breadcrumbs-el label="Cloud stores" icon="fas fa-list"/>
-      </q-breadcrumbs>
-    </div>
-    <q-separator></q-separator>
-
-    <div class="row q-pa-md q-gutter-sm">
-
-      <div class="col-4 col-xl-2 col-lg-3 col-xs-12 col-sm-6 q-pa-md" v-for="store in cloudStores">
-        <q-card>
-          <q-card-section>
-            <span class="text-h6">{{store.name}}</span>
-          </q-card-section>
-          <q-card-section>
-            <span>Provider</span> <span class="text-bold float-right">{{store.store_provider}}</span>
-          </q-card-section>
-          <q-card-section>
-            <span>Root path</span> <span class="text-bold float-right">{{store.root_path}}</span>
-          </q-card-section>
-          <q-card-section>
-            <div class="row">
-              <div class="col-12">
-                <!--                <q-btn size="sm" @click="listFiles(store)" label="Browse files" color="primary"-->
-                <!--                       class="float-right"></q-btn>-->
-                <q-btn @click="showEditStore(store)" size="sm"
-                       label="Edit store" class="float-right"></q-btn>
-              </div>
-            </div>
-          </q-card-section>
-        </q-card>
+      <div class="row q-pa-md q-gutter-sm">
+        <div class="col-4 col-xl-2 col-lg-3 col-xs-12 col-sm-6">
+          <q-btn @click="showCreateCloudStoreDrawer = true" fab icon="add" color="primary"/>
+        </div>
       </div>
 
-    </div>
+      <div class="row q-pa-md q-gutter-sm">
+        <div class="col-4 col-xl-2 col-lg-3 col-xs-12 col-sm-6 " v-for="store in cloudStores">
+          <q-card>
+            <q-card-section>
+              <span class="text-h6">{{ store.name }}</span>
+            </q-card-section>
+            <q-card-section>
+              <span>Provider</span> <span class="text-bold float-right">{{ store.store_provider }}</span>
+            </q-card-section>
+            <q-card-section>
+              <span>Root path</span> <span class="text-bold float-right">{{ store.root_path }}</span>
+            </q-card-section>
+            <q-card-section>
+              <div class="row">
+                <div class="col-12">
+                  <!--                <q-btn size="sm" @click="listFiles(store)" label="Browse files" color="primary"-->
+                  <!--                       class="float-right"></q-btn>-->
+                  <q-btn @click="showEditStore(store)" size="sm"
+                         label="Edit store" class="float-right"></q-btn>
+                </div>
+              </div>
+            </q-card-section>
+          </q-card>
+        </div>
+
+      </div>
 
 
-    <q-page-sticky style="z-index: 3000" position="bottom-right" :offset="[20, 20]">
-      <q-btn @click="showCreateCloudStoreDrawer = true" fab icon="add" color="primary"/>
-    </q-page-sticky>
-
-    <q-drawer overlay content-class="bg-grey-3" :width="400" side="right" v-model="showCreateCloudStoreDrawer">
+      <q-drawer overlay content-class="bg-grey-3" :width="400" side="right" v-model="showCreateCloudStoreDrawer">
       <q-scroll-area class="fit row">
         <div class="q-pa-md">
           <span class="text-h6">Create store</span>

@@ -83,7 +83,7 @@ export default {
         that.currentItem = item
       })
     },
-    ...mapActions(['loadTable', 'loadModel', 'loadData'])
+    ...mapActions(['loadModel', 'loadData'])
   },
   meta() {
     return {
@@ -118,7 +118,7 @@ export default {
     const that = this;
     that.$q.loading.show();
 
-    that.loadModel(["world", "document", "user_account"]).then(async function () {
+    that.loadModel(["world", "document", "user_account"]).then(function () {
 
       that.loadData({
         tableName: 'document',

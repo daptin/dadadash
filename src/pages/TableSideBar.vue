@@ -3,13 +3,13 @@
     <q-page>
 
 
-      <user-header-bar @new-table="$router.push('/tables/create')" :buttons="{
-        after: [{
-          icon: 'fas fa-plus', event: 'new-table'
-        }]
-      }">
+<!--      <user-header-bar @new-table="$router.push('/tables/create')" :buttons="{-->
+<!--        after: [{-->
+<!--          icon: 'fas fa-plus', event: 'new-table'-->
+<!--        }]-->
+<!--      }">-->
 
-      </user-header-bar>
+<!--      </user-header-bar>-->
       <q-card>
         <q-card-section>
           <q-markup-table flat>

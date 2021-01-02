@@ -63,7 +63,7 @@ export function baseItemTypes() {
 
 }
 export function appConnectionStatus(state) {
-  return status.appConnectionStatus
+  return state.appConnectionStatus
 }
 
 

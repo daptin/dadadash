@@ -19,8 +19,7 @@
       </q-btn>
       <q-space/>
       <q-btn flat :icon="basePermission.read === 'public' ? 'fas fa-eye':  'fas fa-eye-slash'"
-             v-if="documentTable() !== null"
-             :label=" documentTable().permission "
+             v-if="documentTableLocal !== null"
              label="View permissions">
         <q-menu>
 
@@ -108,11 +107,14 @@ export default {
   name: "UserHeaderBar",
   mounted() {
     const that = this;
-    console.log("document table loaded", arguments)
-    var documentTable = that.documentTable();
-    if (documentTable && ((documentTable.permission & that.permissionStructure.GuestRead) === that.permissionStructure.GuestRead)) {
-      that.basePermission.read = "public";
-    }
+    that.loadTable("document", false).then(function () {
+      var documentTable = that.documentTable();
+      that.documentTableLocal = documentTable;
+      console.log("document table loaded", documentTable, arguments);
+      if (documentTable && ((documentTable.permission & that.permissionStructure.GuestRead) === that.permissionStructure.GuestRead)) {
+        that.basePermission.read = "public";
+      }
+    })
   },
   methods: {
     updateBasePermission(newPerm) {
@@ -186,12 +188,13 @@ export default {
       this.$router.push("/login");
       window.location = window.location;
     },
-    ...mapActions(['setDecodedAuthToken', 'loadData', 'updateRow', 'executeAction'])
+    ...mapActions(['setDecodedAuthToken', 'loadData', 'updateRow', 'executeAction', 'loadTable'])
   },
   data() {
     return {
       ...mapGetters(['decodedAuthToken', 'documentTable', 'worldTable']),
       searchQuery: null,
+      documentTableLocal: null,
       basePermission: {
         read: 'private',
         write: 'private',

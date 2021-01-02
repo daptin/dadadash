@@ -31,7 +31,8 @@ export function initDaptinClient({commit, state}) {
         }
       });
       daptinClient.worldManager.init().then(function () {
-        console.log("Daptin client loaded", arguments);
+        console.log("Daptin client loaded 2", arguments);
+        commit('updateAppConnectionStatus', true)
         resolve();
         appIsOnline = true;
       }).catch(function (err) {
@@ -45,25 +46,6 @@ export function initDaptinClient({commit, state}) {
   })
 
 }
-
-// daptinClient.worldManager.init();
-
-export function updateConnectionStatus({commit, state}) {
-  console.log("App online status: ", appIsOnline)
-  appIsOnline = state.appConnectionStatus;
-  if (!appIsOnline) {
-    daptinClient.worldManager.init().then(function () {
-      console.log("Daptin client loaded", arguments)
-      appIsOnline = true;
-      commit("UPDATE_APP_CONNECTION_STATUS", appIsOnline)
-    }).catch(function (err) {
-      appIsOnline = false;
-      console.log("Failed to create client", err)
-      commit("UPDATE_APP_CONNECTION_STATUS", appIsOnline)
-    })
-  }
-}
-
 export function loadTables({commit}) {
   console.log("Load tables");
   return daptinClient.worldManager.loadModels(false).then(function (worlds) {

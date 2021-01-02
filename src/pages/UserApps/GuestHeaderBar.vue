@@ -60,7 +60,7 @@ export default {
       this.$router.push("/login");
       window.location = window.location;
     },
-    ...mapActions(['setDecodedAuthToken', 'loadData', 'loadTable', 'updateRow', 'executeAction'])
+    ...mapActions(['setDecodedAuthToken', 'loadData', 'updateRow', 'executeAction'])
   },
   data() {
     return {

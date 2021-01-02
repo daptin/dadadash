@@ -1,70 +1,56 @@
 <template>
-  <q-page>
+  <q-page-container>
+    <q-page>
+      <div class="row q-gutter-sm q-pa-md" v-if="group">
+        <div class="col-12">
+          <span class="text-h5">{{ group.name }}</span>
+        </div>
+        <div class="col-12">
+          Users in the group: {{ usersInTheGroup.length }}
+        </div>
+        <div class="col-6 col-xl-4 col-lg-4 col-xs-12 col-sm-12 col-md-6">
+          <q-markup-table flat>
+            <tbody>
+            <tr v-for="user in usersInTheGroup">
+              <td><span class="text-bold">{{ user.email }}</span></td>
+              <td class="text-right">
+                <q-btn size="xs" icon="fas fa-trash" @click="removeUserFromGroup(user)" flat></q-btn>
+              </td>
+            </tr>
+            </tbody>
+          </q-markup-table>
+        </div>
 
-    <div class="q-pa-md q-gutter-sm" v-if="group">
-      <q-breadcrumbs>
-        <template v-slot:separator>
-          <q-icon
-            size="1.2em"
-            name="arrow_forward"
-          />
-        </template>
-
-        <q-breadcrumbs-el label="User" icon="fas fa-user"/>
-        <q-breadcrumbs-el label="Groups" icon="fas fa-users"/>
-        <q-breadcrumbs-el :label="group.name"/>
-      </q-breadcrumbs>
-    </div>
-    <q-separator></q-separator>
-
-
-    <q-card class="row" v-if="group">
-      <q-card-section class="col-12 q-pa-md q-gutter-sm">
-        <span class="text-h5">{{group.name}}</span>
-      </q-card-section>
-      <q-card-section class="col-12">
-        Users in the group: {{usersInTheGroup.length}}
-      </q-card-section>
-      <q-card-section class="col-6 col-xl-3 col-lg-4 col-xs-12 col-sm-12">
-        <q-markup-table flat>
-          <tbody>
-          <tr v-for="user in usersInTheGroup">
-            <td><span class="text-bold">{{user.email}}</span></td>
-            <td class="text-right">
-              <q-btn size="xs" icon="fas fa-trash" @click="removeUserFromGroup(user)" flat></q-btn>
-            </td>
-          </tr>
-          </tbody>
-        </q-markup-table>
-      </q-card-section>
-
-      <q-card-section class="col-6 col-xl-12 col-lg-12 col-xs-12 col-sm-12">
-        <q-btn @click="deleteGroup()" label="Delete" color="negative"></q-btn>
-        <q-btn class="float-right" @click="showAddUserToGroup  = true" label="Add user to group"></q-btn>
-      </q-card-section>
-    </q-card>
+      </div>
+      <div class="row q-gutter-sm q-pa-md">
+        <div class="col-6 col-xl-4 col-lg-4 col-xs-12 col-sm-12 col-md-6">
+          <q-btn @click="deleteGroup()" label="Delete group" color="negative"></q-btn>
+          <q-btn class="float-right" @click="showAddUserToGroup  = true" label="Add user to group"></q-btn>
+        </div>
+      </div>
 
 
-    <q-dialog v-model="showAddUserToGroup" persistent>
-      <q-card style="min-width: 350px">
-        <q-card-section>
-          <div class="text-h6">Add user</div>
-        </q-card-section>
+      <q-dialog v-model="showAddUserToGroup" persistent>
+        <q-card style="min-width: 350px">
+          <q-card-section>
+            <div class="text-h6">Add user</div>
+          </q-card-section>
 
-        <q-card-section class="q-pt-none">
-          <q-select :options="allUsers" v-model="newSelectedUser" option-label="email" option-value="reference_id"
-                    autofocus/>
-        </q-card-section>
+          <q-card-section class="q-pt-none">
+            <q-select :options="allUsers" v-model="newSelectedUser" option-label="email" option-value="reference_id"
+                      autofocus/>
+          </q-card-section>
 
-        <q-card-actions align="right" class="text-primary">
-          <q-btn @click="showAddUserToGroup = false" flat label="Cancel" v-close-popup/>
-          <q-btn @click="addUserToGroup()" flat label="Add user" v-close-popup/>
-        </q-card-actions>
-      </q-card>
-    </q-dialog>
+          <q-card-actions align="right" class="text-primary">
+            <q-btn @click="showAddUserToGroup = false" flat label="Cancel" v-close-popup/>
+            <q-btn @click="addUserToGroup()" flat label="Add user" v-close-popup/>
+          </q-card-actions>
+        </q-card>
+      </q-dialog>
 
 
-  </q-page>
+    </q-page>
+  </q-page-container>
 </template>
 <script>
   import {mapActions} from "vuex";

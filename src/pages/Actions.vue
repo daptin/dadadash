@@ -2,27 +2,13 @@
   <q-page-container>
 
     <q-page>
-
-      <div class="q-pa-md q-gutter-sm">
-        <q-breadcrumbs>
-          <template v-slot:separator>
-            <q-icon
-              size="1.2em"
-              name="arrow_forward"
-              color="black"
-            />
-          </template>
-
-          <q-breadcrumbs-el label="Integrations" icon="fas fa-bolt"/>
-          <q-breadcrumbs-el label="Actions" icon="fas fa-wrench"/>
-        </q-breadcrumbs>
-      </div>
-      <q-separator></q-separator>
-
       <div class="row q-pa-md q-gutter-sm">
 
-        <div class="col-12">
-          <q-input clear-icon="fas fa-times" label="search" v-model="actionFilter"></q-input>
+        <div class="col-6">
+          <q-input clear-icon="fas fa-times" label="Search" v-model="actionFilter"></q-input>
+        </div>
+        <div class="col-4">
+          <q-btn @click="showCreateAction()" fab icon="add" color="primary"/>
         </div>
         <div class="col-12">
 
@@ -53,9 +39,6 @@
       </div>
 
 
-      <q-page-sticky style="z-index: 3000" position="bottom-right" :offset="[20, 20]">
-        <q-btn @click="showCreateAction()" fab icon="add" color="primary"/>
-      </q-page-sticky>
 
       <q-drawer overlay :width="400" side="right" v-model="showCreateActionDrawer">
         <q-scroll-area class="fit row">

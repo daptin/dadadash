@@ -248,7 +248,7 @@ text-align: center;
     </q-drawer>
 
     <router-view v-if="isAdmin || isUser"/>
-    <user-header-bar  :buttons="{before: [], after: []}" :on-back="false"></user-header-bar>
+    <user-header-bar v-if="loaded" :buttons="{before: [], after: []}" :on-back="false"></user-header-bar>
 
   </q-layout>
 </template>
@@ -297,10 +297,17 @@ export default {
         });
         that.setDecodedAuthToken(null);
         that.logout();
+        return
       }
+    } else {
+      that.logout();
+      return;
     }
 
-    that.loadModel(["cloud_store", "user_account", "usergroup", "world", "action", 'site', 'integration']).then(function () {
+    that.loadModel([
+      "cloud_store", "user_account",
+      "usergroup", "world", "action",
+      'site', 'integration']).then(function () {
       that.loaded = true;
       that.getDefaultCloudStore();
 
