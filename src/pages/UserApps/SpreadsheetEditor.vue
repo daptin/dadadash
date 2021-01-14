@@ -60,10 +60,10 @@
 </template>
 
 <style>
-@import "../../statics/luckysheet/css/luckysheet.css";
-@import "../../statics/luckysheet/plugins/css/pluginsCss.css";
-@import "../../statics/luckysheet/plugins/plugins.css";
-@import "../../statics/luckysheet/assets/iconfont/iconfont.css";
+@import "src/static/luckysheet/css/luckysheet.css";
+@import "src/static/luckysheet/plugins/css/pluginsCss.css";
+@import "src/static/luckysheet/plugins/plugins.css";
+@import "src/static/luckysheet/assets/iconfont/iconfont.css";
 
 .q-layout__shadow::after {
   box-shadow: none;

@@ -101,7 +101,7 @@
 
 </template>
 <style scoped>
-@import '../../statics/ckeditor/ckeditor.css';
+@import 'src/static/ckeditor/ckeditor.css';
 
 @page {
   size: 5.5in 8.5in;
@@ -149,7 +149,7 @@ body[data-editor="DecoupledDocumentEditor"] {
 </style>
 <script>
 import {mapActions, mapGetters} from "vuex";
-import '../../statics/ckeditor/ckeditor'
+import '../../static/ckeditor/ckeditor'
 import JSZip from 'jszip'
 
 function debounce(func, wait, immediate) {
