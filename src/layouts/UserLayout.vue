@@ -126,7 +126,6 @@ export default {
             });
             that.loadTable("world");
 
-
           }).catch(function (err) {
             console.log("Failed to become admin", err);
           })

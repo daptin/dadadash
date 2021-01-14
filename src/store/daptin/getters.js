@@ -28,7 +28,9 @@ export function baseItemTypes() {
     "view": {
       label: "View",
       type: "view",
-      icon: 'fas fa-eye'
+      icon: 'fas fa-eye',
+      disabled: true
+
     },
     "spreadsheet": {
       label: "Spreadsheet",
@@ -61,7 +63,7 @@ export function baseItemTypes() {
 
 }
 export function appConnectionStatus(state) {
-  return status.appConnectionStatus
+  return state.appConnectionStatus
 }
 
 

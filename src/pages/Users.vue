@@ -2,23 +2,8 @@
   <q-page-container>
     <q-page>
 
-      <div class="q-pa-md q-gutter-sm">
-        <q-breadcrumbs>
-          <template v-slot:separator>
-            <q-icon
-              size="1.2em"
-              name="arrow_forward"
-            />
-          </template>
 
-          <q-breadcrumbs-el label="Users" icon="fas fa-user"/>
-          <q-breadcrumbs-el label="Accounts" icon="fas fa-address-book"/>
-        </q-breadcrumbs>
-      </div>
-
-      <q-separator></q-separator>
-
-<!--      <q-page-sticky style="z-index: 3000" position="bottom-right" :offset="[20, 20]">-->
+      <!--      <q-page-sticky style="z-index: 3000" position="bottom-right" :offset="[20, 20]">-->
 <!--        <q-btn @click="newUserDrawer = true" label="Add User" fab icon="add"/>-->
 <!--      </q-page-sticky>-->
 
@@ -27,7 +12,14 @@
 <!--      </q-page-sticky>-->
       <q-card flat>
         <q-card-section>
-          <q-input v-model="userFilter" label="search"></q-input>
+          <div class="row q-gutter-sm">
+            <div class="col-4 q-pa-md">
+              <q-input v-model="userFilter" label="search"></q-input>
+            </div>
+            <div class="col-4 q-pa-md">
+              <q-btn @click="newUserDrawer = true" label="Add User" fab icon="add"/>
+            </div>
+          </div>
         </q-card-section>
         <q-card-section>
           <q-markup-table flast>

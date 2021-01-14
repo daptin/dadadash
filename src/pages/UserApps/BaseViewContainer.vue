@@ -14,7 +14,8 @@
                         :key="item.document_name">
                   <q-item-section>{{ item.document_name }}</q-item-section>
                   <q-item-section avatar>
-                    <q-icon :name="baseItemTypes[item.document_extension] ? baseItemTypes[item.document_extension].icon : item.document_extension"></q-icon>
+                    <q-icon
+                      :name="baseItemTypes[item.document_extension] ? baseItemTypes[item.document_extension].icon : item.document_extension"></q-icon>
                   </q-item-section>
                 </q-item>
                 <q-separator/>
@@ -31,13 +32,20 @@
 
           >
             <q-route-tab style="border: 1px solid black; border-radius: 4px"
-              :key="item.reference_id"
-              v-if="item.type !== 'summary'" v-for="item in baseConfig.items"
-              :to="'/workspace/' + workspaceName + '/' + baseName + '/' + item.document_name" exact replace
+                         :key="item.reference_id"
+                         v-if="item.document_extension !== 'summary'" v-for="item in baseConfig.items"
+                         :to="'/workspace/' + workspaceName + '/' + baseName + '/' + item.document_name" exact replace
             >
-              <span><q-icon :name="baseItemTypes[item.document_extension] ? baseItemTypes[item.document_extension].icon : item.document_extension"></q-icon> &nbsp;&nbsp;&nbsp;</span>{{
+              <span>
+                <q-icon
+                  :name="baseItemTypes[item.document_extension] ? baseItemTypes[item.document_extension].icon : item.document_extension"></q-icon> &nbsp;&nbsp;&nbsp;
+              </span>
+              {{
                 item.document_name
               }}
+              <q-tooltip>
+                Right click for menu
+              </q-tooltip>
               <q-menu context-menu
                       style="min-width: 300px">
                 <q-list>
@@ -62,7 +70,7 @@
 
 
           </q-tabs>
-          <q-btn flat class="text-primary tabMenuButton" id="newTableButton" icon="fas fa-plus">
+          <q-btn ref="newItemMenuButton" flat class="text-primary tabMenuButton" id="newTableButton" icon="fas fa-plus">
             <q-menu>
               <q-list style="min-width: 280px">
 
@@ -86,6 +94,45 @@
 
         <base-view-router ref="viewRouter" v-if="baseLoaded && selectedBaseItem" :base-config="baseConfig"
                           :baseItem="selectedBaseItem"></base-view-router>
+        <div v-if="!selectedBaseItem" class="row">
+          <div class="col-6 offset-3 q-pa-md q-gutter-sm">
+            <q-card>
+              <q-card-section>
+                <div class="row">
+                  <div class="col-6">
+                    Select an item to open
+                    <q-list>
+                      <q-item :key="item.reference_id"
+                              v-if="item.document_extension !== 'summary'" v-for="item in baseConfig.items"
+                      >
+                        <q-btn
+                          @click="$router.push('/workspace/' + workspaceName + '/' + baseName + '/' + item.document_name)"
+                          exact replace
+                        >
+                      <span>
+                        <q-icon
+                          :name="baseItemTypes[item.document_extension] ? baseItemTypes[item.document_extension].icon : item.document_extension"></q-icon> &nbsp;&nbsp;&nbsp;
+                      </span>
+                          {{
+                            item.document_name
+                          }}
+                        </q-btn>
+
+                      </q-item>
+                    </q-list>
+
+
+                  </div>
+                  <div class="col-6">
+                    Or <br/>
+                    <q-btn @click="showAddNewItemMenu()" label="Add new item"></q-btn>
+                  </div>
+                </div>
+
+              </q-card-section>
+            </q-card>
+          </div>
+        </div>
 
 
       </q-page>
@@ -101,8 +148,8 @@
             // {icon: 'fas fa-search', event: 'search'},
           ],
         after: [
-            {icon: 'fas fa-sync-alt', event: 'reload-bases'},
-            {icon: 'fas fa-trash', event: 'delete-base'},
+            {icon: 'fas fa-sync-alt', tooltip: 'Reload base and all items', event: 'reload-bases'},
+            {icon: 'fas fa-trash', tooltip: 'Delete this base and all items in it. To delete a single item, right click on the tab', event: 'delete-base'},
           ],
         }" :onBack="() => {$router.push('/workspace/' + $route.params.workspaceName)}"
                      :title='$route.params.workspaceName
@@ -285,15 +332,19 @@ export default {
   },
 
   methods: {
+    showAddNewItemMenu() {
+      document.getElementById("newTableButton").click()
+    },
     saveItemPermissions() {
       const that = this;
       this.showBaseConfigurationModel = false;
       console.log("save config", this.itemConfiguration);
       if (this.itemConfiguration.allowGuests) {
+        that.itemBeingEdited.permission = that.itemBeingEdited.permission | 2;
         that.updateRow({
           tableName: "document",
           id: this.itemBeingEdited.reference_id,
-          permission: 2097059
+          permission: this.itemBeingEdited.permission
         }).then(function (res) {
           that.$q.notify({
             message: "Updated permission for document"
@@ -305,10 +356,11 @@ export default {
           this.showBaseConfigurationModel = true;
         })
       } else {
+        that.itemBeingEdited.permission = that.itemBeingEdited.permission ^ 2;
         that.updateRow({
           tableName: "document",
           id: this.itemBeingEdited.reference_id,
-          permission: 2097025
+          permission: this.itemBeingEdited.permission
         }).then(function (res) {
           that.$q.notify({
             message: "Updated permission for document"
@@ -322,11 +374,12 @@ export default {
       }
     },
     configureBaseItem(item) {
+      console.log("Show item configuration drawer", item)
       this.itemBeingEdited = item;
       this.showBaseConfigurationModel = true;
       this.itemConfiguration = {
         permission: item.permission,
-        allowGuests: false,
+        allowGuests: (item.permission & 2) === 2,
         document_name: item.document_name,
         usersWithWriteAccess: [],
         showOnFrontpage: false,
@@ -344,7 +397,7 @@ export default {
       const that = this;
       that.deleteRow({
         tableName: "document",
-        reference_id: that.itemBeingEdited.reference_id
+        reference_id: that.itemBeingEdited.id
       }).then(function (res) {
         that.$q.notify({
           message: "Item deleted"
@@ -361,7 +414,7 @@ export default {
         console.log("Item to remove from base config", indexToDelete)
         if (indexToDelete > -1) {
           var item = that.baseConfig.items[indexToDelete]
-          if (item.type === "table") {
+          if (item.document_extension === "table") {
             console.log("target table details,", item);
             that.deleteTableByName(item.targetTable.TableName)
           }
@@ -406,18 +459,22 @@ export default {
       }
       this.showRenameBaseViewModel = false;
     },
-    addBaseItem(item) {
+    addBaseItem(itemTemplate) {
       const that = this;
-      console.log("Add new item to base", item);
-      let newItemLabel = "New " + item.type + " - " + Math.floor(Math.random() * 90 + 10);
+      console.log("Add new item to base", itemTemplate);
+      let newItemLabel = "New " + itemTemplate.type + " - " + Math.floor(Math.random() * 90 + 10);
       let newItem = {
-        type: item.type,
+        type: itemTemplate.type,
         label: newItemLabel
       };
-      if (DEFAULT_ITEM_MAP[item.type]) {
-        newItem = DEFAULT_ITEM_MAP[item.type]
-        newItem.document_extension = item.type;
+      if (DEFAULT_ITEM_MAP[itemTemplate.type]) {
+        newItem = DEFAULT_ITEM_MAP[itemTemplate.type]
+        newItem.document_extension = itemTemplate.type;
         newItem.document_name = newItemLabel;
+      }
+      if (newItem.document_extension === "table") {
+        // newItem.targetTable = newItem.attributes
+        // newItem.targetTable.TableName = "tab_" + makeid(7);
       }
 
 
@@ -426,14 +483,14 @@ export default {
       newRow = {
         document_name: newItemLabel,
         tableName: "document",
-        document_extension: item.type,
-        mime_type: 'workspace/' + item.type,
+        document_extension: itemTemplate.type,
+        mime_type: 'workspace/' + itemTemplate.type,
         document_path: "/" + that.workspaceName + "/" + that.baseName,
         document_content: [{
-          name: item.type + "-" + uuidv4() + ".json",
-          type: "workspace/" + item.type,
+          name: itemTemplate.type + "-" + uuidv4() + ".json",
+          type: "workspace/" + itemTemplate.type,
           path: "/" + that.workspaceName + "/" + that.baseName,
-          contents: "workspace/" + item.type + "," + btoa(JSON.stringify(newItem))
+          contents: "workspace/" + itemTemplate.type + "," + btoa(JSON.stringify(newItem))
         }],
       }
 
@@ -444,16 +501,25 @@ export default {
         console.log("New workspace item created", res)
         newItem.reference_id = res.data.reference_id;
         var finalNewItem = {...newItem, ...res.data}
+        console.log("New item created, ensure new tables", finalNewItem)
         that.baseConfig.items.push(finalNewItem);
-        that.baseItemMap[newItem.label] = finalNewItem;
+        that.baseItemMap[newItem.document_name] = finalNewItem;
 
-        that.ensureBaseTables();
+        that.ensureBaseTables().then(function () {
+          that.selectedBaseItem = finalNewItem;
+          that.$nextTick().then(function () {
+            that.$refs.viewRouter.reloadBaseItem()
+            that.renameBaseItem(finalNewItem);
+          })
+        }).catch(function (err) {
+          console.log("Failed to ensure tables for new items", err);
+          that.$q.notify({
+            type: "negative",
+            message: "Something went wrong while creating new item: " + JSON.stringify(err)
+          })
+        });
 
-        that.selectedBaseItem = finalNewItem;
-        that.$nextTick().then(function () {
-          that.$refs.viewRouter.reloadBaseItem()
-          that.renameBaseItem(finalNewItem);
-        })
+
       }).catch(function (err) {
         console.log("Failed to create new item", err)
         that.$q.notify({
@@ -494,7 +560,7 @@ export default {
 
           for (var i = 0; i < that.baseConfig.items.length; i++) {
             var item = that.baseConfig.items[i];
-            if (item.type === "table") {
+            if (item.document_extension === "table") {
               console.log("target table details,", item);
               that.deleteTableByName(item.targetTable.TableName)
             }
@@ -583,11 +649,11 @@ export default {
         that.loadData(queryPayload).then(function (res) {
           console.log("loaded base document", res)
           var baseRow = res.data[0];
+          that.baseRow = baseRow
           if (!baseRow.document_content) {
             alert("Base configuration is empty - " + baseRow)
             return
           }
-          that.baseRow = baseRow
           var baseConfigString = baseRow.document_content[0].contents;
           that.baseConfig = JSON.parse(atob(baseConfigString));
           that.baseConfig.name = that.baseName;
@@ -652,7 +718,7 @@ export default {
 
       for (let i = 0; i < that.baseConfig.items.length; i++) {
         const baseItem = that.baseConfig.items[i];
-        if (baseItem.type === "table") {
+        if (baseItem.document_extension === "table") {
           console.log("Table item", baseItem, baseItem.targetTable);
           var targetTable = baseItem.targetTable;
           if (!targetTable) {
@@ -752,7 +818,7 @@ export default {
 
                       }).catch(function (err) {
                         generateRandomDataAndLoad()
-                        console.log("Failed to generate random data for ", table.TableName, err)
+                        console.log("Failed to generate random data for ", table.TableName, "Trying again in 5 seconds")
                       })
                     }, 5000)
 
@@ -801,7 +867,6 @@ export default {
       that.selectedBaseItem = that.baseItemMap[that.selectedItem]
       that.baseLoaded = true;
       return Promise.resolve();
-
     },
   },
   props: ["baseConfiguration"],

@@ -14,11 +14,12 @@
       <!--      </form>-->
       <q-btn :key="btn.icon" v-for="btn in buttons.before" flat @click="buttonClicked(btn)" :icon="btn.icon"></q-btn>
       <q-btn :key="btn.icon" v-for="btn in buttons.after" flat @click="buttonClicked(btn)" :label="btn.label"
-             :icon="btn.icon"></q-btn>
+             :icon="btn.icon">
+        <q-tooltip v-if="btn.tooltip">{{btn.tooltip}}</q-tooltip>
+      </q-btn>
       <q-space/>
       <q-btn flat :icon="basePermission.read === 'public' ? 'fas fa-eye':  'fas fa-eye-slash'"
-             v-if="documentTable() !== null"
-             :label=" documentTable().permission "
+             v-if="documentTableLocal !== null"
              label="View permissions">
         <q-menu>
 
@@ -106,11 +107,14 @@ export default {
   name: "UserHeaderBar",
   mounted() {
     const that = this;
-    console.log("document table loaded", arguments)
-    var documentTable = that.documentTable();
-    if (documentTable && ((documentTable.permission & that.permissionStructure.GuestRead) === that.permissionStructure.GuestRead)) {
-      that.basePermission.read = "public";
-    }
+    that.loadTable("document", false).then(function () {
+      var documentTable = that.documentTable();
+      that.documentTableLocal = documentTable;
+      console.log("document table loaded", documentTable, arguments);
+      if (documentTable && ((documentTable.permission & that.permissionStructure.GuestRead) === that.permissionStructure.GuestRead)) {
+        that.basePermission.read = "public";
+      }
+    })
   },
   methods: {
     updateBasePermission(newPerm) {
@@ -125,9 +129,9 @@ export default {
         currentDocumentPermission = 2097024;
       }
       console.log("Update permission for site", currentDocumentPermission, this.basePermission.read);
-      var promimses = [];
+      var promises = [];
       if (document.permission !== currentDocumentPermission) {
-        promimses.push(that.updateRow({
+        promises.push(that.updateRow({
           tableName: 'world',
           id: document.reference_id,
           permission: currentDocumentPermission,
@@ -135,13 +139,13 @@ export default {
       }
 
       if (that.worldTable().permission !== currentDocumentPermission) {
-        promimses.push(that.updateRow({
+        promises.push(that.updateRow({
           tableName: 'world',
           id: that.worldTable().reference_id,
           permission: currentDocumentPermission,
         }))
       }
-      Promise.all(promimses).then(function (res) {
+      Promise.all(promises).then(function (res) {
         that.$q.notify({
           message: "Table permissions updated"
         })
@@ -184,12 +188,13 @@ export default {
       this.$router.push("/login");
       window.location = window.location;
     },
-    ...mapActions(['setDecodedAuthToken', 'loadData', 'updateRow', 'executeAction'])
+    ...mapActions(['setDecodedAuthToken', 'loadData', 'updateRow', 'executeAction', 'loadTable'])
   },
   data() {
     return {
       ...mapGetters(['decodedAuthToken', 'documentTable', 'worldTable']),
       searchQuery: null,
+      documentTableLocal: null,
       basePermission: {
         read: 'private',
         write: 'private',

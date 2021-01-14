@@ -2,27 +2,11 @@
   <q-page-container>
     <q-page>
 
-    <div class="q-pa-md q-gutter-sm">
-      <q-breadcrumbs>
-        <template v-slot:separator>
-          <q-icon
-            size="1.2em"
-            name="arrow_forward"
-          />
-        </template>
-
-        <q-breadcrumbs-el label="Users" icon="fas fa-user"/>
-        <q-breadcrumbs-el label="Groups" icon="fas fa-users"/>
-      </q-breadcrumbs>
-    </div>
-    <q-separator></q-separator>
-
-    <q-page-sticky position="bottom-right" :offset="[50, 50]">
-      <q-btn @click="newGroupDrawer = true" label="Add Group" fab icon="add" color="primary"/>
-    </q-page-sticky>
-
-    <div class="row">
-      <div class="col-12">
+    <div class="row q-gutter-sm">
+      <div class="col-8 q-pa-md">
+        <q-btn @click="newGroupDrawer = true" label="Add Group" fab icon="add" color="primary"/>
+      </div>
+      <div class="col-12 q-pa-md">
         <q-markup-table>
           <tbody>
           <tr style="cursor: pointer" @click="$router.push('/groups/' + group.reference_id)" v-for="group in groups">
@@ -32,9 +16,9 @@
         </q-markup-table>
 
       </div>
-    </div>
+    </div>d
 
-    <q-drawer :width="500" content-class="bg-grey-3" side="right" v-model="newGroupDrawer">
+    <q-drawer overlay :width="500" content-class="bg-grey-3" side="right" v-model="newGroupDrawer">
       <q-scroll-area class="fit row">
         <div class="q-pa-md">
           <span class="text-h6">Create group</span>
@@ -47,22 +31,6 @@
       </q-scroll-area>
     </q-drawer>
 
-    <q-page-sticky v-if="!showHelp" position="top-right" :offset="[0, 0]">
-      <q-btn flat @click="showHelp = true" fab icon="fas fa-question"/>
-    </q-page-sticky>
-
-    <q-drawer overlay :width="400" side="right" v-model="showHelp">
-      <q-scroll-area class="fit">
-        <help-page @closeHelp="showHelp = false">
-          <template v-slot:help-content>
-            <q-markdown src="::: tip
-You can create different user groups here. Different user groups can have different permissions.
-E.g. Admin Group that has permissions to create, read, write and delete tables.
-:::"></q-markdown>
-          </template>
-        </help-page>
-      </q-scroll-area>
-    </q-drawer>
     </q-page>
 
 

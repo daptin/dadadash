@@ -21,7 +21,7 @@ export default {
 
   components: {BaseViewContainer},
   methods: {
-    ...mapActions(['loadTable', 'loadModel', 'loadData'])
+    ...mapActions(['loadModel', 'loadData'])
   },
   meta() {
     return {

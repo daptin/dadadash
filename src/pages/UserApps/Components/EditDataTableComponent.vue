@@ -1105,7 +1105,7 @@ const tableComponent = {
                   case "like":
                     queryFilters.push({
                       "column": filter.field,
-                      "operator": "like",
+                      "operator": "begins with",
                       "value": filter.value,
                     })
                     break;
@@ -1213,7 +1213,7 @@ const tableComponent = {
         console.log("Table row", res, arguments);
         if (!res.data || res.data.length !== 1) {
           that.$q.notify({
-            message: "Failed to load table metadata"
+            message: "No data in this table is available to guests"
           });
           return;
         }
