@@ -101,7 +101,7 @@
 
 </template>
 <style scoped>
-@import 'src/static/ckeditor/ckeditor.css';
+@import '../../static/ckeditor/ckeditor.css';
 
 @page {
   size: 5.5in 8.5in;

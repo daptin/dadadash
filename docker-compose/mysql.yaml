@@ -33,13 +33,15 @@ services:
       - db
     image: daptin/daptin:latest
     ports:
-      - '8000:80'
+      - '8080:8080'
     restart: always
-    volumes: ['./:/opt/daptin']
+    volumes:
+      - storage:/opt/daptin/storage
     environment:
-      daptin_DB_HOST: db:3306
-      daptin_DB_USER: daptin
-      daptin_DB_PASSWORD: daptin
+      DAPTIN_DB_HOST: db:3306
+      DAPTIN_DB_CONNECTION_STRING: daptin:daptin@tcp(db:3306)/daptin
+      DAPTIN_DB_TYPE: mysql
+      DAPTIN_PORT: 8080
     networks:
       - daptinsite
 networks:
