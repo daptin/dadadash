@@ -148,6 +148,7 @@ body[data-editor="DecoupledDocumentEditor"] {
 
 </style>
 <script>
+
 import {mapActions, mapGetters} from "vuex";
 import '../../statics/ckeditor/ckeditor'
 import JSZip from 'jszip'
