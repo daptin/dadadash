@@ -60,10 +60,10 @@
 </template>
 
 <style>
-@import "../../static/luckysheet/css/luckysheet.css";
-@import "../../static/luckysheet/plugins/css/pluginsCss.css";
-@import "../../static/luckysheet/plugins/plugins.css";
-@import "../../static/luckysheet/assets/iconfont/iconfont.css";
+@import "../../statics/luckysheet/css/luckysheet.css";
+@import "../../statics/luckysheet/plugins/css/pluginsCss.css";
+@import "../../statics/luckysheet/plugins/plugins.css";
+@import "../../statics/luckysheet/assets/iconfont/iconfont.css";
 
 .q-layout__shadow::after {
   box-shadow: none;
@@ -308,12 +308,12 @@ export default {
 
     var script1 = document.createElement("script");
     script1.setAttribute("type", "text/javascript");
-    script1.setAttribute("src", "/static/luckysheet/plugins/js/plugin.js");
+    script1.setAttribute("src", "/statics/luckysheet/plugins/js/plugin.js");
     document.getElementsByTagName("head")[0].appendChild(script1);
 
     var script = document.createElement("script");
     script.setAttribute("type", "text/javascript");
-    script.setAttribute("src", "/static/luckysheet/luckysheet.umd.js");
+    script.setAttribute("src", "/statics/luckysheet/luckysheet.umd.js");
 
     document.getElementsByTagName("head")[0].appendChild(script);
     script.onload = function () {
