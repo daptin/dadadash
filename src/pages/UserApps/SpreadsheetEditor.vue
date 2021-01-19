@@ -308,12 +308,12 @@ export default {
 
     var script1 = document.createElement("script");
     script1.setAttribute("type", "text/javascript");
-    script1.setAttribute("src", "/statics/luckysheet/plugins/js/plugin.js");
+    script1.setAttribute("src", "/static/luckysheet/plugins/js/plugin.js");
     document.getElementsByTagName("head")[0].appendChild(script1);
 
     var script = document.createElement("script");
     script.setAttribute("type", "text/javascript");
-    script.setAttribute("src", "/statics/luckysheet/luckysheet.umd.js");
+    script.setAttribute("src", "/static/luckysheet/luckysheet.umd.js");
 
     document.getElementsByTagName("head")[0].appendChild(script);
     script.onload = function () {

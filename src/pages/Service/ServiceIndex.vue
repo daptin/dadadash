@@ -3,7 +3,7 @@
     <q-page>
       <div class="row ">
         <img class="q-pa-sm" style="width: 50px;height: 50px;margin-right: -13px; margin-top: 15px"
-             src="statics/icons/app-logo-128x128.png"/>
+             src="static/icons/app-logo-128x128.png"/>
         <div class="col-10 q-pa-md">
           <span class="text-h3 ">Daptin</span>
         </div>
