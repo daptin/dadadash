@@ -212,7 +212,7 @@ export default {
   },
   watch: {
     'contents': function (newVal, oldVal) {
-      console.log("Contents changed", arguments)
+      // console.log("Contents changed", arguments)
     }
   },
   methods: {
@@ -355,14 +355,16 @@ export default {
             that.editor = editor;
             editor.setData("page-1", that.contents);
             // that.pageReflow()
-            const saveMethod = debounce(that.saveDocument, 800, false)
+            const saveMethod = debounce(function (){
+              that.contents = editor.getData()["page-1"];
+              that.saveDocument()
+            }, 1200, false);
+
             if (that.decodedAuthToken()) {
               editor.onChange((res) => { //提供onChange方法获取数据
-                console.log("Editor on change", res)
-                that.contents = editor.getData()["page-1"];
+                // console.log("Editor on change", res)
                 // console.log("Editor contents", that.contents)
                 saveMethod();
-
               })
             }
 
