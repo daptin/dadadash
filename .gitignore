@@ -33,3 +33,4 @@ yarn-error.log*
 *.sln
 dadadash.iml
 keys
+dist
