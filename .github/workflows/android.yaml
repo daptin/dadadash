@@ -29,11 +29,13 @@ jobs:
         env:
           RELEASE_KEYSTORE: ${{ secrets.RELEASE_KEYSTORE }}
           RELEASE_KEYSTORE_PASSPHRASE: ${{ secrets.RELEASE_KEYSTORE_PASSPHRASE }}
+          CORDOVA_BUILD_CONFIG: ${{ secrets.CORDOVA_BUILD_CONFIG }}
         run: |
             echo "creating keystore"
             ls -lah
             mkdir keys
             echo "$RELEASE_KEYSTORE" > keys/quasar-release-key.jks.asc
+            echo "$CORDOVA_BUILD_CONFIG" > build.cordova.json
             echo "finishing creating keystore"
             find keys
             echo "decode passphrase"
