@@ -51,7 +51,7 @@ jobs:
             npm install
             npm run build-android
             find . | grep apk
-            mv dist/cordova/android/apk/release/app-release-unsigned.apk dist/cordova/android/apk/release/dadadash-app.apk
+            mv dist/cordova/android/apk/release/app-release.apk dist/cordova/android/apk/release/dadadash-app.apk
 
 
       - uses: actions/upload-artifact@v2
