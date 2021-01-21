@@ -1,0 +1,18 @@
+{
+  "android": {
+    "debug": {
+      "keystore": "../keys/quasar-debug-key.jks",
+      "storePassword": "*********",
+      "alias": "quasar-debug",
+      "password" : "*********",
+      "keystoreType": "jks"
+    },
+    "release": {
+      "keystore": "../keys/quasar-release-key.jks",
+      "storePassword": "*********",
+      "alias": "quasar-release",
+      "password" : "*********",
+      "keystoreType": "jks"
+    }
+  }
+}

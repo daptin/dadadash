@@ -31,6 +31,13 @@ jobs:
           exec: |
             npm install -g @quasar/cli
             npm install
+            echo "creating keystore"
+            mkdir keys
+            echo "$RELEASE_KEYSTORE" > keys/quasar-release-key.jks
+            echo "finishing creating keystore"
+            echo "decode passphrase"
+            gpg -d --passphrase "$RELEASE_KEYSTORE_PASSPHRASE" --batch keys/quasar-release-key.jks.asc > keys/quasar-release-key.jks
+            echo "finishing decoding passphrase"
             quasar build -m android
             find . -name '*.apk'
             mv dist/cordova/android/apk/release/app-release-unsigned.apk dist/cordova/android/apk/release/dadadash-app.apk
