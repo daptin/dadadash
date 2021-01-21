@@ -41,7 +41,7 @@ export default {
   mounted() {
 
     const that = this;
-    that.initDaptinClient().then(function (){
+    that.initDaptinClient().then(function () {
 
       let appConnectionStatus = that.appConnectionStatus();
       console.log("Loaded app user is ", that.loggedIn(), appConnectionStatus);
@@ -54,6 +54,9 @@ export default {
       if (!that.loggedIn()) {
         that.$router.push("/login")
       }
+    }).catch(function (err) {
+      console.log("Daptin client initialization failed, we are offline", err)
+      that.$router.push('/backend')
     })
 
 
