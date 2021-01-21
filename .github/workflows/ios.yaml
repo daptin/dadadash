@@ -39,7 +39,7 @@ jobs:
 
       - uses: actions/upload-artifact@v2
         with:
-          name: dadadash-app.apk
+          name: DadaDash.app
           path: dist/cordova/ios/DadaDash.app
 
 
