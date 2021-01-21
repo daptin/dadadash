@@ -25,12 +25,11 @@ jobs:
         with:
           node-version: '12'
 
-      - name: Use oxr463/setup-cordova
-        uses: oxr463/setup-cordova@0.0.2
-        with:
-          exec: |
-            npm install -g @quasar/cli
-            npm install
+      - name: Make key file
+        env:
+          RELEASE_KEYSTORE: ${{ secrets.RELEASE_KEYSTORE }}
+          RELEASE_KEYSTORE_PASSPHRASE: ${{ secrets.RELEASE_KEYSTORE_PASSPHRASE }}
+        run: |
             echo "creating keystore"
             mkdir keys
             echo "$RELEASE_KEYSTORE" > keys/quasar-release-key.jks
@@ -38,6 +37,14 @@ jobs:
             echo "decode passphrase"
             gpg -d --passphrase "$RELEASE_KEYSTORE_PASSPHRASE" --batch keys/quasar-release-key.jks.asc > keys/quasar-release-key.jks
             echo "finishing decoding passphrase"
+
+
+      - name: Use oxr463/setup-cordova
+        uses: oxr463/setup-cordova@0.0.2
+        with:
+          exec: |
+            npm install -g @quasar/cli
+            npm install
             npm run build-android
             find . | grep apk
             mv dist/cordova/android/apk/release/app-release-unsigned.apk dist/cordova/android/apk/release/dadadash-app.apk
