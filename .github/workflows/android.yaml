@@ -31,9 +31,11 @@ jobs:
           RELEASE_KEYSTORE_PASSPHRASE: ${{ secrets.RELEASE_KEYSTORE_PASSPHRASE }}
         run: |
             echo "creating keystore"
+            ls -lah
             mkdir keys
-            echo "$RELEASE_KEYSTORE" > keys/quasar-release-key.jks
+            echo "$RELEASE_KEYSTORE" > keys/quasar-release-key.jks.asc
             echo "finishing creating keystore"
+            find .
             echo "decode passphrase"
             gpg -d --passphrase "$RELEASE_KEYSTORE_PASSPHRASE" --batch keys/quasar-release-key.jks.asc > keys/quasar-release-key.jks
             echo "finishing decoding passphrase"
