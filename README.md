@@ -12,7 +12,7 @@ Selfhost and own your suite of applications for office.
 
 ## Status
 
-Current release (pre v1) is free for all to use and does not come with any dedicated support. v1 is going to be a one-time paid product < $100. It will include email based support and updates to all patches for the next year.
+Current release (pre v1) is free for all to use and does not come with any dedicated support.
 
 ## Try it now
 
