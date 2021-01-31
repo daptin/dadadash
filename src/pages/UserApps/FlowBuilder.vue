@@ -39,7 +39,8 @@
                   </q-expansion-item>
 
 
-                  <q-expansion-item header-class="bg-blue-3" :key="'integration-' + index" v-for="(integration, index) in integrations()"
+                  <q-expansion-item header-class="bg-blue-3" :key="'integration-' + index"
+                                    v-for="(integration, index) in integrations()"
                                     :label="integration.name">
                     <div style="max-height: 50vh; overflow-y: auto; word-break: break-all"
                     >
@@ -120,11 +121,13 @@
                           <q-input :name="attribute" :label="attribute" v-model="node.data.Attributes[attribute]"/>
                         </div>
                         <div class="col-1">
-                          <q-btn icon="fas fa-times" color="negative" size="xs" flat></q-btn>
+                          <q-btn @click="deleteAttribute(node, attribute)" icon="fas fa-times" color="negative"
+                                 size="xs" flat></q-btn>
                         </div>
                       </div>
                       <div class="row q-pa-md" v-if="i === 0">
-                        <q-btn size="md" label="Add new input field"></q-btn>
+                        <q-btn size="md" color="green" @click="showNewInputFieldNameDialog = true"
+                               label="Add new input field"></q-btn>
                       </div>
                     </div>
 
@@ -139,6 +142,19 @@
 
         </div>
       </div>
+      <q-dialog v-model="showNewInputFieldNameDialog">
+        <q-card>
+          <q-card-section>
+            <span class="text-h6">Name for new input field</span>
+          </q-card-section>
+          <q-card-section>
+            <q-input label="Name" v-model="newInputFieldName"></q-input>
+          </q-card-section>
+          <q-card-actions align="right">
+            <q-btn label="Add" color="primary" @click="addNewInputField()"></q-btn>
+          </q-card-actions>
+        </q-card>
+      </q-dialog>
       <q-dialog v-model="newDataBlockConfigurationDialog">
         <q-card style="min-width: 30%">
           <q-card-section>
@@ -150,15 +166,15 @@
           </q-card-section>
           <q-card-section v-if="!!newDataBlockForTable">
             <div class="row" v-for="column in JSON.parse(newDataBlockForTable.world_schema_json).Columns">
-              <div class="col-12">
+              <div class="col-12 q-pa-xs">
                 {{ column.ColumnName }}
               </div>
             </div>
           </q-card-section>
           <q-card-actions align="right">
-<!--            <q-btn label="Cancel"-->
-<!--                   @click="(newDataBlockConfigurationDialog = false), (newDataBlockForTable = null) "></q-btn>-->
-            <q-btn label="Add"></q-btn>
+            <!--            <q-btn label="Cancel"-->
+            <!--                   @click="(newDataBlockConfigurationDialog = false), (newDataBlockForTable = null) "></q-btn>-->
+            <q-btn label="Add" color="primary" @click="addNode(null, null, newDataBlockForTable)"></q-btn>
           </q-card-actions>
         </q-card>
       </q-dialog>
@@ -180,6 +196,7 @@
 <script>
 import "@hipsjs/flowy-vue/dist/lib/flowy-vue.css";
 import {v4 as uuidv4} from "uuid";
+import Vue from 'vue'
 import {mapActions, mapGetters} from "vuex";
 import DataActionNode from "pages/Components/DataActionNode";
 import DataActionBlock from "pages/Components/DataActionBlock";
@@ -188,6 +205,25 @@ export default {
   name: "FlowBuilder",
   components: {DataActionBlock, DataActionNode},
   methods: {
+    addNewInputField() {
+      console.log("New input field", this.newInputFieldName)
+      if (!this.newInputFieldName) {
+        this.$q.notify({
+          type: "error",
+          message: "Please enter a name"
+        });
+        return;
+      }
+      // this.nodes[0].Attributes[this.newInputFieldName] = "";
+      Vue.set(this.nodes[0].data.Attributes, this.newInputFieldName, "")
+      this.newInputFieldName = "";
+
+      this.showNewInputFieldNameDialog = false;
+    },
+    deleteAttribute(node, attribute) {
+      console.log("Delete attribute", node.data.Attributes, attribute)
+      Vue.delete(node.data.Attributes, attribute);
+    },
     ...mapActions(['refreshIntegrations']),
     swapItem(i, j) {
       const temp = this.nodes[j];
@@ -195,57 +231,11 @@ export default {
       this.nodes[i] = temp;
       this.$forceUpdate();
     },
-    onDragStartNewBlock(event) {
-      console.log('onDragStartNewBlock', event);
-      // contains all the props and attributes passed to data-action-block
-      const {props} = event
-      this.newDraggingBlock = props;
-    },
-    onDragStopNewBlock(event) {
-      console.log('onDragStopNewBlock', event);
-      this.newDraggingBlock = null;
-    },
-    // REQUIRED
-    beforeMove({to, from}) {
-      // called before moving node (during drag and after drag)
-      // indicator will turn red when we return false
-      // from is null when we're not dragging from the current node tree
-      console.log('beforeMove', to, from);
-
-      // we cannot drag upper parent nodes in this demo
-      if (from && from.parentId === -1) {
-        return false;
-      }
-      // we're adding a new node (not moving an existing one)
-      if (from === null) {
-        // we've passed this attribute to the data-action-block
-        if (this.newDraggingBlock['custom-attribute'] === false) {
-          return false
-        }
-      }
-
-      return true;
-    },
-    // REQUIRED
-    beforeAdd({to, from}) {
-      // called before moving node (during drag and after drag)
-      // indicator will turn red when we return false
-      // from is null when we're not dragging from the current node tree
-      console.log('beforeAdd', to, from);
-
-      // we've passed this attribute to the data-action-block
-      if (this.newDraggingBlock['custom-attribute'] === false) {
-        return false
-      }
-
-      return true;
-    },
-    randomInteger() {
-      return Math.floor(Math.random() * 10000) + 1;
-    },
     addNode(nodeType, node) {
 
       console.log("add node", nodeType, node)
+      this.newNodeType = nodeType;
+      this.newNodeData = node;
       switch (nodeType) {
         case "data":
           this.newDataBlockConfigurationDialog = true;
@@ -311,22 +301,6 @@ export default {
     },
 
     parseAction() {
-      const that = this;
-      let integrations = this.integrations();
-      if (integrations.length === 0) {
-        this.refreshIntegrations().then(function (res) {
-          console.log("Integrtions loaded")
-        }).then(this.parseIntegrationActions)
-          .catch(function (err) {
-            console.log("Failed to load integrations", err);
-            that.$q.notify({
-              message: "Failed to load OpenAPI Integrations",
-              type: "error"
-            })
-          })
-      } else {
-        this.parseIntegrationActions()
-      }
 
       let action = this.selectedActionForEditor();
       let actionSchema = action.action_schema;
@@ -334,7 +308,7 @@ export default {
       let parentId = uuidv4();
       var inputAttributes = {};
       for (const inField of actionSchema.InFields) {
-        inputAttributes[inField.Name] = "";
+        inputAttributes[inField.ColumnName] = "";
       }
       this.nodes.push({
         id: parentId,
@@ -361,6 +335,11 @@ export default {
     },
   },
   data: () => ({
+    newInputFieldNameDialog: false,
+    newNodeData: null,
+    newNodeType: null,
+    showNewInputFieldNameDialog: false,
+    newInputFieldName: null,
     newDataBlockForTable: null,
     newDataBlockConfigurationDialog: false,
     actionNameFilter: null,
@@ -527,7 +506,25 @@ export default {
     }
     console.log("action editor for ", this.$route.params, selectedAction);
 
+    const that = this;
+    let integrations = this.integrations();
+
     this.parseAction();
+    if (integrations.length === 0) {
+      this.refreshIntegrations().then(function (res) {
+        console.log("Integrtions loaded")
+      }).then(this.parseIntegrationActions)
+        .catch(function (err) {
+          console.log("Failed to load integrations", err);
+          that.$q.notify({
+            message: "Failed to load OpenAPI Integrations",
+            type: "error"
+          })
+        })
+    } else {
+      this.parseIntegrationActions()
+    }
+
 
   }
 }
