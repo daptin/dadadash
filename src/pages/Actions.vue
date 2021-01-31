@@ -39,7 +39,6 @@
       </div>
 
 
-
       <q-drawer overlay :width="400" side="right" v-model="showCreateActionDrawer">
         <q-scroll-area class="fit row">
           <q-card>
@@ -114,10 +113,13 @@ OutFields:`)
       }, 400)
     },
     showEditAction(action) {
-      this.selectedAction = action;
-      this.showEditActionDrawer = true
-      this.newAction.name = action.name;
-      this.newAction.root_path = action.root_path;
+      console.log("Edit action", action)
+      // this.selectedAction = action;
+      // this.showEditActionDrawer = true
+      // this.newAction.name = action.name;
+      // this.newAction.root_path = action.root_path;
+      this.setSelectedActionForEditor(action);
+      this.$router.push('/integrations/action/' + action.action_schema.OnType + "/" + action.action_name)
     },
     deleteAction() {
       const that = this;
@@ -211,60 +213,40 @@ OutFields:`)
         }
       });
     },
-    ...mapActions(['loadData', 'getTableSchema', 'createRow', 'deleteRow', 'updateRow', 'executeAction']),
+    ...mapActions(['loadData', 'getTableSchema',
+      'createRow', 'deleteRow', 'refreshActions',
+      'updateRow', 'executeAction', 'setSelectedActionForEditor']),
     refresh() {
-      var tableName = "action";
       const that = this;
-      this.loadData({
-        tableName: tableName,
-        params: {
-          page: {
-            size: 500
-          }
-        }
-      }).then(function (data) {
-        console.log("Loaded data", data);
-        let actions = data.data.map(function (e) {
+      this.refreshActions().then(function () {
+        var actions = that.actions.map(function (e) {
+          var newObj = JSON.parse(JSON.stringify(e));
           try {
-            e.action_schema = JSON.parse(e.action_schema)
-          } catch (e) {
-            e.action_schema = {
+            newObj.action_schema = JSON.parse(newObj.action_schema);
+          } catch (err) {
+            newObj.action_schema = {
               InFields: [],
               OutFields: [],
-              Name: e.action_name,
-              Label: e.action_name,
+              Name: newObj.action_name,
+              Label: newObj.action_name,
             }
           }
-          return e;
+          return newObj;
         });
-        actions.sort(function (a, b) {
-          return a.action_name < b.action_name;
-        })
-        that.actions = actions;
+        console.log("loaded actions", actions)
+        that.localActions = actions;
       })
-      this.loadData({
-        tableName: "world",
-        params: {
-          page: {
-            size: 500
-          }
-        }
-      }).then(function (data) {
-        // console.log("Loaded tables data", data);
-        let tables = data.data.filter(function (e) {
-          return e.table_name.indexOf("_has_") === -1;
-        });
-        tables = tables.sort(function (a, b) {
-          return a.table_name > b.table_name;
-        });
-        that.tables = tables;
-      })
+
+      that.localTables = that.tables.sort(function (a, b) {
+        return a.table_name > b.table_name;
+      });
+
     }
   },
   data() {
     return {
       text: '',
-      tables: [],
+      localTables: [],
       actionSchemaEditor: null,
       actionFilter: null,
       selectedAction: {},
@@ -316,7 +298,7 @@ OutFields:`)
       showCreateActionDrawer: false,
       showEditActionDrawer: false,
       filter: null,
-      actions: [],
+      localActions: [],
       columns: [
         {
           name: 'name',
@@ -335,7 +317,7 @@ OutFields:`)
   computed: {
     filteredActions() {
       const that = this;
-      return that.actions.filter(function (e) {
+      return that.localActions.filter(function (e) {
         return !that.actionFilter || (
           e.action_name.indexOf(that.actionFilter) > -1 ||
           e.action_schema.OnType.indexOf(that.actionFilter) > -1 ||
@@ -343,7 +325,7 @@ OutFields:`)
         )
       })
     },
-    ...mapGetters([]),
+    ...mapGetters(['actions', 'tables']),
     ...mapState([])
   },
 

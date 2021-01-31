@@ -6,6 +6,60 @@ import {Platform} from 'quasar'
 var daptinClient = null;
 let appIsOnline = false;
 
+export function setSelectedActionForEditor({commit, state}, action) {
+  commit("setSelectedActionForEditor", action)
+}
+
+export function logout({commit, state}) {
+  console.log("Logout user, remove token")
+  localStorage.removeItem("token");
+  localStorage.removeItem("user");
+  document.cookie = 'token=';
+  commit("setDecodedAuthToken", null);
+}
+
+export function refreshActions({commit, state}) {
+  return new Promise(function (resolve, reject) {
+    daptinClient.jsonApi.findAll("action", {
+      page: {
+        size: 500
+      }
+    }).then(function (res) {
+      console.log("loaded actions", res);
+      commit("setActions", res.data);
+      resolve();
+    }).catch(reject)
+  })
+}
+
+export function refreshIntegrations({commit, state}) {
+  return new Promise(function (resolve, reject) {
+    daptinClient.jsonApi.findAll("integration", {
+      page: {
+        size: 500
+      }
+    }).then(function (res) {
+      console.log("loaded integration", res);
+      commit("setIntegrations", res.data);
+      resolve();
+    }).catch(reject)
+  })
+}
+
+export function refreshWorlds({commit, state}) {
+  return new Promise(function (resolve, reject) {
+    daptinClient.jsonApi.findAll("integration", {
+      page: {
+        size: 500
+      }
+    }).then(function (res) {
+      console.log("loaded integration", res);
+      commit("setIntegrations", res.data);
+      resolve();
+    }).catch(reject)
+  })
+}
+
 export function initDaptinClient({commit, state}) {
 
   return new Promise(function (resolve, reject) {
@@ -19,6 +73,7 @@ export function initDaptinClient({commit, state}) {
       let newEndpoint = localStorage.getItem("DAPTIN_ENDPOINT")
       if (newEndpoint && newEndpoint.startsWith("http")) {
         endpoint = newEndpoint;
+        commit("setEndpoint", endpoint);
       }
     }
 
@@ -46,6 +101,7 @@ export function initDaptinClient({commit, state}) {
   })
 
 }
+
 export function loadTables({commit}) {
   console.log("Load tables");
   return daptinClient.worldManager.loadModels(false).then(function (worlds) {

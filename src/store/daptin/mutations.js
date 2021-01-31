@@ -18,6 +18,22 @@ export function setTableRow(state, tableRow) {
   state.tableMap[tableRow.table_name] = tableRow
 }
 
+export function setEndpoint(state, endpoint) {
+  state.endpoint = endpoint
+}
+
+export function setSelectedActionForEditor(state, action) {
+  state.selectedActionForEditor = action
+}
+
+export function setActions(state, actions) {
+  state.actions = actions
+}
+
+export function setIntegrations(state, integrations) {
+  state.integrations = integrations
+}
+
 export function setCurrent(state, currentInfo) {
   var keys = Object.keys(currentInfo);
   for (const key of keys) {

@@ -1,8 +1,13 @@
-# Dadadash  
+# Dadadash
+
+## Try it now
 
 [![Deploy](https://www.herokucdn.com/deploy/button.svg)](https://dashboard.heroku.com/new?template=https%3A%2F%2Fgithub.com%2Fdaptin%2Fdadadash%2F)
 
-Selfhost and own your suite of applications for office.
+
+```docker run -p 8080:8080 daptin/dadadash```
+
+Office application suite
 
 - File/folder manager
 - Rich document editor
@@ -10,13 +15,12 @@ Selfhost and own your suite of applications for office.
 - Calendar
 - Data tables with CRUD API's
 
+
+
 ## Status
 
 Current release (pre v1) is free for all to use and does not come with any dedicated support. v1 is going to be a one-time paid product < $100. It will include email based support and updates to all patches for the next year.
 
-## Try it now
-
-```docker run -p 8080:8080 daptin/dadadash```
 
 ## What is inside
 

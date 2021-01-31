@@ -1,6 +1,6 @@
 <template>
   <div class="row">
-    <div class="col-6 offset-3">
+    <div class="col-6 col-sm-12 col-md-8 col-xs-12">
       <q-card style="background: transparent" flat>
         <q-card-section>
           <span class="text-h5">Create a base</span>
@@ -39,6 +39,9 @@
         </q-card-actions>
 
       </q-card>
+      <br />
+      <br />
+      <br />
     </div>
   </div>
 </template>

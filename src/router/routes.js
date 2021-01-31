@@ -103,6 +103,9 @@ const routes = [
       {
         path: 'actions', component: () => import('pages/Actions.vue')
       },
+      {
+        path: 'action/:worldName/:actionName', component: () => import('pages/UserApps/FlowBuilder.vue')
+      },
     ]
   },
   {

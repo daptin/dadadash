@@ -15,7 +15,7 @@
       <q-btn :key="btn.icon" v-for="btn in buttons.before" flat @click="buttonClicked(btn)" :icon="btn.icon"></q-btn>
       <q-btn :key="btn.icon" v-for="btn in buttons.after" flat @click="buttonClicked(btn)" :label="btn.label"
              :icon="btn.icon">
-        <q-tooltip v-if="btn.tooltip">{{btn.tooltip}}</q-tooltip>
+        <q-tooltip v-if="btn.tooltip">{{ btn.tooltip }}</q-tooltip>
       </q-btn>
       <q-space/>
       <q-btn flat :icon="basePermission.read === 'public' ? 'fas fa-eye':  'fas fa-eye-slash'"
@@ -82,7 +82,7 @@
                 label="Logout"
                 push
                 rounded
-                @click="logout()"
+                @click="triggerLogout()"
                 size="sm"
                 v-close-popup
               />
@@ -181,14 +181,11 @@ export default {
       }
       this.$emit(btn.event, this.searchQuery);
     },
-    logout() {
-      localStorage.removeItem("token");
-      localStorage.removeItem("user");
-      this.setDecodedAuthToken(null);
+    triggerLogout() {
       this.$router.push("/login");
-      window.location = window.location;
+      this.logout();
     },
-    ...mapActions(['setDecodedAuthToken', 'loadData', 'updateRow', 'executeAction', 'loadTable'])
+    ...mapActions(['setDecodedAuthToken', 'loadData', 'updateRow', 'executeAction', 'loadTable', 'logout'])
   },
   data() {
     return {

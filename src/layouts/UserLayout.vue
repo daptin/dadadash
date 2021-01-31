@@ -2,7 +2,7 @@
 
 
   <div>
-    <router-view @logout="logout()" v-if="loaded"/>
+    <router-view @logout="triggerLogout()" v-if="loaded"/>
     <q-dialog persistent v-model="showOfflineDialog" position="bottom">
       <q-card style="width: 350px">
         <q-linear-progress :value="1" color="red"/>
@@ -156,10 +156,10 @@ export default {
 
   },
   methods: {
-    ...mapActions(['getDefaultCloudStore', 'loadModel', 'executeAction', 'loadData', 'setDecodedAuthToken', 'loadTable']),
-    logout() {
-      localStorage.removeItem("token");
-      localStorage.removeItem("user");
+    ...mapActions(['getDefaultCloudStore', 'loadModel', 'executeAction', 'loadData', 'setDecodedAuthToken', 'loadTable', 'logout']),
+    triggerLogout() {
+
+      this.logout();
       // this.$router.push("/login");
       // window.location = window.location;
     }

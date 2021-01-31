@@ -28,7 +28,7 @@
             <q-card flat style="background: white">
               <q-card-section>
                 <q-btn style="width: 100%; height: 38px" @click="showNewWorkspace = true" color="primary"
-                       icon="library_add" label="Add workspace"></q-btn>
+                       label="Add workspace"></q-btn>
               </q-card-section>
 
               <q-card-section>

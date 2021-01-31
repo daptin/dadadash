@@ -494,7 +494,7 @@ const tableComponent = {
             return fileUploaderCell(cell, formatterParams);
           }
           var field = row.data[column.field][0];
-          return "<a href='" + assetEndpoint + "/asset/" + row.data.__type + "/" + row.data.reference_id + "/" + column.field + ".'" + field.type.split("/")[1] + "></a>";
+          return "<a href='" + that.endpoint + "/asset/" + row.data.__type + "/" + row.data.reference_id + "/" + column.field + ".'" + field.type.split("/")[1] + "></a>";
         },
       });
 
@@ -1002,7 +1002,39 @@ const tableComponent = {
               })
             } else {
               // TODO
-              console.log("Existing column rename")
+              console.log("Existing column rename");
+
+
+              that.executeAction({
+                tableName: "world",
+                actionName: "rename_column",
+                params: {
+                  column_name: columnDefinition.field,
+                  new_column_name: columnField,
+                  world_id: that.table.reference_id,
+                }
+              }).then(function (res) {
+                console.log("Update field definition for column", columnComponent, columnField);
+
+                that.spreadsheet.updateColumnDefinition(columnDefinition.field, {field: columnField})
+
+                // that.newColumnTypeToBeAdded.field = columnField;
+                // that.spreadsheet.addColumn(that.newColumnTypeToBeAdded, false, secondLastColumn._column.field)
+
+                that.$q.notify({
+                  message: "Column " + columnTitle + " renamed"
+                });
+                setTimeout(function () {
+                  console.log("Reload model for ", that.tableName)
+                  that.loadModel(that.tableName, true).then(function () {
+                    console.log("Model refreshed, reload data", that.tableName)
+                    that.spreadsheet.getData()
+                  })
+                }, 6000)
+              })
+
+
+
             }
 
             columnComponent.updateDefinition({editableTitle: false})

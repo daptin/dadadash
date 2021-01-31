@@ -503,7 +503,7 @@ export default {
         var finalNewItem = {...newItem, ...res.data}
         console.log("New item created, ensure new tables", finalNewItem)
         that.baseConfig.items.push(finalNewItem);
-        that.baseItemMap[newItem.document_name] = finalNewItem;
+        that.baseItemMap[newItemLabel] = finalNewItem;
 
         that.ensureBaseTables().then(function () {
           that.selectedBaseItem = finalNewItem;

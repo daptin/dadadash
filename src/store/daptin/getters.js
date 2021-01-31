@@ -8,10 +8,27 @@ export function documentTable(state) {
   return state.tables['document']
 }
 
+export function selectedActionForEditor(state) {
+  return state.selectedActionForEditor
+}
+
+export function allTables(state) {
+  return Object.values(state.tables)
+}
+
+export function actions(state) {
+  return state.actions
+}
+
+export function integrations(state) {
+  return state.integrations
+}
+
 export function worldTable(state) {
   console.log("Get world table", state.tables)
   return state.tables['world']
 }
+
 
 export function userGroupTable(state) {
   console.log("Get user group table", state.tables)
@@ -62,6 +79,7 @@ export function baseItemTypes() {
   }
 
 }
+
 export function appConnectionStatus(state) {
   return state.appConnectionStatus
 }

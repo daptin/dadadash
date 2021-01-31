@@ -25,11 +25,16 @@ import CalendarComponent from "pages/UserApps/Calendar.vue";
 import DocumentEditorComponent from "pages/UserApps/DocumentEditor.vue";
 import SpreadsheetEditor from "pages/UserApps/SpreadsheetEditor";
 import HorizontalScroll from 'vue-horizontal-scroll'
+import FlowyPlugin from "@hipsjs/flowy-vue";
+
+import DataActionBlock from "pages/Components/DataActionBlock";
+import DataActionNode from "pages/Components/DataActionNode";
+
+Vue.component('data-action-block', DataActionBlock)
+Vue.component('data-action-node', DataActionNode)
 
 
-// import CKEditor from '@ckeditor/ckeditor5-vue'
-// Vue.use(CKEditor)
-
+Vue.use(FlowyPlugin);
 Vue.component('vue-horizontal-scroll', HorizontalScroll);
 Vue.component('v-jstree', VJstree);
 Vue.component('ace-editor', AceEditor);

@@ -46,7 +46,7 @@
       </q-card>
       <div class="row q-pa-md" v-if="!showAddBase && workspaceSchema">
 
-        <div class="col-4 q-pa-md"
+        <div class="col-4 col-sm-6 col-md-4 col-xs-12 q-pa-md"
 
              v-for="(baseItems, baseName) in workspaceSchema.workspaceItems"
         >
