@@ -11,6 +11,9 @@
 
 <!--      </user-header-bar>-->
       <q-card>
+        <q-card-actions>
+          <q-btn label="Create new table" @click="$router.push('/tables/create')" color="green"></q-btn>
+        </q-card-actions>
         <q-card-section>
           <q-markup-table flat>
             <tbody>

@@ -52,6 +52,7 @@
     "quasar": "^1.0.0",
     "rapidoc": "^8.1.2",
     "simplemde": "^1.11.2",
+    "swagger-parser": "^10.0.2",
     "tabulator-tables": "^4.6.2",
     "uuid": "^8.3.1",
     "vue-context": "^6.0.0",

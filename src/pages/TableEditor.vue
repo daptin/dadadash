@@ -7,12 +7,15 @@
 
           <q-input
             filled
+
+            style="max-width: 500px"
             v-model="localTable.TableName"
             size="sm"
             placeholder="Table name"
             :readonly="isEdit"
-            lazy-rules
-            :rules="[ val => val && val.length > 0 || 'Table name cannot be empty']"></q-input>
+            :rules="[ val =>
+            val && val.length > 0 || 'Table name cannot be empty',
+             val => val && val === val.match(/[a-zA-Z0-9_]+/g).join('') || 'Table name cannot contain special characters, suggested name: ' + val.match(/[a-zA-Z0-9_]+/g).join('')]"></q-input>
         </div>
 
         <div class="col-6 col-xs-1 col-sm-2 q-pa-md">

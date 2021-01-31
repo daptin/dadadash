@@ -1,6 +1,8 @@
 import Vue from "vue";
 
 var jwtDecode = require('jwt-decode');
+import SwaggerParser from "@apidevtools/swagger-parser";
+import YAML from "js-yaml";
 
 export function setToken(state, token) {
   state.token = token;
@@ -30,8 +32,27 @@ export function setActions(state, actions) {
   state.actions = actions
 }
 
-export function setIntegrations(state, integrations) {
-  state.integrations = integrations
+export async function setIntegrations(state, integrations) {
+
+  for (let i = 0; i < integrations.length; i++) {
+    let integration = integrations[i];
+
+    try {
+      let api;
+      if (integration.specification_format === "yaml") {
+        api = await SwaggerParser.parse(YAML.load(integration.specification));
+      } else {
+        api = await SwaggerParser.parse(JSON.parse(integration.specification));
+      }
+      integrations[i].ParsedApi = api
+      console.log("API name: %s, Version: %s", api.info.title, api.info.version);
+    } catch (err) {
+      console.error(err);
+    }
+
+  }
+  state.integrations = integrations;
+
 }
 
 export function setCurrent(state, currentInfo) {
