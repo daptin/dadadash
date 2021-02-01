@@ -115,7 +115,7 @@
                         </q-card-section>
                       </q-card>
                     </div>
-                    <div class="col-6 ">
+                    <div class="col-6 " v-if="node.data.Attributes">
                       <div class="row q-pa-md" v-for="attribute in Object.keys(node.data.Attributes)">
                         <div class="col-11 ">
                           <q-input :name="attribute" :label="attribute" v-model="node.data.Attributes[attribute]"/>
@@ -155,29 +155,29 @@
           </q-card-actions>
         </q-card>
       </q-dialog>
-      <q-dialog v-model="newDataBlockConfigurationDialog">
-        <q-card style="min-width: 30%">
-          <q-card-section>
-            <span class="text-h6">Data action</span>
-          </q-card-section>
-          <q-card-section>
-            <q-select v-model="newDataBlockForTable"
-                      :options="tables()" option-label="table_name"></q-select>
-          </q-card-section>
-          <q-card-section v-if="!!newDataBlockForTable">
-            <div class="row" v-for="column in JSON.parse(newDataBlockForTable.world_schema_json).Columns">
-              <div class="col-12 q-pa-xs">
-                {{ column.ColumnName }}
-              </div>
-            </div>
-          </q-card-section>
-          <q-card-actions align="right">
-            <!--            <q-btn label="Cancel"-->
-            <!--                   @click="(newDataBlockConfigurationDialog = false), (newDataBlockForTable = null) "></q-btn>-->
-            <q-btn label="Add" color="primary" @click="addNode(null, null, newDataBlockForTable)"></q-btn>
-          </q-card-actions>
-        </q-card>
-      </q-dialog>
+      <!--      <q-dialog v-model="newDataBlockConfigurationDialog">-->
+      <!--        <q-card style="min-width: 30%">-->
+      <!--          <q-card-section>-->
+      <!--            <span class="text-h6">Data action</span>-->
+      <!--          </q-card-section>-->
+      <!--          <q-card-section>-->
+      <!--            <q-select v-model="newDataBlockForTable"-->
+      <!--                      :options="tables()" option-label="table_name"></q-select>-->
+      <!--          </q-card-section>-->
+      <!--          <q-card-section v-if="!!newDataBlockForTable">-->
+      <!--            <div class="row" v-for="column in JSON.parse(newDataBlockForTable.world_schema_json).Columns">-->
+      <!--              <div class="col-12 q-pa-xs">-->
+      <!--                {{ column.ColumnName }}-->
+      <!--              </div>-->
+      <!--            </div>-->
+      <!--          </q-card-section>-->
+      <!--          <q-card-actions align="right">-->
+      <!--            &lt;!&ndash;            <q-btn label="Cancel"&ndash;&gt;-->
+      <!--            &lt;!&ndash;                   @click="(newDataBlockConfigurationDialog = false), (newDataBlockForTable = null) "></q-btn>&ndash;&gt;-->
+      <!--            <q-btn label="Add" color="primary" @click="addNode(null, null, newDataBlockForTable)"></q-btn>-->
+      <!--          </q-card-actions>-->
+      <!--        </q-card>-->
+      <!--      </q-dialog>-->
     </q-page>
 
 
@@ -231,15 +231,16 @@ export default {
       this.nodes[i] = temp;
       this.$forceUpdate();
     },
-    addNode(nodeType, node) {
+    addNode(nodeType, block) {
 
-      console.log("add node", nodeType, node)
+      console.log("add node", nodeType, block)
       this.newNodeType = nodeType;
-      this.newNodeData = node;
+      this.newNodeData = block;
       switch (nodeType) {
         case "data":
-          this.newDataBlockConfigurationDialog = true;
-          return
+          // this.newDataBlockConfigurationDialog = true;
+          // return
+          break;
         case "internal":
           break;
         case "openapi":
@@ -247,11 +248,13 @@ export default {
       }
 
       const id = uuidv4();
+      var node = {}
+      node.data = {...block.node};
+      node.data.Attributes = {}
       node.id = id
       node.parentId = this.nodes[this.nodes.length - 1].id
-      this.nodes.push({
-        ...node,
-      });
+      console.log("Add new node", this.nodes, node)
+      this.nodes.push(node);
     },
     remove(event) {
       console.log('remove', event)
@@ -307,8 +310,11 @@ export default {
       var outFields = actionSchema.OutFields;
       let parentId = uuidv4();
       var inputAttributes = {};
-      for (const inField of actionSchema.InFields) {
-        inputAttributes[inField.ColumnName] = "";
+      if (actionSchema.InFields) {
+        for (const inField of actionSchema.InFields) {
+          inputAttributes[inField.ColumnName] = "";
+
+        }
       }
       this.nodes.push({
         id: parentId,
@@ -352,17 +358,26 @@ export default {
           "title": "create"
         },
         "node": {
-          "title": "create",
-          "description": "create"
+          "Type": "",
+          "Method": "POST",
         }
       },
       {
         "preview": {
-          "title": "get"
+          "title": "get by query"
         },
         "node": {
-          "title": "get",
-          "description": "get"
+          "Type": "",
+          "Method": "GET",
+        }
+      },
+      {
+        "preview": {
+          "title": "get by id"
+        },
+        "node": {
+          "Type": "",
+          "Method": "GET",
         }
       },
       {
@@ -370,8 +385,8 @@ export default {
           "title": "update"
         },
         "node": {
-          "title": "update",
-          "description": "update"
+          "Type": "",
+          "Method": "PUT",
         }
       },
       {
@@ -379,8 +394,11 @@ export default {
           "title": "delete"
         },
         "node": {
-          "title": "delete",
-          "description": "delete"
+          "Type": "",
+          "Method": "DELETE",
+          "Attributes": {
+
+          }
         }
       },
     ],
