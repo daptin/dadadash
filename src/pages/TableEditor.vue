@@ -304,9 +304,6 @@
         if (!this.localTable.TableName) {
           this.$q.notify("Table name cannot be empty");
           return
-        } else if (this.tables.filter(e => e.table_name === this.localTable.TableName).length > 0) {
-          this.$q.notify("Table name already used");
-          return
         }
         this.$emit('save', this.localTable);
       },
