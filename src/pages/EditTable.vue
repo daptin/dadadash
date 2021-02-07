@@ -3,22 +3,7 @@
     <q-page-container>
 
       <q-page>
-        <div class="q-pa-md q-gutter-sm">
-          <q-breadcrumbs>
-            <template v-slot:separator>
-              <q-icon
-                size="1.2em"
-                name="arrow_forward"
-                color="black"
-              />
-            </template>
-
-            <q-breadcrumbs-el label="Database" icon="fas fa-database"/>
-            <q-breadcrumbs-el label="Tables" icon="fas fa-table"/>
-            <q-breadcrumbs-el :label="$route.params.tableName"/>
-          </q-breadcrumbs>
-        </div>
-
+        
         <div class="row">
           <div class="col-12 q-pa-md q-gutter-sm">
             <div v-if="tableSchema">
