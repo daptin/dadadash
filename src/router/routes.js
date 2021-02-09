@@ -103,6 +103,9 @@ const routes = [
       {
         path: 'actions', component: () => import('pages/Actions.vue')
       },
+      {
+        path: 'actions/:actionId', component: () => import('pages/ActionEditor.vue')
+      },
     ]
   },
   {
