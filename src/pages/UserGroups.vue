@@ -16,7 +16,7 @@
         </q-markup-table>
 
       </div>
-    </div>d
+    </div>
 
     <q-drawer overlay :width="500" content-class="bg-grey-3" side="right" v-model="newGroupDrawer">
       <q-scroll-area class="fit row">

@@ -121,6 +121,8 @@
 </template>
 
 <script>
+import {mapActions} from "vuex";
+
 const {Octokit} = require("@octokit/rest");
 
 import axios from "axios";
@@ -134,6 +136,7 @@ const DEFAULT_DOWNLOAD_CONFIG = require("./default-download-config.json");
 export default {
   name: "ServiceIndex",
   methods: {
+    ...mapActions(['initDaptinClient']),
     testConnectionWithEndpoint() {
       const that = this;
       console.log("Test with endpoint", this.newEndpoint);
@@ -165,7 +168,16 @@ export default {
         })
         localStorage.setItem("DAPTIN_ENDPOINT", that.newEndpoint);
         localStorage.removeItem("token");
-        window.location = "/";
+        that.initDaptinClient().then(function (res){
+          that.$router.push('/')
+        }).catch(function (err){
+          console.log("Failed to connect with the instance", err);
+          that.$q.notify({
+            type: "negative",
+            message: "Failed to connect at " + that.newEndpoint
+          })
+        })
+        // window.location = "/";
       }).catch(function (err) {
         console.log("Failed to connect with the instance", err);
         that.$q.notify({

@@ -12,6 +12,7 @@
     "dev": "quasar dev",
     "dev-electron": "quasar dev -m electron --publish always",
     "build": "quasar build -m spa",
+    "build-electron": "quasar build -m electron",
     "build-android": "quasar build -m cordova -T android  -- --buildConfig=../build.cordova.json"
   },
   "dependencies": {
