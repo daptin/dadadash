@@ -1,5 +1,5 @@
 <template>
-  <q-form @submit="createTable" class="q-gutter-md">
+  <q-form class="q-gutter-md">
 
     <div class="row">
 
@@ -18,7 +18,7 @@
       <div class="col-6 col-xs-1 col-sm-2 q-pa-md">
         <div>
           <q-btn :disable="localTable.ColumnModel && localTable.ColumnModel.length>0 ? false: true" size="20px"
-                 @click="createTable" :label="isEdit ? 'Save' : 'Create'" type="submit" color="green"/>
+                 @click="createTable" :label="isEdit ? 'Save' : 'Create'" color="green"/>
         </div>
       </div>
 
