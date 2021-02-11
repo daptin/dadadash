@@ -184,7 +184,11 @@ export default {
 
     }).catch(function (err) {
       that.$q.loading.hide();
-      console.log("No models available, lets wait for login", err)
+      console.log("No models available, lets wait for login", err);
+      that.$q.notify({
+        message: "Unable to connect to backend"
+      })
+      that.$router.push("/backend")
     })
 
 

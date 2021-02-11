@@ -17,7 +17,7 @@
 
       <div class="col-6 col-xs-1 col-sm-2 q-pa-md">
         <div>
-          <q-btn :disable="localTable.ColumnModel && localTable.ColumnModel.length>0 ? false: true" size="20px"
+          <q-btn :disable="localTable.Columns && localTable.Columns.length>0 ? false: true" size="20px"
                  @click="createTable" :label="isEdit ? 'Save' : 'Create'" color="green"/>
         </div>
       </div>
@@ -49,14 +49,14 @@
 
             <span class="text-h6">Columns</span>
             <small> ({{
-                (table.TableName ? (localTable.ColumnModel.length - StandardColumns.length) :
-                  (Object.keys(localTable.ColumnModel).length)) + ' plus '
+                (table.TableName ? (localTable.Columns.length - StandardColumns.length) :
+                  (Object.keys(localTable.Columns).length)) + ' plus '
                 + StandardColumns.length + ' base columns'
               }})
             </small>
 
             <div class="row bg-grey-1" style="border-bottom: 1px solid black"
-                 v-for="column in localTable.ColumnModel
+                 v-for="column in localTable.Columns
              .filter(e => e.ColumnName && StandardColumns.indexOf(e.ColumnName) === -1 && (!e.IsForeignKey || e.IsForeignKey && e.ForeignKeyData.DataSource === 'cloud_store'))">
 
               <div class="col-3 col-md-3 col-lg-3 col-xl-3 col-xs-12 col-sm-3" style="padding: 5px">
@@ -146,7 +146,7 @@
 
           <q-tab-panel name="relations">
 
-            <span class="text-h6">Relations {{ isEdit }}</span>
+            <span class="text-h6">Relations </span>
             <small>({{ (isEdit ? localTable.Relations.length - StandardRelations.length : localTable.Relations.length) }}
               +
               2
@@ -248,38 +248,18 @@ export default {
   mounted() {
     console.log("Mounted table editor ", this.table);
     const that = this;
-    if (this.table.ColumnModel) {
-      this.table.Relations = [];
+    if (this.table.Columns) {
+      // this.table.Relations = [];
       this.localTable = {
-        TableName: this.$route.params.tableName,
-        ColumnModel: [],
-        Relations: [],
+        TableName: this.table.TableName,
+        Columns: this.table.Columns,
+        Relations: this.table.Relations,
       };
-      this.localTable.ColumnModel = Object.keys(this.table.ColumnModel).map(function (colName) {
-        return that.table.ColumnModel[colName]
-      }).filter(e => !e.jsonApi && e.ColumnName !== "__type" && that.StandardColumns.indexOf(e.ColumnName) === -1);
+      // this.localTable.Columns = Object.keys(this.table.Columns).map(function (colName) {
+      //   return that.table.Columns[colName]
+      // }).filter(e => !e.jsonApi && e.ColumnName !== "__type" && that.StandardColumns.indexOf(e.ColumnName) === -1);
 
-      this.localTable.Relations = Object.keys(this.table.ColumnModel).filter(e => this.table.ColumnModel[e].jsonApi).map(function (colName) {
-        console.log("Relation ", colName);
-        const col = that.table.ColumnModel[colName];
-        let rel = "has_one";
-        switch (col.jsonApi) {
-          case "hasOne":
-            rel = "has_one";
-            break;
-          case "belongsTo":
-            rel = "belongs_to";
-            break;
-          case "hasMany":
-            rel = "has_many";
-            break;
-        }
-        return {
-          Subject: that.tableName,
-          Relation: rel,
-          Object: col.type
-        }
-      });
+      this.localTable.Relations = this.table.Relations;
       this.isEdit = true;
     }
     this.newRelation.Subject = this.table.TableName;
@@ -341,6 +321,8 @@ export default {
         this.localTable.Relations.push(this.newRelation);
         this.newRelation = {
           Subject: this.localTable.TableName,
+          SubjectName: null,
+          ObjectName: null,
           Relation: null,
           Object: null,
         }
@@ -349,7 +331,7 @@ export default {
     columnNameUpdated() {
       console.log("new column updated", arguments);
       if (this.newColumn.ColumnName && this.newColumn.ColumnType) {
-        this.localTable.ColumnModel.push(this.newColumn);
+        this.localTable.Columns.push(this.newColumn);
         this.newColumn = {
           ColumnName: null,
           ColumnType: null,
@@ -443,7 +425,7 @@ export default {
       isEdit: false,
       localTable: {
         TableName: null,
-        ColumnModel: [],
+        Columns: [],
         Relations: [],
       },
       newColumn: {
