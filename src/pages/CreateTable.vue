@@ -15,12 +15,12 @@ export default {
     ...mapActions(['executeAction', 'refreshTableSchema', 'loadModel']),
     createTable(table) {
       const that = this;
-      if (table.ColumnModel.length === 0) {
+      if (table.Columns.length === 0) {
         this.$q.notify("Please add columns");
         return
       }
-      for (var i = 0; i < table.ColumnModel.length; i++) {
-        var col = table.ColumnModel[i];
+      for (var i = 0; i < table.Columns.length; i++) {
+        var col = table.Columns[i];
         if (col.ColumnType.indexOf(" - ") > -1) {
           var parts = col.ColumnType.split(" - ");
           col.ColumnType = parts[0];
@@ -33,7 +33,7 @@ export default {
               KeyName: table.TableName + "-" + col.ColumnName,
             }
           }
-          table.ColumnModel[i] = col;
+          table.Columns[i] = col;
         }
 
       }
@@ -47,10 +47,7 @@ export default {
         params: {
           schema_file: [{
             "name": "empty.json", "file": "data:application/json;base64," + btoa(JSON.stringify({
-              Tables: [{
-                TableName: table.TableName,
-                Columns: table.ColumnModel,
-              }],
+              Tables: [table],
               Relations: relations,
             })), "type": "application/json"
           }]

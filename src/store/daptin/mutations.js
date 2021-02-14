@@ -42,6 +42,10 @@ export function clearTablesCache(state) {
 
 }
 
+export function setEndpoint(state, endpoint) {
+  state.endpoint = endpoint;
+}
+
 export function setTables(state, tables) {
   state.tables = {}
   console.log("set tables", tables)
