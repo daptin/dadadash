@@ -87,7 +87,8 @@ export function initDaptinClient({commit, state}) {
       });
       daptinClient.worldManager.init().then(function () {
         console.log("Daptin client loaded 2", arguments);
-        commit('updateAppConnectionStatus', true)
+        commit('updateAppConnectionStatus', true);
+        commit("setEndpoint", endpoint)
         resolve();
         appIsOnline = true;
       }).catch(function (err) {

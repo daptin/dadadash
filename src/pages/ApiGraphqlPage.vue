@@ -10,29 +10,29 @@
 </template>
 
 <script>
-  import {mapActions, mapGetters, mapState} from 'vuex';
-  import 'rapidoc';
+import {mapActions, mapGetters, mapState} from 'vuex';
+import 'rapidoc';
 
-  export default {
-    name: 'GraphQLPage',
-    methods: {
-      ...mapActions(['loadTables'])
-    },
-    data() {
-      return {
-        text: '',
-        ...mapState([])
-      }
-    },
-    mounted() {
-
-      window.open(this.endpoint + '/graphql', "_black")
-    },
-    computed: {
-      ...mapGetters(['endpoint']),
+export default {
+  name: 'GraphQLPage',
+  methods: {
+    ...mapActions([])
+  },
+  data() {
+    return {
+      text: '',
       ...mapState([])
-    },
+    }
+  },
+  mounted() {
 
-    watch: {}
-  }
+    window.open(this.endpoint + '/graphql', "_black")
+  },
+  computed: {
+    ...mapGetters(['endpoint']),
+    ...mapState([])
+  },
+
+  watch: {}
+}
 </script>

@@ -3,21 +3,6 @@
     <q-page-container>
 
       <q-page>
-        <div class="q-pa-md q-gutter-sm">
-          <q-breadcrumbs>
-            <template v-slot:separator>
-              <q-icon
-                size="1.2em"
-                name="arrow_forward"
-                color="black"
-              />
-            </template>
-
-            <q-breadcrumbs-el label="Database" icon="fas fa-database"/>
-            <q-breadcrumbs-el label="Tables" icon="fas fa-table"/>
-            <q-breadcrumbs-el :label="$route.params.tableName"/>
-          </q-breadcrumbs>
-        </div>
 
         <div class="row">
           <div class="col-12 q-pa-md q-gutter-sm">
@@ -115,13 +100,13 @@ export default {
     saveTable(table) {
 
       const that = this;
-      if (table.ColumnModel.length === 0) {
+      if (table.Columns.length === 0) {
         this.$q.notify("Please add columns");
         return
       }
 
-      for (var i = 0; i < table.ColumnModel.length; i++) {
-        var col = table.ColumnModel[i];
+      for (var i = 0; i < table.Columns.length; i++) {
+        var col = table.Columns[i];
         if (col.ColumnType.indexOf(" - ") > -1) {
           var parts = col.ColumnType.split(" - ");
           col.ColumnType = parts[0];
@@ -134,7 +119,7 @@ export default {
               KeyName: col.ColumnName,
             }
           }
-          table.ColumnModel[i] = col;
+          table.Columns[i] = col;
         }
       }
 
@@ -151,7 +136,7 @@ export default {
             "name": "empty.json", "file": "data:application/json;base64," + btoa(JSON.stringify({
               Tables: [{
                 TableName: table.TableName,
-                Columns: table.ColumnModel,
+                Columns: table.Columns,
               }],
               Relations: relations,
             })), "type": "application/json"
@@ -205,16 +190,18 @@ export default {
           return;
         }
         that.tableData = res.data[0];
+        console.log("Table data", that.tableData, JSON.parse(that.tableData.world_schema_json))
+        that.tableSchema = JSON.parse(that.tableData.world_schema_json);
       }).catch(function (err) {
         that.$q.notify({
           message: "Failed to load table metadata"
         });
       });
 
-      this.getTableSchema(tableName).then(function (res) {
-        that.tableSchema = res;
-        console.log("Schema", that.tableSchema)
-      })
+      // this.getTableSchema(tableName).then(function (res) {
+      //   // that.tableSchema = res;
+      //   console.log("Schema", that.tableSchema)
+      // })
     },
     ...mapActions(['getTableSchema', 'executeAction', 'refreshTableSchema', 'loadData'])
   },

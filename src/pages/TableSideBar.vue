@@ -2,35 +2,40 @@
   <q-page-container>
     <q-page>
 
+      <div class="row ">
+        <div class="col-12 q-pa-md">
+          <q-btn color="primary" label="New table" icon="fas fa-plus" @click="$router.push('/tables/create')"></q-btn>
+        </div>
+        <div class="col-12 q-pa-md">
+          <q-card>
+            <q-card-section>
+              <q-markup-table flat>
+                <thead>
+                <tr style="text-align: left">
+                  <th>Table</th>
+                  <th>Edit Schema</th>
+                  <th>Data</th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr style="cursor: pointer" @click="$router.push('/tables/data/' + table.table_name)"
+                    v-for="table in tablesFiltered">
+                  <td>{{ table.table_name }}</td>
+                  <td style="text-align: left">
+                    <q-btn @click.stop="$router.push('/tables/edit/' + table.table_name)" flat icon="fas fa-wrench"></q-btn>
+                  </td>
+                  <td style="text-align: left">
+                    <q-btn @click.stop="$router.push('/tables/data/' + table.table_name)" flat icon="fas fa-list"></q-btn>
+                  </td>
+                </tr>
+                </tbody>
+              </q-markup-table>
+            </q-card-section>
+          </q-card>
+        </div>
+      </div>
 
-<!--      <user-header-bar @new-table="$router.push('/tables/create')" :buttons="{-->
-<!--        after: [{-->
-<!--          icon: 'fas fa-plus', event: 'new-table'-->
-<!--        }]-->
-<!--      }">-->
 
-<!--      </user-header-bar>-->
-      <q-card>
-        <q-card-actions>
-          <q-btn label="Create new table" @click="$router.push('/tables/create')" color="green"></q-btn>
-        </q-card-actions>
-        <q-card-section>
-          <q-markup-table flat>
-            <tbody>
-            <tr style="cursor: pointer" @click="$router.push('/tables/data/' + table.table_name)"
-                v-for="table in tablesFiltered">
-              <td>{{ table.table_name }}</td>
-              <td style="text-align: left">
-                <q-btn @click.stop="$router.push('/tables/edit/' + table.table_name)" flat icon="fas fa-wrench"></q-btn>
-              </td>
-              <td style="text-align: left">
-                <q-btn @click.stop="$router.push('/tables/data/' + table.table_name)" flat icon="fas fa-list"></q-btn>
-              </td>
-            </tr>
-            </tbody>
-          </q-markup-table>
-        </q-card-section>
-      </q-card>
 
       <!--    <q-page-sticky v-if="!showHelp" position="top-right" :offset="[0, 0]">-->
       <!--      <q-btn flat @click="showHelp = true" fab icon="fas fa-question"/>-->

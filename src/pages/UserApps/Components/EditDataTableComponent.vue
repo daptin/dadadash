@@ -277,7 +277,7 @@ import moment from 'moment';
 
 window.XLSX = XLSX;
 window.moment = moment;
-const assetEndpoint = window.location.hostname === "site.daptin.com" && window.location.port === "8080" ? "http://localhost:" + window.location.port : window.location.protocol + "//" + window.location.hostname + (window.location.port === "80" ? "" : ':' + window.location.port);
+const assetEndpoint = localStorage.getItem("DAPTIN_ENDPOINT") || (window.location.hostname === "site.daptin.com" && window.location.port === "8080" ? "http://localhost:" + window.location.port : window.location.protocol + "//" + window.location.hostname + (window.location.port === "80" ? "" : ':' + window.location.port));
 
 Tabulator.prototype.extendModule("edit", "editors",
   {
