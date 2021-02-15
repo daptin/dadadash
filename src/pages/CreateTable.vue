@@ -58,11 +58,12 @@ export default {
       }).then(function (e) {
         console.log("Created table", e);
         that.$q.notify("Created table, updating schema");
-        setTimeout(function () {
+        const tableSchemaChecker = setInterval(function () {
           that.refreshTableSchema(table.TableName).then(function () {
+            clearInterval(tableSchemaChecker);
             that.$q.loading.hide();
             that.$q.notify("Schema refreshed");
-            that.$router.push("/tables")
+            that.$router.push("/tables");
           }).catch(function (e) {
             that.$q.notify("Failed to refresh");
             that.$q.loading.hide();
