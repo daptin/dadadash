@@ -20,7 +20,7 @@
                   @popup-hide="saveTablePermissionModel()"
                   option-value="value"
                   multiple
-                  map-options emit-value
+                  map-options
                   option-label="label"
                   use-input
                   input-debounce="0"
@@ -191,7 +191,7 @@ export default {
         newPermission = newPermission | that.selectedPermissionOption[i].value;
         console.log(newPermission)
       }
-      console.log("new table permission", this.selectedPermissionOption, newPermission);
+      console.log("new table permission", this.selectedPermissionOption[i], newPermission);
       that.updateRow({
         tableName: "world",
         id: that.selectedTable.reference_id,

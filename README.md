@@ -16,12 +16,6 @@ Office application suite
 - Data tables with CRUD API's
 
 
-
-## Status
-
-Current release (pre v1) is free for all to use and does not come with any dedicated support.
-
-
 ## What is inside
 
 |      |    |
@@ -34,7 +28,7 @@ Current release (pre v1) is free for all to use and does not come with any dedic
 
 
 
-## For developers
+## Dev
 
 ### Build from source
 

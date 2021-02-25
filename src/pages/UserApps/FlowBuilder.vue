@@ -108,17 +108,19 @@
                   <div class="row">
 
                     <div class="col-6 q-pa-md">
-                      <q-card flat>
+                      <q-card flat dark>
                         <q-card-section>
-                          <q-input v-model="node.data.Condition" label="Condition"></q-input>
-                          <q-input v-model="node.data.Reference" label="Reference"></q-input>
+                          <q-input dark v-model="node.data.Condition" label="Condition"></q-input>
+                          <q-input dark v-model="node.data.Reference" label="Reference"></q-input>
                         </q-card-section>
                       </q-card>
                     </div>
                     <div class="col-6 " v-if="node.data.Attributes">
+
                       <div class="row q-pa-md" v-for="attribute in Object.keys(node.data.Attributes)">
                         <div class="col-11 ">
-                          <q-input :name="attribute" :label="attribute" v-model="node.data.Attributes[attribute]"/>
+                          <q-input stack-label autogrow clearable :name="attribute" :label="attribute"
+                                   v-model="node.data.Attributes[attribute]"/>
                         </div>
                         <div class="col-1">
                           <q-btn @click="deleteAttribute(node, attribute)" icon="fas fa-times" color="negative"
@@ -126,7 +128,7 @@
                         </div>
                       </div>
                       <div class="row q-pa-md" v-if="i === 0">
-                        <q-btn size="md" color="green" @click="showNewInputFieldNameDialog = true"
+                        <q-btn size="sm" color="green" @click="showNewInputFieldNameDialog = true"
                                label="Add new input field"></q-btn>
                       </div>
                     </div>
@@ -155,29 +157,30 @@
           </q-card-actions>
         </q-card>
       </q-dialog>
-      <!--      <q-dialog v-model="newDataBlockConfigurationDialog">-->
-      <!--        <q-card style="min-width: 30%">-->
-      <!--          <q-card-section>-->
-      <!--            <span class="text-h6">Data action</span>-->
-      <!--          </q-card-section>-->
-      <!--          <q-card-section>-->
-      <!--            <q-select v-model="newDataBlockForTable"-->
-      <!--                      :options="tables()" option-label="table_name"></q-select>-->
-      <!--          </q-card-section>-->
-      <!--          <q-card-section v-if="!!newDataBlockForTable">-->
-      <!--            <div class="row" v-for="column in JSON.parse(newDataBlockForTable.world_schema_json).Columns">-->
-      <!--              <div class="col-12 q-pa-xs">-->
-      <!--                {{ column.ColumnName }}-->
-      <!--              </div>-->
-      <!--            </div>-->
-      <!--          </q-card-section>-->
-      <!--          <q-card-actions align="right">-->
-      <!--            &lt;!&ndash;            <q-btn label="Cancel"&ndash;&gt;-->
-      <!--            &lt;!&ndash;                   @click="(newDataBlockConfigurationDialog = false), (newDataBlockForTable = null) "></q-btn>&ndash;&gt;-->
-      <!--            <q-btn label="Add" color="primary" @click="addNode(null, null, newDataBlockForTable)"></q-btn>-->
-      <!--          </q-card-actions>-->
-      <!--        </q-card>-->
-      <!--      </q-dialog>-->
+      <q-dialog v-model="newDataBlockConfigurationDialog">
+        <q-card style="min-width: 30%">
+          <q-card-section>
+            <span class="text-bold">Table data action</span>
+            <q-checkbox label="Show only user created tables" v-model="filterUserTables"></q-checkbox>
+          </q-card-section>
+          <q-card-section>
+            <q-select v-model="newDataBlockForTable"
+                      :options="tables().filter(function (e){if (!filterUserTables){return true} return e.IsHiddenTable}).sort(function (a, b){return a.TableName > b.TableName})" option-label="table_name"></q-select>
+          </q-card-section>
+          <q-card-section v-if="!!newDataBlockForTable">
+            <div class="row" v-for="column in JSON.parse(newDataBlockForTable.world_schema_json).Columns">
+              <div class="col-12 q-pa-xs">
+                {{ column.ColumnName }}
+              </div>
+            </div>
+          </q-card-section>
+          <q-card-actions align="right">
+            <!--            <q-btn label="Cancel"-->
+            <!--                   @click="(newDataBlockConfigurationDialog = false), (newDataBlockForTable = null) "></q-btn>-->
+            <q-btn label="Add" color="primary" @click="addNode(null, null, newDataBlockForTable)"></q-btn>
+          </q-card-actions>
+        </q-card>
+      </q-dialog>
     </q-page>
 
 
@@ -238,8 +241,8 @@ export default {
       this.newNodeData = block;
       switch (nodeType) {
         case "data":
-          // this.newDataBlockConfigurationDialog = true;
-          // return
+          this.newDataBlockConfigurationDialog = true;
+          return
           break;
         case "internal":
           break;
@@ -250,7 +253,7 @@ export default {
       const id = uuidv4();
       var node = {}
       node.data = {...block.node};
-      node.data.Attributes = {}
+      node.data.Attributes = {...block.node.Attributes}
       node.id = id
       node.parentId = this.nodes[this.nodes.length - 1].id
       console.log("Add new node", this.nodes, node)
@@ -341,6 +344,7 @@ export default {
     },
   },
   data: () => ({
+    filterUserTables: false,
     newInputFieldNameDialog: false,
     newNodeData: null,
     newNodeType: null,
@@ -369,6 +373,12 @@ export default {
         "node": {
           "Type": "",
           "Method": "GET",
+          "Attributes": {
+            "query": "",
+            "include_relation": "",
+            "page[size]": "",
+            "page[number]": "",
+          }
         }
       },
       {
@@ -396,9 +406,7 @@ export default {
         "node": {
           "Type": "",
           "Method": "DELETE",
-          "Attributes": {
-
-          }
+          "Attributes": {}
         }
       },
     ],
@@ -530,7 +538,7 @@ export default {
     this.parseAction();
     if (integrations.length === 0) {
       this.refreshIntegrations().then(function (res) {
-        console.log("Integrtions loaded")
+        console.log("Integrations loaded")
       }).then(this.parseIntegrationActions)
         .catch(function (err) {
           console.log("Failed to load integrations", err);
