@@ -13,6 +13,7 @@ export function selectedActionForEditor(state) {
 }
 
 export function allTables(state) {
+  console.log("get all tables, ", state.tables)
   return Object.values(state.tables)
 }
 
@@ -122,4 +123,5 @@ export function tables(state) {
     }
   });
 }
+
 

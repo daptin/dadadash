@@ -80,11 +80,10 @@ export function clearTablesCache(state) {
 }
 
 export function setTables(state, tables) {
-  state.tables = {}
-  console.log("set tables", tables)
-  for (var tableName in tables) {
-    Vue.set(state.tables, tableName, tables[tableName])
-  }
+  // var newTableMap = {}
+  // console.log("set tables", tables)
+  //
+  state.tables = tables;
   console.log("Tables set to ", state.tables)
 }
 

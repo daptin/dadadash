@@ -52,6 +52,7 @@
                           v-for="(op, p) in Object.values(operation).filter(e => !actionNameFilter || (e.operationId && e.operationId.toLowerCase().indexOf(actionNameFilter)  > -1))"
                           class="q-mr-md col-12 q-pa-sm">
                           <data-action-block
+                            @add="addNode('openapi', op, integration)"
                             :title="op.operationId"
                             :description="op.description"
                           />
@@ -70,11 +71,10 @@
           </div>
         </div>
 
-        <div
-          class="col-6 q-pa-md"
-        >
+        <div class="col-6">
           <div class="row" style="height: calc(100vh - 100px); overflow-y: scroll">
             <div class="col-12 q-pa-md" v-for="(node, i) in nodes">
+
               <q-card>
                 <q-card-section>
                   <div class="row items-center no-wrap">
@@ -99,7 +99,7 @@
                           </q-list>
                         </q-menu>
                       </q-btn>
-                      <q-btn color="grey-7" v-if="i > 0" @click="nodes.splice(i, 1)" round flat icon="fas fa-times">
+                      <q-btn color="grey-7" v-if="i > 0" @click="nodes.splice(i, 1)" round flat icon="fas fa-trash">
                       </q-btn>
                     </div>
                   </div>
@@ -107,15 +107,11 @@
                 <q-card-section>
                   <div class="row">
 
-                    <div class="col-6 q-pa-md">
-                      <q-card flat dark>
-                        <q-card-section>
-                          <q-input dark v-model="node.data.Condition" label="Condition"></q-input>
-                          <q-input dark v-model="node.data.Reference" label="Reference"></q-input>
-                        </q-card-section>
-                      </q-card>
-                    </div>
-                    <div class="col-6 " v-if="node.data.Attributes">
+
+                    <div class="col-6 " style="max-height: 400px; overflow-x: scroll" v-if="node.data.Attributes">
+                      <div class="row">
+                        <span class="text-bold">Attributes</span>
+                      </div>
 
                       <div class="row q-pa-md" v-for="attribute in Object.keys(node.data.Attributes)">
                         <div class="col-11 ">
@@ -123,7 +119,7 @@
                                    v-model="node.data.Attributes[attribute]"/>
                         </div>
                         <div class="col-1">
-                          <q-btn @click="deleteAttribute(node, attribute)" icon="fas fa-times" color="negative"
+                          <q-btn @click="deleteAttribute(node, attribute)" icon="fas fa-trash" color="negative"
                                  size="xs" flat></q-btn>
                         </div>
                       </div>
@@ -131,6 +127,19 @@
                         <q-btn size="sm" color="green" @click="showNewInputFieldNameDialog = true"
                                label="Add new input field"></q-btn>
                       </div>
+                    </div>
+
+                    <div class="col-6" v-if="i > 0">
+                      <q-card flat dark>
+                        <q-card-section class="q-pa-md">
+                          <q-input dark v-model="node.data.Condition" label="Condition"></q-input>
+                          <q-input dark v-model="node.data.Reference" label="Reference"></q-input>
+                          <q-checkbox size="xs" dark v-model="node.data.SkipInResponse"
+                                      label="Skip outcome result in response body"></q-checkbox>
+                          <q-checkbox size="xs" dark v-model="node.data.ContinueOnError"
+                                      label="Continue executing other outcomes on error"></q-checkbox>
+                        </q-card-section>
+                      </q-card>
                     </div>
 
 
@@ -167,7 +176,7 @@
             <q-select v-model="newDataBlockForTable"
                       :options="tables().filter(function (e){if (!filterUserTables){return true} return e.IsHiddenTable}).sort(function (a, b){return a.TableName > b.TableName})" option-label="table_name"></q-select>
           </q-card-section>
-          <q-card-section v-if="!!newDataBlockForTable">
+          <q-card-section v-if="!!newDataBlockForTable && (newNodeData.preview.title === 'create' || newNodeData.preview.title === 'update')">
             <div class="row" v-for="column in JSON.parse(newDataBlockForTable.world_schema_json).Columns">
               <div class="col-12 q-pa-xs">
                 {{ column.ColumnName }}
@@ -234,26 +243,61 @@ export default {
       this.nodes[i] = temp;
       this.$forceUpdate();
     },
-    addNode(nodeType, block) {
+    addNode(nodeType, block, newDataBlockForTable) {
 
-      console.log("add node", nodeType, block)
-      this.newNodeType = nodeType;
-      this.newNodeData = block;
-      switch (nodeType) {
+      console.log("add node stored", this.newNodeType, this.newNodeData, newDataBlockForTable)
+      console.log("add node passed", nodeType, block)
+      if (nodeType) {
+        this.newNodeType = nodeType;
+        this.newNodeData = block;
+      }
+      switch (this.newNodeType) {
         case "data":
-          this.newDataBlockConfigurationDialog = true;
-          return
+          if (!newDataBlockForTable) {
+            this.newDataBlockConfigurationDialog = true;
+            return
+          }
+          this.newDataBlockConfigurationDialog = false;
+          if (!this.newNodeData.node.Attributes) {
+            this.newNodeData.node.Attributes = {}
+          }
+
+          switch (this.newNodeData.preview.title) {
+            case "create":
+            case "update":
+              var tableSchema = JSON.parse(newDataBlockForTable.world_schema_json);
+              for (const i in tableSchema.Columns) {
+                const column = tableSchema.Columns[i];
+                this.newNodeData.node.Attributes[column.ColumnName] = "";
+              }
+              break;
+
+            case "get by query":
+              this.newNodeData.node.Attributes["query"] = "";
+              break;
+            case "get by id":
+              this.newNodeData.node.Attributes["reference_id"] = "";
+              break;
+            case "delete":
+              this.newNodeData.node.Attributes["reference_id"] = "";
+              break;
+          }
           break;
         case "internal":
           break;
         case "openapi":
+          this.newNodeData.node = {
+            Type: newDataBlockForTable.name,
+            Method: this.newNodeData.operationId,
+            Attributes: this.newNodeData.parameters ? this.newNodeData.parameters.map(e => e.name): {},
+          }
           break;
       }
 
       const id = uuidv4();
       var node = {}
-      node.data = {...block.node};
-      node.data.Attributes = {...block.node.Attributes}
+      node.data = {...this.newNodeData.node};
+      node.data.Attributes = {...this.newNodeData.node.Attributes}
       node.id = id
       node.parentId = this.nodes[this.nodes.length - 1].id
       console.log("Add new node", this.nodes, node)
@@ -301,23 +345,20 @@ export default {
       console.log('onDragStart', event);
       this.dragging = true;
     },
-    async parseIntegrationActions() {
-      let integrations = this.integrations();
-      console.log("Integrations", integrations)
-    },
-
     parseAction() {
 
-      let action = this.selectedActionForEditor();
+      let action = JSON.parse(JSON.stringify(this.selectedActionForEditor()));
+      console.log("parse action", action)
       let actionSchema = action.action_schema;
-      var outFields = actionSchema.OutFields;
+      var outFields = actionSchema.OutFields || [];
       let parentId = uuidv4();
       var inputAttributes = {};
       if (actionSchema.InFields) {
         for (const inField of actionSchema.InFields) {
           inputAttributes[inField.ColumnName] = "";
-
         }
+      } else {
+        actionSchema.InFields = []
       }
       this.nodes.push({
         id: parentId,
@@ -326,7 +367,7 @@ export default {
         data: {
           "Type": actionSchema.Label,
           "Method": actionSchema.OnType,
-          "Reference": "$",
+          "Reference": "",
           "SkipInResponse": true,
           "Attributes": inputAttributes
         },
@@ -538,17 +579,14 @@ export default {
     this.parseAction();
     if (integrations.length === 0) {
       this.refreshIntegrations().then(function (res) {
-        console.log("Integrations loaded")
-      }).then(this.parseIntegrationActions)
-        .catch(function (err) {
-          console.log("Failed to load integrations", err);
-          that.$q.notify({
-            message: "Failed to load OpenAPI Integrations",
-            type: "error"
-          })
+        console.log("Integrations loaded", that.integrations())
+      }).catch(function (err) {
+        console.log("Failed to load integrations", err);
+        that.$q.notify({
+          message: "Failed to load OpenAPI Integrations",
+          type: "error"
         })
-    } else {
-      this.parseIntegrationActions()
+      })
     }
 
 

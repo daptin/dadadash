@@ -46,15 +46,15 @@ export function refreshIntegrations({commit, state}) {
   })
 }
 
-export function refreshWorlds({commit, state}) {
+export function refreshTables({commit, state}) {
   return new Promise(function (resolve, reject) {
-    daptinClient.jsonApi.findAll("integration", {
+    daptinClient.jsonApi.findAll("world", {
       page: {
         size: 500
       }
     }).then(function (res) {
       console.log("loaded integration", res);
-      commit("setIntegrations", res.data);
+      commit("setTables", res.data);
       resolve();
     }).catch(reject)
   })

@@ -164,12 +164,13 @@ OutFields:`)
     },
     createAction() {
       const that = this;
-      console.log("new action", this.newAction);
 
       let actinSchema = that.actionSchemaEditor.value();
+      console.log("new action", that.allTables, actinSchema);
       let spec = {}
       try {
         spec = yaml.load(actinSchema);
+        console.log("Yaml spec", spec)
         if (!spec) {
           that.$q.notify({
             message: "Invalid spec, not valid YAML"
@@ -184,15 +185,16 @@ OutFields:`)
       }
 
       this.newAction.action_name = spec.Name;
-      this.newAction.on_type = that.tables.filter(function (e) {
+      var action_target_table = that.allTables.filter(function (e) {
         return e.table_name === spec.OnType
       })[0];
-      this.newAction.label = spec.Name + " on " + this.newAction.on_type.table_name;
+      console.log("target table", action_target_table)
+      this.newAction.label = spec.Label;
       this.newAction.action_schema = JSON.stringify(spec);
 
 
       this.newAction.tableName = "action";
-      this.newAction.world_id = {type: "world", "id": this.newAction.on_type.id};
+      this.newAction.world_id = {type: "world", "id": action_target_table.id};
       console.log("New action", this.newAction)
       that.createRow(that.newAction).then(function (res) {
         that.user = {};
@@ -213,11 +215,19 @@ OutFields:`)
         }
       });
     },
-    ...mapActions(['loadData', 'getTableSchema',
+    ...mapActions(['loadData', 'getTableSchema', 'refreshTables',
       'createRow', 'deleteRow', 'refreshActions',
       'updateRow', 'executeAction', 'setSelectedActionForEditor']),
     refresh() {
       const that = this;
+      that.refreshTables().then(function (){
+        console.log("Loaded tabled")
+        that.localTables = that.allTables.sort(function (a, b) {
+          return a.table_name > b.table_name;
+        });
+      }).catch(function (err){
+        console.log("Failed to refresh tables", err)
+      });
       this.refreshActions().then(function () {
         var actions = that.actions.map(function (e) {
           var newObj = JSON.parse(JSON.stringify(e));
@@ -237,9 +247,7 @@ OutFields:`)
         that.localActions = actions;
       })
 
-      that.localTables = that.tables.sort(function (a, b) {
-        return a.table_name > b.table_name;
-      });
+
 
     }
   },
@@ -325,7 +333,7 @@ OutFields:`)
         )
       })
     },
-    ...mapGetters(['actions', 'tables']),
+    ...mapGetters(['actions', 'allTables']),
     ...mapState([])
   },
 
