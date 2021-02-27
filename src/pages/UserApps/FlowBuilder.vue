@@ -4,7 +4,7 @@
       <div class="row">
         <div class="col-3 q-pa-md">
           <div class="q-mb-md">
-            <q-input label="filter actions" v-model="actionNameFilter"></q-input>
+            <q-input debounce="300" label="filter actions" v-model="actionNameFilter"></q-input>
           </div>
           <div class="row">
             <div class="col-12">
@@ -32,6 +32,7 @@
                       class="q-mr-md col-12 q-pa-sm"
                     >
                       <data-action-block
+                        @add="addNode('internal', block)"
                         :title="block.preview.title"
                         :description="block.preview"
                       />
@@ -71,9 +72,80 @@
           </div>
         </div>
 
-        <div class="col-6">
-          <div class="row" style="height: calc(100vh - 100px); overflow-y: scroll">
-            <div class="col-12 q-pa-md" v-for="(node, i) in nodes">
+        <div class="col-8">
+
+          <div class="row">
+            <div v-if="nodes.length > 0" class="col-6 q-pa-md">
+              <div class="text-bold">{{ nodes[0].data.Type }}</div>
+              <div class="text-subtitle2">{{ nodes[0].data.Method }}</div>
+            </div>
+            <div class="col-2 q-pa-md">
+              <q-checkbox v-model="action.instance_optional" label="instance optional"></q-checkbox>
+            </div>
+            <div class="col-4 q-pa-md">
+              <q-btn-group>
+                <q-btn class="float-right" @click="deleteAction()" color="negative" label="Delete this action"></q-btn>
+                <q-btn class="float-right" @click="saveAction()" color="green" label="Save"></q-btn>
+                <q-btn class="float-right" @click="execute()" color="primary" label="Execute"></q-btn>
+              </q-btn-group>
+               </div>
+          </div>
+
+          <div v-if="nodes.length > 0" class="row" style="height: calc(100vh - 100px); overflow-y: scroll">
+
+
+            <div class="col-12 q-pa-md">
+
+              <q-card>
+                <q-card-section>
+                  <div class="row items-center no-wrap">
+                    <div class="col">
+                    </div>
+                  </div>
+                </q-card-section>
+
+                <q-card-section>
+                  <div class="row">
+
+
+                    <div class="col-6 " style="max-height: 400px; overflow-x: scroll">
+                      <div class="row">
+                        <span class="text-bold">Attributes</span>
+                      </div>
+
+                      <div class="row q-pa-md" v-for="attribute in Object.keys(nodes[0].data.Attributes)">
+                        <div class="col-11 ">
+                          <q-input stack-label autogrow clearable :name="attribute" :label="attribute"
+                                   v-model="nodes[0].data.Attributes[attribute]"/>
+                        </div>
+                        <div class="col-1">
+                          <q-btn @click="deleteAttribute(nodes[0], attribute)" icon="fas fa-trash" color="negative"
+                                 size="xs" flat></q-btn>
+                        </div>
+                      </div>
+                      <div class="row q-pa-md">
+                        <q-btn size="sm" color="green" @click="showNewInputFieldNameDialog = true"
+                               label="Add new input field"></q-btn>
+                      </div>
+                    </div>
+
+                    <div class="col-6">
+                      <q-card flat dark>
+                        <q-card-section class="q-pa-md">
+                          <q-input dark value="~" disable label="Reference"></q-input>
+                        </q-card-section>
+                      </q-card>
+                    </div>
+
+
+                  </div>
+
+
+                </q-card-section>
+              </q-card>
+            </div>
+
+            <div class="col-12 q-pa-md" v-for="(node, i) in nodes" v-if="i > 0">
 
               <q-card>
                 <q-card-section>
@@ -84,7 +156,7 @@
                     </div>
 
                     <div class="col-auto">
-                      <q-btn color="grey-7" v-if="i > 0" round flat icon="more_vert">
+                      <q-btn color="grey-7" round flat icon="more_vert">
                         <q-menu cover auto-close>
                           <q-list>
                             <q-item clickable @click="nodes.splice(i, 1)">
@@ -99,11 +171,12 @@
                           </q-list>
                         </q-menu>
                       </q-btn>
-                      <q-btn color="grey-7" v-if="i > 0" @click="nodes.splice(i, 1)" round flat icon="fas fa-trash">
+                      <q-btn color="grey-7" @click="nodes.splice(i, 1)" round flat icon="fas fa-trash">
                       </q-btn>
                     </div>
                   </div>
                 </q-card-section>
+
                 <q-card-section>
                   <div class="row">
 
@@ -118,18 +191,12 @@
                           <q-input stack-label autogrow clearable :name="attribute" :label="attribute"
                                    v-model="node.data.Attributes[attribute]"/>
                         </div>
-                        <div class="col-1">
-                          <q-btn @click="deleteAttribute(node, attribute)" icon="fas fa-trash" color="negative"
-                                 size="xs" flat></q-btn>
-                        </div>
+
                       </div>
-                      <div class="row q-pa-md" v-if="i === 0">
-                        <q-btn size="sm" color="green" @click="showNewInputFieldNameDialog = true"
-                               label="Add new input field"></q-btn>
-                      </div>
+
                     </div>
 
-                    <div class="col-6" v-if="i > 0">
+                    <div class="col-6">
                       <q-card flat dark>
                         <q-card-section class="q-pa-md">
                           <q-input dark v-model="node.data.Condition" label="Condition"></q-input>
@@ -149,6 +216,8 @@
                 </q-card-section>
               </q-card>
             </div>
+
+
           </div>
 
         </div>
@@ -156,10 +225,11 @@
       <q-dialog v-model="showNewInputFieldNameDialog">
         <q-card>
           <q-card-section>
-            <span class="text-h6">Name for new input field</span>
+            <span class="text-h6">Name for new input field</span> <br/>
           </q-card-section>
           <q-card-section>
-            <q-input label="Name" v-model="newInputFieldName"></q-input>
+            <q-input autofocus label="Name" v-model="newInputFieldName"></q-input>
+            <span class="text-subtitle">a-z A-Z 0-9 - _</span>
           </q-card-section>
           <q-card-actions align="right">
             <q-btn label="Add" color="primary" @click="addNewInputField()"></q-btn>
@@ -217,6 +287,103 @@ export default {
   name: "FlowBuilder",
   components: {DataActionBlock, DataActionNode},
   methods: {
+    execute() {
+      const that = this;
+
+      console.log("Execute action", this.action, this.nodes[0].data.Attributes);
+
+      that.executeAction({
+        tableName: this.action.action_schema.OnType,
+        actionName: this.action.action_name,
+        params: this.nodes[0].data.Attributes,
+      }).then(function (res) {
+        that.$q.notify({
+          message: "Action executed: " + JSON.stringify(res),
+          type: "success"
+        });
+      }).catch(function (err) {
+        console.log("Failed to execute action", err)
+        that.$q.notify({
+          message: "Failed to execute action: " + JSON.stringify(err)
+        })
+      })
+
+    },
+    deleteAction() {
+      const that = this;
+      this.deleteRow({
+        tableName: 'action',
+        reference_id: this.action.reference_id,
+      }).then(function(res){
+        that.$q.notify({
+          message: "Action deleted",
+          type: "success"
+        });
+        that.$router.push('/integrations/actions')
+      }).catch(function(err){
+        console.log("Failed to delete action", err)
+        that.$q.notify({
+          message: "Failed to delete action: " + JSON.stringify(err),
+          type: "negative"
+        });
+
+      })
+    },
+    saveAction() {
+
+      const that = this;
+      var actionSchema = {...this.action.action_schema}
+      actionSchema.InFields = Object.keys(this.nodes[0].data.Attributes).map(function(e){
+        return {
+          Name: e,
+          ColumnName: e,
+          ColumnType: "label"
+        }
+      });
+      // this.nodes.unshift();
+      actionSchema.OutFields = [];
+      for (var i = 1; i < this.nodes.length; i++) {
+        actionSchema.OutFields.push(this.nodes[i].data)
+      }
+      actionSchema.InstanceOptional = this.action.instance_optional;
+
+      this.action.action_schema = JSON.stringify(actionSchema)
+      this.action.tableName = "action";
+      console.log("save action", this.action, this.nodes);
+      this.updateRow(this.action).then(function (res) {
+        console.log("Action saved", res);
+        var updatedAction = res.data;
+        updatedAction.action_schema = JSON.parse(updatedAction.action_schema)
+        that.setSelectedActionForEditor(updatedAction)
+        that.$q.notify({
+          message: "Action saved, creating endpoint for action",
+          type: "success"
+        });
+
+        that.executeAction({
+          tableName: "world",
+          actionName: "restart_daptin"
+        }).then(function () {
+          that.$q.notify({
+            message: "Action ready to be executed",
+            type: "success"
+          });
+        }).catch(function (err) {
+          console.log("configuration resync failed", err)
+          that.$q.notify({
+            message: "Reconfiguration failed, changes will not take effect until next config re-sync"
+          })
+        })
+
+
+      }).catch(function (err) {
+        console.log("Failed to save action", err)
+        that.$q.notify({
+          message: "Failed to save action: " + JSON.stringify(err),
+          type: "error"
+        });
+      });
+    },
     addNewInputField() {
       console.log("New input field", this.newInputFieldName)
       if (!this.newInputFieldName) {
@@ -226,6 +393,16 @@ export default {
         });
         return;
       }
+      if (this.newInputFieldName.match(/[^a-zA-Z0-9\-_]/)) {
+        this.$q.notify({
+          type: "error",
+          message: "Name can have only these characters: a-z A-Z 0-9 - _"
+        });
+        return;
+
+      }
+
+
       // this.nodes[0].Attributes[this.newInputFieldName] = "";
       Vue.set(this.nodes[0].data.Attributes, this.newInputFieldName, "")
       this.newInputFieldName = "";
@@ -236,7 +413,7 @@ export default {
       console.log("Delete attribute", node.data.Attributes, attribute)
       Vue.delete(node.data.Attributes, attribute);
     },
-    ...mapActions(['refreshIntegrations']),
+    ...mapActions(['refreshIntegrations', 'updateRow', 'deleteRow', 'executeAction', 'setSelectedActionForEditor']),
     swapItem(i, j) {
       const temp = this.nodes[j];
       this.nodes[j] = this.nodes[i];
@@ -348,6 +525,7 @@ export default {
     parseAction() {
 
       let action = JSON.parse(JSON.stringify(this.selectedActionForEditor()));
+      this.action = action;
       console.log("parse action", action)
       let actionSchema = action.action_schema;
       var outFields = actionSchema.OutFields || [];
@@ -389,6 +567,7 @@ export default {
     newInputFieldNameDialog: false,
     newNodeData: null,
     newNodeType: null,
+    action: null,
     showNewInputFieldNameDialog: false,
     newInputFieldName: null,
     newDataBlockForTable: null,
@@ -455,114 +634,374 @@ export default {
     internalActionBlocks: [
       {
         "preview": {"title": "cloud_store.files.import"},
-        "node": {"Method": "EXECUTE", "Type": "cloud_store.files.import", "Attributes": {}}
-      },
-      {
+        "node": {"Method": "EXECUTE", "Type": "cloud_store.files.import", "Attributes": {"table_name": "$.table_name"}}
+      }, {
         "preview": {"title": "integration.install"},
-        "node": {"Method": "EXECUTE", "Type": "integration.install", "Attributes": {}}
+        "node": {"Method": "EXECUTE", "Type": "integration.install", "Attributes": {"reference_id": "$.reference_id"}}
       }, {
         "preview": {"title": "client.file.download"},
-        "node": {"Method": "EXECUTE", "Type": "client.file.download", "Attributes": {}}
+        "node": {
+          "Method": "ACTIONRESPONSE",
+          "Type": "client.file.download",
+          "Attributes": {
+            "content": "!btoa(subject.certificate_pem)",
+            "contentType": "application/x-x509-ca-cert",
+            "message": "!'Certificate for ' + subject.hostname",
+            "name": "!subject.hostname + '.pem.crt'"
+          }
+        }
       }, {
         "preview": {"title": "acme.tls.generate"},
-        "node": {"Method": "EXECUTE", "Type": "acme.tls.generate", "Attributes": {}}
+        "node": {
+          "Method": "EXECUTE",
+          "Type": "acme.tls.generate",
+          "Attributes": {"certificate": "~subject", "email": "~email"}
+        }
       }, {
         "preview": {"title": "self.tls.generate"},
-        "node": {"Method": "EXECUTE", "Type": "self.tls.generate", "Attributes": {}}
+        "node": {"Method": "EXECUTE", "Type": "self.tls.generate", "Attributes": {"certificate": "~subject"}}
       }, {
         "preview": {"title": "otp.generate"},
-        "node": {"Method": "EXECUTE", "Type": "otp.generate", "Attributes": {}}
+        "node": {
+          "Method": "EXECUTE",
+          "Type": "otp.generate",
+          "Attributes": {"email": "$.email", "mobile": "~mobile_number"}
+        }
       }, {
         "preview": {"title": "otp.login.verify"},
-        "node": {"Method": "EXECUTE", "Type": "otp.login.verify", "Attributes": {}}
+        "node": {
+          "Method": "EXECUTE",
+          "Type": "otp.login.verify",
+          "Attributes": {"mobile": "~mobile_number", "otp": "~otp"}
+        }
+      }, {
+        "preview": {"title": "otp.generate"},
+        "node": {
+          "Method": "EXECUTE",
+          "Type": "otp.generate",
+          "Attributes": {"email": "~email", "mobile": "~mobile_number"}
+        }
+      }, {
+        "preview": {"title": "otp.login.verify"},
+        "node": {
+          "Method": "EXECUTE",
+          "Type": "otp.login.verify",
+          "Attributes": {"mobile": "~mobile_number", "otp": "~otp"}
+        }
       }, {
         "preview": {"title": "world.column.delete"},
-        "node": {"Method": "EXECUTE", "Type": "world.column.delete", "Attributes": {}}
+        "node": {
+          "Method": "EXECUTE",
+          "Type": "world.column.delete",
+          "Attributes": {"column_name": "~column_name", "world_id": "$.reference_id"}
+        }
       }, {
         "preview": {"title": "world.delete"},
-        "node": {"Method": "EXECUTE", "Type": "world.delete", "Attributes": {}}
+        "node": {"Method": "EXECUTE", "Type": "world.delete", "Attributes": {"world_id": "$.reference_id"}}
       }, {
         "preview": {"title": "world.column.rename"},
-        "node": {"Method": "EXECUTE", "Type": "world.column.rename", "Attributes": {}}
+        "node": {
+          "Method": "EXECUTE",
+          "Type": "world.column.rename",
+          "Attributes": {
+            "column_name": "~column_name",
+            "new_column_name": "~new_column_name",
+            "world_id": "$.reference_id"
+          }
+        }
       }, {
         "preview": {"title": "site.storage.sync"},
-        "node": {"Method": "EXECUTE", "Type": "site.storage.sync", "Attributes": {}}
+        "node": {
+          "Method": "EXECUTE",
+          "Type": "site.storage.sync",
+          "Attributes": {"cloud_store_id": "$.cloud_store_id", "path": "~path", "site_id": "$.reference_id"}
+        }
       }, {
         "preview": {"title": "column.storage.sync"},
-        "node": {"Method": "EXECUTE", "Type": "column.storage.sync", "Attributes": {}}
+        "node": {
+          "Method": "EXECUTE",
+          "Type": "column.storage.sync",
+          "Attributes": {"column_name": "~column_name", "table_name": "~table_name"}
+        }
       }, {
         "preview": {"title": "mail.servers.sync"},
         "node": {"Method": "EXECUTE", "Type": "mail.servers.sync", "Attributes": {}}
       }, {
         "preview": {"title": "system_json_schema_update"},
-        "node": {"Method": "EXECUTE", "Type": "system_json_schema_update", "Attributes": {}}
-      }, {
-        "preview": {"title": "client.redirect"},
-        "node": {"Method": "EXECUTE", "Type": "client.redirect", "Attributes": {}}
+        "node": {
+          "Method": "EXECUTE",
+          "Type": "system_json_schema_update",
+          "Attributes": {"json_schema": "!JSON.parse('[{\"name\":\"empty.json\",\"file\":\"data:application/json;base64,e30K\",\"type\":\"application/json\"}]')"}
+        }
       }, {
         "preview": {"title": "generate.random.data"},
-        "node": {"Method": "EXECUTE", "Type": "generate.random.data", "Attributes": {}}
+        "node": {
+          "Method": "EXECUTE",
+          "Type": "generate.random.data",
+          "Attributes": {
+            "count": "~count",
+            "table_name": "~table_name",
+            "user_account_id": "$user.id",
+            "user_reference_id": "$user.reference_id"
+          }
+        }
       }, {
         "preview": {"title": "__data_export"},
-        "node": {"Method": "EXECUTE", "Type": "__data_export", "Attributes": {}}
+        "node": {
+          "Method": "EXECUTE",
+          "Type": "__data_export",
+          "Attributes": {"table_name": "$.table_name", "world_reference_id": "$.reference_id"}
+        }
       }, {
         "preview": {"title": "__csv_data_export"},
-        "node": {"Method": "EXECUTE", "Type": "__csv_data_export", "Attributes": {}}
+        "node": {
+          "Method": "EXECUTE",
+          "Type": "__csv_data_export",
+          "Attributes": {"table_name": "$.table_name", "world_reference_id": "$.reference_id"}
+        }
       }, {
         "preview": {"title": "__data_import"},
-        "node": {"Method": "EXECUTE", "Type": "__data_import", "Attributes": {}}
+        "node": {
+          "Method": "EXECUTE",
+          "Type": "__data_import",
+          "Attributes": {
+            "dump_file": "~dump_file",
+            "table_name": "$.table_name",
+            "truncate_before_insert": "~truncate_before_insert",
+            "user": "~user",
+            "world_reference_id": "$.reference_id"
+          }
+        }
       }, {
         "preview": {"title": "cloudstore.file.upload"},
-        "node": {"Method": "EXECUTE", "Type": "cloudstore.file.upload", "Attributes": {}}
+        "node": {
+          "Method": "EXECUTE",
+          "Type": "cloudstore.file.upload",
+          "Attributes": {
+            "file": "~file",
+            "oauth_token_id": "$.oauth_token_id",
+            "path": "~path",
+            "root_path": "$.root_path",
+            "store_provider": "$.store_provider"
+          }
+        }
       }, {
         "preview": {"title": "cloudstore.site.create"},
-        "node": {"Method": "EXECUTE", "Type": "cloudstore.site.create", "Attributes": {}}
+        "node": {
+          "Method": "EXECUTE",
+          "Type": "cloudstore.site.create",
+          "Attributes": {
+            "cloud_store_id": "$.reference_id",
+            "hostname": "~hostname",
+            "oauth_token_id": "$.oauth_token_id",
+            "path": "~path",
+            "root_path": "$.root_path",
+            "site_type": "~site_type",
+            "store_provider": "$.store_provider",
+            "user_account_id": "$user.reference_id"
+          }
+        }
       }, {
         "preview": {"title": "cloudstore.file.delete"},
-        "node": {"Method": "EXECUTE", "Type": "cloudstore.file.delete", "Attributes": {}}
+        "node": {
+          "Method": "EXECUTE",
+          "Type": "cloudstore.file.delete",
+          "Attributes": {
+            "oauth_token_id": "$.oauth_token_id",
+            "path": "~path",
+            "root_path": "$.root_path",
+            "store_provider": "$.store_provider"
+          }
+        }
       }, {
         "preview": {"title": "cloudstore.folder.create"},
-        "node": {"Method": "EXECUTE", "Type": "cloudstore.folder.create", "Attributes": {}}
+        "node": {
+          "Method": "EXECUTE",
+          "Type": "cloudstore.folder.create",
+          "Attributes": {
+            "name": "~name",
+            "oauth_token_id": "$.oauth_token_id",
+            "path": "~path",
+            "root_path": "$.root_path",
+            "store_provider": "$.store_provider"
+          }
+        }
       }, {
         "preview": {"title": "cloudstore.path.move"},
-        "node": {"Method": "EXECUTE", "Type": "cloudstore.path.move", "Attributes": {}}
+        "node": {
+          "Method": "EXECUTE",
+          "Type": "cloudstore.path.move",
+          "Attributes": {
+            "destination": "~destination",
+            "oauth_token_id": "$.oauth_token_id",
+            "root_path": "$.root_path",
+            "source": "~source",
+            "store_provider": "$.store_provider"
+          }
+        }
       }, {
         "preview": {"title": "site.file.list"},
-        "node": {"Method": "EXECUTE", "Type": "site.file.list", "Attributes": {}}
+        "node": {
+          "Method": "EXECUTE",
+          "Type": "site.file.list",
+          "Attributes": {"path": "~path", "site_id": "$.reference_id"}
+        }
       }, {
         "preview": {"title": "site.file.get"},
-        "node": {"Method": "EXECUTE", "Type": "site.file.get", "Attributes": {}}
+        "node": {
+          "Method": "EXECUTE",
+          "Type": "site.file.get",
+          "Attributes": {"path": "~path", "site_id": "$.reference_id"}
+        }
       }, {
         "preview": {"title": "site.file.delete"},
-        "node": {"Method": "EXECUTE", "Type": "site.file.delete", "Attributes": {}}
+        "node": {
+          "Method": "EXECUTE",
+          "Type": "site.file.delete",
+          "Attributes": {"path": "~path", "site_id": "$.reference_id"}
+        }
+      }, {
+        "preview": {"title": "system_json_schema_update"},
+        "node": {
+          "Method": "EXECUTE",
+          "Type": "system_json_schema_update",
+          "Attributes": {"json_schema": "~schema_file"}
+        }
       }, {
         "preview": {"title": "__upload_xlsx_file_to_entity"},
-        "node": {"Method": "EXECUTE", "Type": "__upload_xlsx_file_to_entity", "Attributes": {}}
+        "node": {
+          "Method": "EXECUTE",
+          "Type": "__upload_xlsx_file_to_entity",
+          "Attributes": {
+            "add_missing_columns": "~add_missing_columns",
+            "create_if_not_exists": "~create_if_not_exists",
+            "data_xls_file": "~data_xls_file",
+            "entity_name": "~entity_name"
+          }
+        }
       }, {
         "preview": {"title": "__upload_csv_file_to_entity"},
-        "node": {"Method": "EXECUTE", "Type": "__upload_csv_file_to_entity", "Attributes": {}}
+        "node": {
+          "Method": "EXECUTE",
+          "Type": "__upload_csv_file_to_entity",
+          "Attributes": {
+            "add_missing_columns": "~add_missing_columns",
+            "create_if_not_exists": "~create_if_not_exists",
+            "data_csv_file": "~data_csv_file",
+            "entity_name": "~entity_name"
+          }
+        }
       }, {
         "preview": {"title": "__download_cms_config"},
         "node": {"Method": "EXECUTE", "Type": "__download_cms_config", "Attributes": {}}
       }, {
         "preview": {"title": "__become_admin"},
-        "node": {"Method": "EXECUTE", "Type": "__become_admin", "Attributes": {}}
+        "node": {
+          "Method": "EXECUTE",
+          "Type": "__become_admin",
+          "Attributes": {"user": "~user", "user_account_id": "$user.id"}
+        }
+      }, {
+        "preview": {"title": "otp.generate"},
+        "node": {"Method": "EXECUTE", "Type": "otp.generate", "Attributes": {"email": "~email", "mobile": "~mobile"}}
+      }, {
+        "preview": {"title": "client.notify"},
+        "node": {
+          "Method": "ACTIONRESPONSE",
+          "Type": "client.notify",
+          "Attributes": {"message": "Sign-up successful. Redirecting to sign in", "title": "Success", "type": "success"}
+        }
       }, {
         "preview": {"title": "client.redirect"},
-        "node": {"Method": "EXECUTE", "Type": "client.redirect", "Attributes": {}}
+        "node": {
+          "Method": "ACTIONRESPONSE",
+          "Type": "client.redirect",
+          "Attributes": {"delay": 2000, "location": "/auth/signin", "window": "self"}
+        }
+      }, {
+        "preview": {"title": "otp.generate"},
+        "node": {"Method": "EXECUTE", "Type": "otp.generate", "Attributes": {"email": "$email"}}
+      }, {
+        "preview": {"title": "mail.send"},
+        "node": {
+          "Method": "EXECUTE",
+          "Type": "mail.send",
+          "Attributes": {
+            "body": "Your verification code is: $otp.otp",
+            "from": "no-reply@localhost",
+            "subject": "Request for password reset",
+            "to": "~email"
+          }
+        }
+      }, {
+        "preview": {"title": "otp.login.verify"},
+        "node": {"Method": "EXECUTE", "Type": "otp.login.verify", "Attributes": {"email": "~email", "otp": "~otp"}}
+      }, {
+        "preview": {"title": "random.generate"},
+        "node": {"Method": "EXECUTE", "Type": "random.generate", "Attributes": {"type": "password"}}
+      }, {
+        "preview": {"title": "user_account"},
+        "node": {
+          "Method": "EXECUTE",
+          "Type": "user_account",
+          "Attributes": {"password": "!newPassword.value", "reference_id": "$user[0].reference_id"}
+        }
+      }, {
+        "preview": {"title": "mail.send"},
+        "node": {
+          "Method": "EXECUTE",
+          "Type": "mail.send",
+          "Attributes": {
+            "body": "Your new password is: $newPassword.value",
+            "from": "no-reply@localhost",
+            "subject": "Request for password reset",
+            "to": "~email"
+          }
+        }
       }, {
         "preview": {"title": "jwt.token"},
-        "node": {"Method": "EXECUTE", "Type": "jwt.token", "Attributes": {}}
+        "node": {"Method": "EXECUTE", "Type": "jwt.token", "Attributes": {"email": "~email", "password": "~password"}}
       }, {
         "preview": {"title": "oauth.client.redirect"},
-        "node": {"Method": "EXECUTE", "Type": "oauth.client.redirect", "Attributes": {}}
+        "node": {
+          "Method": "EXECUTE",
+          "Type": "oauth.client.redirect",
+          "Attributes": {"authenticator": "$.name", "scope": "$.scope"}
+        }
       }, {
         "preview": {"title": "oauth.login.response"},
-        "node": {"Method": "EXECUTE", "Type": "oauth.login.response", "Attributes": {}}
+        "node": {
+          "Method": "EXECUTE",
+          "Type": "oauth.login.response",
+          "Attributes": {
+            "authenticator": "~authenticator",
+            "code": "~code",
+            "state": "~state",
+            "user_account_id": "~user.id",
+            "user_reference_id": "~user.reference_id"
+          }
+        }
       }, {
         "preview": {"title": "oauth.profile.exchange"},
-        "node": {"Method": "EXECUTE", "Type": "oauth.profile.exchange", "Attributes": {}}
-      }],
+        "node": {
+          "Method": "EXECUTE",
+          "Type": "oauth.profile.exchange",
+          "Attributes": {
+            "authenticator": "~authenticator",
+            "profileUrl": "$connection[0].profile_url",
+            "token": "$auth.access_token",
+            "tokenInfoUrl": "$connection[0].token_url"
+          }
+        }
+      }, {
+        "preview": {"title": "jwt.token"},
+        "node": {
+          "Method": "EXECUTE",
+          "Type": "jwt.token",
+          "Attributes": {"email": "!profile.email || profile.emailAddress", "skipPasswordCheck": true}
+        }
+      }
+    ],
     nodes: []
   }),
   mounted() {
