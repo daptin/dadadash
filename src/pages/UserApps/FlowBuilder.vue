@@ -88,7 +88,7 @@
                 <q-btn class="float-right" @click="saveAction()" color="green" label="Save"></q-btn>
                 <q-btn class="float-right" @click="execute()" color="primary" label="Execute"></q-btn>
               </q-btn-group>
-               </div>
+            </div>
           </div>
 
           <div v-if="nodes.length > 0" class="row" style="height: calc(100vh - 100px); overflow-y: scroll">
@@ -113,6 +113,16 @@
                         <span class="text-bold">Attributes</span>
                       </div>
 
+                      <div class="row q-pa-md" v-if="!action.instance_optional">
+                        <div class="col-11 ">
+                          <q-input stack-label autogrow clearable name="reference_id" label="reference_id"
+                                   v-model="nodes[0].data.Attributes['reference_id']"/>
+                        </div>
+                        <div class="col-1">
+
+                        </div>
+                      </div>
+
                       <div class="row q-pa-md" v-for="attribute in Object.keys(nodes[0].data.Attributes)">
                         <div class="col-11 ">
                           <q-input stack-label autogrow clearable :name="attribute" :label="attribute"
@@ -123,6 +133,8 @@
                                  size="xs" flat></q-btn>
                         </div>
                       </div>
+
+
                       <div class="row q-pa-md">
                         <q-btn size="sm" color="green" @click="showNewInputFieldNameDialog = true"
                                label="Add new input field"></q-btn>
@@ -228,7 +240,9 @@
             <span class="text-h6">Name for new input field</span> <br/>
           </q-card-section>
           <q-card-section>
-            <q-input autofocus label="Name" v-model="newInputFieldName"></q-input>
+            <q-form @submit="addNewInputField()">
+              <q-input autofocus label="Name" v-model="newInputFieldName"></q-input>
+            </q-form>
             <span class="text-subtitle">a-z A-Z 0-9 - _</span>
           </q-card-section>
           <q-card-actions align="right">
@@ -244,9 +258,11 @@
           </q-card-section>
           <q-card-section>
             <q-select v-model="newDataBlockForTable"
-                      :options="tables().filter(function (e){if (!filterUserTables){return true} return e.IsHiddenTable}).sort(function (a, b){return a.TableName > b.TableName})" option-label="table_name"></q-select>
+                      :options="tables().filter(function (e){if (!filterUserTables){return true} return e.IsHiddenTable}).sort(function (a, b){return a.TableName > b.TableName})"
+                      option-label="table_name"></q-select>
           </q-card-section>
-          <q-card-section v-if="!!newDataBlockForTable && (newNodeData.preview.title === 'create' || newNodeData.preview.title === 'update')">
+          <q-card-section
+            v-if="!!newDataBlockForTable && (newNodeData.preview.title === 'create' || newNodeData.preview.title === 'update')">
             <div class="row" v-for="column in JSON.parse(newDataBlockForTable.world_schema_json).Columns">
               <div class="col-12 q-pa-xs">
                 {{ column.ColumnName }}
@@ -314,13 +330,13 @@ export default {
       this.deleteRow({
         tableName: 'action',
         reference_id: this.action.reference_id,
-      }).then(function(res){
+      }).then(function (res) {
         that.$q.notify({
           message: "Action deleted",
           type: "success"
         });
         that.$router.push('/integrations/actions')
-      }).catch(function(err){
+      }).catch(function (err) {
         console.log("Failed to delete action", err)
         that.$q.notify({
           message: "Failed to delete action: " + JSON.stringify(err),
@@ -333,7 +349,7 @@ export default {
 
       const that = this;
       var actionSchema = {...this.action.action_schema}
-      actionSchema.InFields = Object.keys(this.nodes[0].data.Attributes).map(function(e){
+      actionSchema.InFields = Object.keys(this.nodes[0].data.Attributes).map(function (e) {
         return {
           Name: e,
           ColumnName: e,
@@ -350,11 +366,13 @@ export default {
       this.action.action_schema = JSON.stringify(actionSchema)
       this.action.tableName = "action";
       console.log("save action", this.action, this.nodes);
+      this.action.permission = this.action.permission & 4096;
       this.updateRow(this.action).then(function (res) {
         console.log("Action saved", res);
         var updatedAction = res.data;
         updatedAction.action_schema = JSON.parse(updatedAction.action_schema)
-        that.setSelectedActionForEditor(updatedAction)
+        that.setSelectedActionForEditor(updatedAction);
+        that.parseAction();
         that.$q.notify({
           message: "Action saved, creating endpoint for action",
           type: "success"
@@ -466,7 +484,7 @@ export default {
           this.newNodeData.node = {
             Type: newDataBlockForTable.name,
             Method: this.newNodeData.operationId,
-            Attributes: this.newNodeData.parameters ? this.newNodeData.parameters.map(e => e.name): {},
+            Attributes: this.newNodeData.parameters ? this.newNodeData.parameters.map(e => e.name) : {},
           }
           break;
       }
@@ -538,6 +556,7 @@ export default {
       } else {
         actionSchema.InFields = []
       }
+      this.nodes = [];
       this.nodes.push({
         id: parentId,
         parentId: -1,
@@ -567,7 +586,7 @@ export default {
     newInputFieldNameDialog: false,
     newNodeData: null,
     newNodeType: null,
-    action: null,
+    action: {},
     showNewInputFieldNameDialog: false,
     newInputFieldName: null,
     newDataBlockForTable: null,
