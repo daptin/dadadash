@@ -23,9 +23,9 @@
             </thead>
             <tbody>
             <tr v-for="action in filteredActions">
-              <td>{{ action.action_schema.Label }} on {{ action.action_schema.OnType }}</td>
-              <td>{{ action.action_schema.InFields ? action.action_schema.InFields.length : 0 }}</td>
-              <td>{{ action.action_schema.OutFields ? action.action_schema.OutFields.length : 0 }}</td>
+              <td>{{ action.ActionSchema.Label }} on {{ action.ActionSchema.OnType }}</td>
+              <td>{{ action.ActionSchema.InFields ? action.ActionSchema.InFields.length : 0 }}</td>
+              <td>{{ action.ActionSchema.OutFields ? action.ActionSchema.OutFields.length : 0 }}</td>
               <td class="text-right">
                 <q-btn @click="showEditAction(action)" size="sm"
                        label="Edit action" class="float-right"></q-btn>
@@ -119,7 +119,7 @@ OutFields:`)
       // this.newAction.name = action.name;
       // this.newAction.root_path = action.root_path;
       this.setSelectedActionForEditor(action);
-      this.$router.push('/integrations/action/' + action.action_schema.OnType + "/" + action.action_name)
+      this.$router.push('/integrations/action/' + action.ActionSchema.OnType + "/" + action.action_name)
     },
     deleteAction() {
       const that = this;
@@ -190,7 +190,7 @@ OutFields:`)
       })[0];
       console.log("target table", action_target_table)
       this.newAction.label = spec.Label;
-      this.newAction.action_schema = JSON.stringify(spec);
+      this.newAction.ActionSchema = JSON.stringify(spec);
 
 
       this.newAction.tableName = "action";
@@ -229,22 +229,7 @@ OutFields:`)
         console.log("Failed to refresh tables", err)
       });
       this.refreshActions().then(function () {
-        var actions = that.actions.map(function (e) {
-          var newObj = JSON.parse(JSON.stringify(e));
-          try {
-            newObj.action_schema = JSON.parse(newObj.action_schema);
-          } catch (err) {
-            newObj.action_schema = {
-              InFields: [],
-              OutFields: [],
-              Name: newObj.action_name,
-              Label: newObj.action_name,
-            }
-          }
-          return newObj;
-        });
-        console.log("loaded actions", actions)
-        that.localActions = actions;
+        console.log("actions loaded")
       })
 
 
@@ -325,11 +310,11 @@ OutFields:`)
   computed: {
     filteredActions() {
       const that = this;
-      return that.localActions.filter(function (e) {
+      return that.actions.filter(function (e) {
         return !that.actionFilter || (
           e.action_name.indexOf(that.actionFilter) > -1 ||
-          e.action_schema.OnType.indexOf(that.actionFilter) > -1 ||
-          e.action_schema.Label.indexOf(that.actionFilter) > -1
+          e.ActionSchema.OnType.indexOf(that.actionFilter) > -1 ||
+          e.ActionSchema.Label.indexOf(that.actionFilter) > -1
         )
       })
     },

@@ -309,7 +309,7 @@ export default {
       console.log("Execute action", this.action, this.nodes[0].data.Attributes);
 
       that.executeAction({
-        tableName: this.action.action_schema.OnType,
+        tableName: this.action.ActionSchema.OnType,
         actionName: this.action.action_name,
         params: this.nodes[0].data.Attributes,
       }).then(function (res) {
@@ -348,7 +348,7 @@ export default {
     saveAction() {
 
       const that = this;
-      var actionSchema = {...this.action.action_schema}
+      var actionSchema = {...this.action.ActionSchema}
       actionSchema.InFields = Object.keys(this.nodes[0].data.Attributes).map(function (e) {
         return {
           Name: e,
@@ -363,14 +363,14 @@ export default {
       }
       actionSchema.InstanceOptional = this.action.instance_optional;
 
-      this.action.action_schema = JSON.stringify(actionSchema)
+      this.action.ActionSchema = JSON.stringify(actionSchema)
       this.action.tableName = "action";
       console.log("save action", this.action, this.nodes);
       this.action.permission = this.action.permission & 4096;
       this.updateRow(this.action).then(function (res) {
         console.log("Action saved", res);
         var updatedAction = res.data;
-        updatedAction.action_schema = JSON.parse(updatedAction.action_schema)
+        updatedAction.ActionSchema = JSON.parse(updatedAction.ActionSchema)
         that.setSelectedActionForEditor(updatedAction);
         that.parseAction();
         that.$q.notify({
@@ -545,7 +545,7 @@ export default {
       let action = JSON.parse(JSON.stringify(this.selectedActionForEditor()));
       this.action = action;
       console.log("parse action", action)
-      let actionSchema = action.action_schema;
+      let actionSchema = action.ActionSchema;
       var outFields = actionSchema.OutFields || [];
       let parentId = uuidv4();
       var inputAttributes = {};

@@ -1,5 +1,7 @@
 import {DaptinClient} from 'daptin-client';
 import {Platform} from 'quasar'
+import SwaggerParser from "@apidevtools/swagger-parser";
+import YAML from "js-yaml";
 
 // const daptinClient = new DaptinClient(window.location.protocol + "//" + window.location.hostname, false, function () {
 
@@ -40,8 +42,52 @@ export function refreshIntegrations({commit, state}) {
       }
     }).then(function (res) {
       console.log("loaded integration", res);
-      commit("setIntegrations", res.data);
-      resolve();
+
+      var integrations = res.data;
+      const NewIntegrations = []
+      var promises = [];
+      for (let i = 0; i < integrations.length; i++) {
+        let integration = {...integrations[i]};
+
+        var p = new Promise(function (resolve, reject) {
+          try {
+            let api;
+            if (integration.specification_format === "yaml") {
+              (function (integration1) {
+                api = SwaggerParser.parse(YAML.load(integration.specification), function (err, api) {
+                  console.log("API name: %s, Version: %s", api.info.title, api.info.version);
+                  integration1.ParsedApi = api;
+                  NewIntegrations.push(integration1)
+                  resolve();
+                });
+              })(integration)
+            } else {
+              (function (integration1) {
+                api = SwaggerParser.parse(JSON.parse(integration.specification), function (err, api) {
+                  console.log("API name: %s, Version: %s", api.info.title, api.info.version);
+                  integration1.ParsedApi = api;
+                  NewIntegrations.push(integration1);
+                  resolve();
+                });
+              })(integration)
+            }
+            // integration.ParsedApi = api
+            // NewIntegrations.push({...integration, ParsedApi: api})
+          } catch (err) {
+            console.error(err);
+            reject(err);
+          }
+        });
+        promises.push(p)
+
+
+      }
+
+      Promise.all(promises).then(function () {
+        console.log("integrations parsed");
+        commit("setIntegrations", NewIntegrations);
+        resolve();
+      }).catch(reject)
     }).catch(reject)
   })
 }

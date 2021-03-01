@@ -29,30 +29,15 @@ export function setSelectedActionForEditor(state, action) {
 }
 
 export function setActions(state, actions) {
-  state.actions = actions
+  state.actions = [];
+  for (var i = 0; i < actions.length; i++) {
+    actions[i].ActionSchema = JSON.parse(actions[i].action_schema)
+    state.actions.push(actions[i])
+  }
 }
 
-export async function setIntegrations(state, integrations) {
-
-  for (let i = 0; i < integrations.length; i++) {
-    let integration = integrations[i];
-
-    try {
-      let api;
-      if (integration.specification_format === "yaml") {
-        api = await SwaggerParser.parse(YAML.load(integration.specification));
-      } else {
-        api = await SwaggerParser.parse(JSON.parse(integration.specification));
-      }
-      integrations[i].ParsedApi = api
-      console.log("API name: %s, Version: %s", api.info.title, api.info.version);
-    } catch (err) {
-      console.error(err);
-    }
-
-  }
+export function setIntegrations(state, integrations) {
   state.integrations = integrations;
-
 }
 
 export function setCurrent(state, currentInfo) {
