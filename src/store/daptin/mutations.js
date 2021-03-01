@@ -83,7 +83,10 @@ export function setTables(state, tables) {
   // var newTableMap = {}
   // console.log("set tables", tables)
   //
-  state.tables = tables;
+  state.tables = [];
+  for (var i = 0; i < tables.length; i++) {
+    state.tables[i] = tables[i];
+  }
   console.log("Tables set to ", state.tables)
 }
 

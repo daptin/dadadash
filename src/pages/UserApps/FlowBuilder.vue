@@ -91,7 +91,7 @@
             </div>
           </div>
 
-          <div v-if="nodes.length > 0" class="row" style="height: calc(100vh - 100px); overflow-y: scroll">
+          <div v-if="nodes.length > 0" class="row" style="height: calc(100vh - 100px); overflow-y: scroll; padding-bottom: 50px">
 
 
             <div class="col-12 q-pa-md">
