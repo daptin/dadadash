@@ -49,7 +49,7 @@ export function refreshIntegrations({commit, state}) {
       for (let i = 0; i < integrations.length; i++) {
         let integration = {...integrations[i]};
 
-        var p = new Promise(function (resolve, reject) {
+        var p = new Promise(function (resolve1, reject1) {
           try {
             let api;
             if (integration.specification_format === "yaml") {
@@ -58,7 +58,7 @@ export function refreshIntegrations({commit, state}) {
                   console.log("API name: %s, Version: %s", api.info.title, api.info.version);
                   integration1.ParsedApi = api;
                   NewIntegrations.push(integration1)
-                  resolve();
+                  resolve1();
                 });
               })(integration)
             } else {
@@ -67,7 +67,7 @@ export function refreshIntegrations({commit, state}) {
                   console.log("API name: %s, Version: %s", api.info.title, api.info.version);
                   integration1.ParsedApi = api;
                   NewIntegrations.push(integration1);
-                  resolve();
+                  resolve1();
                 });
               })(integration)
             }
@@ -75,17 +75,16 @@ export function refreshIntegrations({commit, state}) {
             // NewIntegrations.push({...integration, ParsedApi: api})
           } catch (err) {
             console.error(err);
-            reject(err);
+            reject1(err);
           }
         });
         promises.push(p)
-
-
       }
 
       Promise.all(promises).then(function () {
         console.log("integrations parsed");
         commit("setIntegrations", NewIntegrations);
+        console.log("integrations set");
         resolve();
       }).catch(reject)
     }).catch(reject)
