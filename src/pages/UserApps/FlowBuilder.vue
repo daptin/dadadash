@@ -439,7 +439,7 @@ export default {
       this.$forceUpdate();
     },
     addNode(nodeType, block, newDataBlockForTable) {
-
+      const that = this;
       console.log("add node stored", this.newNodeType, this.newNodeData, newDataBlockForTable)
       console.log("add node passed", nodeType, block)
       if (nodeType) {
@@ -485,6 +485,14 @@ export default {
             Type: newDataBlockForTable.name,
             Method: this.newNodeData.operationId,
             Attributes: this.newNodeData.parameters ? this.newNodeData.parameters.map(e => e.name) : {},
+          }
+          if (this.newNodeData.requestBody.content) {
+            var bodyContent = Object.values(this.newNodeData.requestBody.content)[0]
+            console.log("request body content", bodyContent);
+            var properties = Object.keys(bodyContent.schema.properties);
+            properties.map(function (e){
+              that.newNodeData.node.Attributes[e] = ""
+            })
           }
           break;
       }
