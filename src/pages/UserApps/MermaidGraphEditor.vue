@@ -85,7 +85,7 @@ export default {
       },
       diagramTemplates: [
         {
-          name: 'Sequence Diagram',
+          name: 'Sequence diagram',
           template: 'sequenceDiagram\n' +
             '                participant Alice\n' +
             '                participant Bob\n' +
@@ -99,7 +99,7 @@ export default {
             '                Bob-->>John: Jolly good!'
         },
         {
-          name: 'Flow Chart',
+          name: 'Flow chart',
           template: 'graph TD\n' +
             '    A[Christmas] -->|Get money| B(Go shopping)\n' +
             '    B --> C{Let me think}\n' +
@@ -108,7 +108,7 @@ export default {
             '    C -->|Three| F[fa:fa-car Car]'
         },
         {
-          name: 'Class Diagram',
+          name: 'Class diagram',
           template: 'classDiagram\n' +
             '    Animal <|-- Duck\n' +
             '    Animal <|-- Fish\n' +
@@ -133,7 +133,7 @@ export default {
             '            '
         },
         {
-          name: 'State Diagram',
+          name: 'State diagram',
           template: 'stateDiagram-v2\n' +
             '    [*] --> Still\n' +
             '    Still --> [*]\n' +
@@ -144,7 +144,7 @@ export default {
             '            '
         },
         {
-          name: 'Gantt Chart',
+          name: 'Gantt chart',
           template: 'gantt\n' +
             '    title A Gantt Diagram\n' +
             '    dateFormat  YYYY-MM-DD\n' +
@@ -157,7 +157,7 @@ export default {
             '            '
         },
         {
-          name: 'Pie Chart',
+          name: 'Pie chart',
           template: 'pie title Pets adopted by volunteers\n' +
             '    "Dogs" : 386\n' +
             '    "Cats" : 85\n' +
@@ -165,7 +165,7 @@ export default {
             '            '
         },
         {
-          name: 'ER Diagram',
+          name: 'ER diagram',
           template: 'erDiagram\n' +
             '          CUSTOMER }|..|{ DELIVERY-ADDRESS : has\n' +
             '          CUSTOMER ||--o{ ORDER : places\n' +
@@ -176,6 +176,58 @@ export default {
             '          PRODUCT-CATEGORY ||--|{ PRODUCT : contains\n' +
             '          PRODUCT ||--o{ ORDER-ITEM : "ordered in"\n' +
             '            '
+        },
+        {
+          name: 'User journey',
+          template: 'journey\n' +
+            '    title My working day\n' +
+            '    section Go to work\n' +
+            '      Make tea: 5: Me\n' +
+            '      Go upstairs: 3: Me\n' +
+            '      Do work: 1: Me, Cat\n' +
+            '    section Go home\n' +
+            '      Go downstairs: 5: Me\n' +
+            '      Sit down: 5: Me'
+        },
+        {
+          name: 'Large flowchart',
+          template: 'graph TB\n' +
+            '    sq[Square shape] --> ci((Circle shape))\n' +
+            '\n' +
+            '    subgraph A\n' +
+            '        od>Odd shape]-- Two line<br/>edge comment --> ro\n' +
+            '        di{Diamond with <br/> line break} -.-> ro(Rounded<br>square<br>shape)\n' +
+            '        di==>ro2(Rounded square shape)\n' +
+            '    end\n' +
+            '\n' +
+            '    %% Notice that no text in shape are added here instead that is appended further down\n' +
+            '    e --> od3>Really long text with linebreak<br>in an Odd shape]\n' +
+            '\n' +
+            '    %% Comments after double percent signs\n' +
+            '    e((Inner / circle<br>and some odd <br>special characters)) --> f(,.?!+-*ز)\n' +
+            '\n' +
+            '    cyr[Cyrillic]-->cyr2((Circle shape Начало));\n' +
+            '\n' +
+            '     classDef green fill:#9f6,stroke:#333,stroke-width:2px;\n' +
+            '     classDef orange fill:#f96,stroke:#333,stroke-width:4px;\n' +
+            '     class sq,e green\n' +
+            '     class di orange'
+        },
+        {
+          name: 'Sequence diagram with loops',
+          template: 'sequenceDiagram\n' +
+            '    loop Daily query\n' +
+            '        Alice->>Bob: Hello Bob, how are you?\n' +
+            '        alt is sick\n' +
+            '            Bob->>Alice: Not so good :(\n' +
+            '        else is well\n' +
+            '            Bob->>Alice: Feeling fresh like a daisy\n' +
+            '        end\n' +
+            '\n' +
+            '        opt Extra response\n' +
+            '            Bob->>Alice: Thanks for asking\n' +
+            '        end\n' +
+            '    end'
         },
       ],
       containerId: "id-" + new Date().getMilliseconds(),
