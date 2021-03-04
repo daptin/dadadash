@@ -3,7 +3,7 @@
   <q-page-container style="padding-top: 0">
     <q-page style="height:calc(100vh  - 75px);">
       <div class="row">
-        <div style="max-width: 250px" :class="{'col-2 col-sm-3': showSideBar}">
+        <div style="max-width: 250px" :class="{'col-2 col-sm-3': showSideBar, 'print-hide': true}">
           <!--          <div class="row q-pa-md">-->
           <!--            <div class="col-12">-->
           <!--              &nbsp;<q-btn style="border: 1px solid black" flat label="Today"-->
@@ -34,7 +34,7 @@
         </div>
         <div style="border-left: 1px solid black" :class="{'col-10 col-sm-9': showSideBar, 'col-12': !showSideBar}">
           <div class="row">
-            <div class="col-12">
+            <div class="col-12 print-hide">
               <q-toolbar>
                 <q-btn style="border: 1px solid black" flat label="Today"
                        @click="setDate()"></q-btn>

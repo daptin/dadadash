@@ -5,7 +5,7 @@
       <div class="row">
         <div style="border-left: 1px solid black" class="col-12">
           <div class="row">
-            <div class="col-4 ">
+            <div class="col-4 print-hide">
               <div class="row">
                 <div class="col-12 q-pa-sm">
                   <q-btn color="dark" label="Insert diagram template">

@@ -3,7 +3,7 @@
 
     <q-page-container>
       <q-page>
-        <div class="row" style="width: 100vw; height: 40px;">
+        <div class="row print-hide" style="width: 100vw; height: 40px;">
 
           <q-btn flat class="text-primary tabMenuButton" id="listTableButton" icon="fas fa-bars">
             <q-menu>
@@ -90,7 +90,7 @@
 
         </div>
 
-        <q-separator></q-separator>
+        <q-separator class="print-hide"></q-separator>
 
         <base-view-router ref="viewRouter" v-if="baseLoaded && selectedBaseItem" :base-config="baseConfig"
                           :baseItem="selectedBaseItem"></base-view-router>
