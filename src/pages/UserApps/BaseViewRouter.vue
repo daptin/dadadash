@@ -92,11 +92,19 @@ export default {
     saveBaseItemContents(baseEncodedFileItem) {
 
       const that = this;
-      // console.log("Save contents for base", that.baseItem, baseEncodedFileItem.length);
+      console.log("Save contents for base", that.baseItem, baseEncodedFileItem.length);
 
       that.baseItemConfigMap[that.baseItem.document_name].file = baseEncodedFileItem;
-      var originalContent = this.getJsonFromDocument(that.baseItem.document_content[0])
-      originalContent.file = baseEncodedFileItem;
+      try {
+
+        var originalContent = this.getJsonFromDocument(that.baseItem.document_content[0])
+      } catch (e) {
+        that.$q.notify({
+          type: "error",
+          message: "This file seems to be corrupted, can only be deleted"
+        });
+        return
+      }
 
       var contentKeys = Object.keys(originalContent);
       var baseKeys = Object.keys(that.baseItem);
@@ -105,6 +113,7 @@ export default {
           delete originalContent[contentKeys]
         }
       }
+      originalContent.file = baseEncodedFileItem;
 
       that.baseItem.document_content[0].contents = "application/json," + btoa(JSON.stringify(originalContent));
       that.baseItem.tableName = "document";
@@ -131,6 +140,7 @@ export default {
         'document': 'document-editor',
         'folder': 'file-browser',
         'spreadsheet': 'spreadsheet-editor',
+        'mermaid_graph': 'mermaid-graph-editor',
         'calendar': 'calendar-view',
       },
       targetTable: null,

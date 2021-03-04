@@ -686,10 +686,11 @@ export default {
             for (var i = 0; i < res.data.length; i++) {
               try {
                 var item = res.data[i];
+                that.baseItemMap[item.document_name] = item;
+                that.baseConfig.items.push(item);
                 var itemConfig = JSON.parse(atob(item.document_content[0].contents))
                 item = {...item, ...itemConfig}
                 that.baseItemMap[item.document_name] = item;
-                that.baseConfig.items.push(item);
               } catch (e) {
                 console.log("failed to parse item data", e)
               }
@@ -859,11 +860,11 @@ export default {
       const that = this;
       that.newRowData = [];
       that.sourceMap = {};
-      console.log("Refresh data, update the selected item", that.selectedItem, that.baseItemMap);
       console.log("Updated base ", that.selectedItem, that.baseName, that.selectedBaseItem);
 
       that.selectedItem = that.$route.params.itemName;
       that.baseName = that.$route.params.baseName;
+      console.log("Refresh data, update the selected item", that.selectedItem, that.baseItemMap);
       that.selectedBaseItem = that.baseItemMap[that.selectedItem]
       that.baseLoaded = true;
       return Promise.resolve();

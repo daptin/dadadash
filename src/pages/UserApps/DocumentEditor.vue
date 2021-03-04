@@ -224,61 +224,61 @@ export default {
     logout() {
       this.$emit("logout");
     },
-    pageReflow(currentPage = 1) {
-      const that = this;
-      const nextPageNumber = currentPage + 1;
-      let allItems = Array.prototype.slice.call(document.querySelector("#page-" + currentPage).children);
-      console.log("All items", allItems);
-      var currentHeight = 0;
-      var currentPageItems = [];
-      let currentItem = allItems[0];
-      for (; true;) {
-        currentHeight = currentItem ? currentItem.offsetTop + currentItem.offsetHeight : 0;
-        if (!currentItem || currentHeight > that.pageSetting.height) {
-          console.log("Page break here please", currentItem, currentHeight);
-          let pageContents = currentPageItems.map(function (e) {
-            return e.outerHTML
-          }).join("");
-          console.log("page contents", currentPage, pageContents);
-          if (pageContents.length < 1) {
-            return;
-          }
-          that.editor.setData("page-" + currentPage, pageContents);
-          currentHeight = 0;
-          that.pages.push({
-            id: "page-" + nextPageNumber
-          });
-          (function (newPageName) {
-            setTimeout(function () {
-              var newPageDetails = {};
-              newPageDetails[newPageName] = document.querySelector("#" + newPageName)
-              that.editor.add(newPageDetails);
-
-              var remainingItems = [];
-              while (currentItem != null) {
-                remainingItems.push(currentItem)
-                currentItem = currentItem.nextSibling
-              }
-              if (remainingItems < 2) {
-                return
-              }
-              that.editor.setData(newPageName, remainingItems.map(function (e) {
-                return e.outerHTML
-              }).join(""))
-              that.pageReflow(nextPageNumber)
-            }, 100);
-          })("page-" + nextPageNumber);
-          return;
-        }
-        if (!currentItem) {
-          break;
-        }
-        currentPageItems.push(currentItem);
-        currentItem = currentItem.nextSibling;
-      }
-
-
-    },
+    // pageReflow(currentPage = 1) {
+    //   const that = this;
+    //   const nextPageNumber = currentPage + 1;
+    //   let allItems = Array.prototype.slice.call(document.querySelector("#page-" + currentPage).children);
+    //   console.log("All items", allItems);
+    //   var currentHeight = 0;
+    //   var currentPageItems = [];
+    //   let currentItem = allItems[0];
+    //   for (; true;) {
+    //     currentHeight = currentItem ? currentItem.offsetTop + currentItem.offsetHeight : 0;
+    //     if (!currentItem || currentHeight > that.pageSetting.height) {
+    //       console.log("Page break here please", currentItem, currentHeight);
+    //       let pageContents = currentPageItems.map(function (e) {
+    //         return e.outerHTML
+    //       }).join("");
+    //       console.log("page contents", currentPage, pageContents);
+    //       if (pageContents.length < 1) {
+    //         return;
+    //       }
+    //       that.editor.setData("page-" + currentPage, pageContents);
+    //       currentHeight = 0;
+    //       that.pages.push({
+    //         id: "page-" + nextPageNumber
+    //       });
+    //       (function (newPageName) {
+    //         setTimeout(function () {
+    //           var newPageDetails = {};
+    //           newPageDetails[newPageName] = document.querySelector("#" + newPageName)
+    //           that.editor.add(newPageDetails);
+    //
+    //           var remainingItems = [];
+    //           while (currentItem != null) {
+    //             remainingItems.push(currentItem)
+    //             currentItem = currentItem.nextSibling
+    //           }
+    //           if (remainingItems < 2) {
+    //             return
+    //           }
+    //           that.editor.setData(newPageName, remainingItems.map(function (e) {
+    //             return e.outerHTML
+    //           }).join(""))
+    //           that.pageReflow(nextPageNumber)
+    //         }, 100);
+    //       })("page-" + nextPageNumber);
+    //       return;
+    //     }
+    //     if (!currentItem) {
+    //       break;
+    //     }
+    //     currentPageItems.push(currentItem);
+    //     currentItem = currentItem.nextSibling;
+    //   }
+    //
+    //
+    // },
     loadEditor() {
       const that = this;
 

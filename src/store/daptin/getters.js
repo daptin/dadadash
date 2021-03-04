@@ -48,12 +48,16 @@ export function baseItemTypes() {
       type: "view",
       icon: 'fas fa-eye',
       disabled: true
-
     },
     "spreadsheet": {
       label: "Spreadsheet",
       type: "spreadsheet",
       icon: 'table_view'
+    },
+    "mermaid_graph": {
+      label: "Mermaid Graph",
+      type: "mermaid_graph",
+      icon: 'fas fa-project-diagram'
     },
     "document": {
       label: "Document",

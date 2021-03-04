@@ -23,6 +23,7 @@ import BaseViewRouter from "pages/UserApps/BaseViewRouter.vue";
 import EditDataTableComponent from "pages/UserApps/Components/EditDataTableComponent.vue";
 import CalendarComponent from "pages/UserApps/Calendar.vue";
 import DocumentEditorComponent from "pages/UserApps/DocumentEditor.vue";
+import MermaidGraphEditor from "pages/UserApps/MermaidGraphEditor";
 import SpreadsheetEditor from "pages/UserApps/SpreadsheetEditor";
 import HorizontalScroll from 'vue-horizontal-scroll'
 import FlowyPlugin from "@hipsjs/flowy-vue";
@@ -46,6 +47,7 @@ Vue.component('add-base-view', AddBaseView);
 Vue.component('base-view-router', BaseViewRouter);
 Vue.component('calendar-view', CalendarComponent);
 Vue.component('document-editor', DocumentEditorComponent);
+Vue.component('mermaid-graph-editor', MermaidGraphEditor);
 Vue.component('spreadsheet-editor', SpreadsheetEditor);
 Vue.component('edit-data-table', EditDataTableComponent);
 Vue.component('file-upload', VueUploadComponent);
