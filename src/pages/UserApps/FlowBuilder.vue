@@ -501,7 +501,7 @@ export default {
       var node = {}
       node.data = {...this.newNodeData.node};
       node.data.Attributes = {...this.newNodeData.node.Attributes}
-      node.id = id
+      node.id = id;
       node.parentId = this.nodes[this.nodes.length - 1].id
       console.log("Add new node", this.nodes, node)
       this.nodes.push(node);
