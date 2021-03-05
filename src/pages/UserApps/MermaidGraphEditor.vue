@@ -13,7 +13,7 @@
                     <q-menu auto-close fit>
                       <q-list style="min-width: 100px">
                         <q-item clickable @click="setDiagramFromTemplate(template)"
-                                v-for="template in diagramTemplates">
+                                v-for="template in diagramTemplates" :key="template.name">
                           <q-item-section>{{ template.name }}</q-item-section>
                         </q-item>
                       </q-list>

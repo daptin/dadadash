@@ -310,13 +310,19 @@ export function getTableSchema({commit}, tableName) {
 }
 
 export function loadModel({commit}, tableName) {
-  return daptinClient.worldManager.loadModel(tableName, true);
+  return new Promise(function (resolve, reject){
+    console.log("Load models", tableName)
+    daptinClient.worldManager.loadModel(tableName, true).then(function (res){
+      console.log("models loaded", res)
+      resolve();
+    }).catch(reject)
+  });
 }
 
 export function refreshTableSchema({commit}, tableName) {
   daptinClient.worldManager.loadModels(true).then(function (worlds) {
     console.log("All models loaded", arguments);
-    commit('setTables', worlds)
+    commit('setTables', Object.values(worlds))
   }).catch(function (e) {
     console.log("Failed to connect to backend", e);
   });
@@ -342,8 +348,10 @@ export function loadTable({commit}, tableName) {
       // console.log("Loaded table", tableName, res)
       if (res.data.length > 0) {
         commit("setTable", res.data[0]);
+        resolve(res.data[0])
+      } else {
+        reject("Failed to load table", tableName)
       }
-      resolve(res.data[0])
     }).catch(reject)
   })
 }
