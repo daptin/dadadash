@@ -48,20 +48,48 @@
       <q-scroll-area class="fit">
         <div class="q-pa-md">
           <span class="text-h6">New {{ $route.params.tableName }}</span>
-          <q-form class="q-gutter-md q-pa-md">
+          <q-form class="q-gutter-md">
 
-            <div v-for="column in newRowData">
+            <div class="q-pa-md" v-for="column in newRowData">
               <q-input
-                :label="column.meta.ColumnName"
-                v-if="['label', 'measurement', 'value', 'email'].indexOf(column.meta.ColumnType) > -1"
-                filled
-                v-model="column.value"
+                  :label="column.meta.ColumnName"
+                  v-if="['label', 'measurement', 'value', 'email'].indexOf(column.meta.ColumnType) > -1"
+                  filled
+                  v-model="column.value"
+                  :value="column.DefaultValue"
               />
 
+
+              <q-select
+                  filled
+                  v-model="column.value"
+                  v-if="['entity'].indexOf(column.meta.ColumnType) > -1 && (column.meta.jsonApi === 'belongsTo' || column.meta.jsonApi === 'hasOne')"
+                  :label="column.meta.ColumnName"
+                  :options="column.options"
+                  :loading="column.loading"
+                  use-input
+                  @filter="function(x, y, z){onEntitySelectScroll(x, y, z, column)}"
+              />
+
+              <q-btn-dropdown
+                  v-if="['enum'].indexOf(column.meta.ColumnType) > -1"
+                  :label="column.value || column.meta.ColumnName">
+                <q-list>
+                  <q-item :key="option.value"
+                          v-for="option in column.meta.Options"
+                          clickable v-close-popup @click="column.value = option.Value">
+                    <q-item-section>
+                      <q-item-label>{{ option.Label }}</q-item-label>
+                    </q-item-section>
+                  </q-item>
+
+                </q-list>
+              </q-btn-dropdown>
+
               <q-file
-                filled bottom-slots v-model="column.value" :label="column.meta.ColumnName"
-                v-if="column.meta.ColumnType.startsWith('file.')"
-                counter>
+                  filled bottom-slots v-model="column.value" :label="column.meta.ColumnName"
+                  v-if="column.meta.ColumnType.startsWith('file.')"
+                  counter>
                 <template v-slot:prepend>
                   <q-icon name="cloud_upload" @click.stop/>
                 </template>
@@ -475,6 +503,56 @@ const tableComponent = {
   props: ["baseItem"],
   // todo use the config property to show only configured columns for this view and not all columns
   methods: {
+    onEntitySelectScroll(filterValue, update, abort, column) {
+      console.log("load data for select menu", arguments, column);
+      const that = this;
+      column.loading = true;
+
+      that.getTableSchema(column.meta.type).then(function (tableSchema) {
+        console.log("Table schema", tableSchema);
+        var labelColumns = Object.values(tableSchema.ColumnModel).filter(function (e) {
+          return e.ColumnType === "label";
+        }).map(function (e) {
+          return e.ColumnName;
+        })
+        if (labelColumns.length === 0) {
+          labelColumns = ["reference_id"]
+        }
+
+        that.loadData({
+          tableName: column.meta.type,
+          params: {
+            filter: filterValue
+          }
+        }).then(function (res) {
+          console.log("table entries", column.meta.type, res)
+
+          update(() => {
+            column.options = res.data.map(function (e) {
+              return {
+                label: labelColumns.map(function (l) {
+                  return e[l]
+                }).join(", "),
+                value: e.reference_id
+              }
+            });
+            column.loading = false;
+            console.log("updated options for ", column.meta.type, column.options)
+          })
+        }).catch(function (err) {
+          abort();
+          column.loading = false;
+          console.log("Failed to load options for ", col, err);
+          that.$q.notify({
+            type: "error",
+            message: "Failed to load table entries for entity: " + col.meta.type
+          })
+        })
+
+
+      })
+
+    },
     deleteColumn(column) {
       console.log("Delete column", column, this, this.$q)
     },
@@ -716,9 +794,17 @@ const tableComponent = {
       const that = this;
       const obj = {};
       const promises = [];
+      console.log("Save row", that.newRowData, that.tableSchema);
       that.newRowData.map(function (e) {
         if (!e.meta.ColumnType.startsWith('file.')) {
-          obj[e.meta.ColumnName] = e.value;
+          if (e.meta.jsonApi && e.value) {
+            obj[e.meta.ColumnName] = {
+              type: e.meta.type,
+              id: e.value.value,
+            }
+          } else {
+            obj[e.meta.ColumnName] = e.value;
+          }
         } else {
 
           obj[e.meta.ColumnName] = [];
@@ -777,7 +863,7 @@ const tableComponent = {
           console.log("Asset set set column", e)
         }
       });
-      console.log("Promises list", promises);
+      console.log("Promises list", promises, obj);
       obj['tableName'] = that.tableName;
 
       Promise.all(promises).then(function () {
@@ -787,6 +873,11 @@ const tableComponent = {
           });
           that.spreadsheet.setData();
           that.newRowData.map(function (e) {
+            if (e.meta.DefaultValue) {
+              e.value = e.meta.DefaultValue;
+              return;
+            }
+
             e.value = "";
             if (e.meta.ColumnType.startsWith('file.')) {
               e.value = []
@@ -853,26 +944,42 @@ const tableComponent = {
           var col = that.tableSchema.ColumnModel[columnName];
           // console.log("Make column ", col);
 
-          if (col.jsonApi || col.ColumnName === "__type" || that.defaultColumns.indexOf(col.ColumnName) > -1) {
+          if (col.ColumnName === "__type" || that.defaultColumns.indexOf(col.ColumnName) > -1) {
             return null;
           }
-          if (col.ColumnType.startsWith('file.')) {
+
+          if (col.jsonApi) {
+            if (col.jsonApi === "hasOne" || col.jsonApi === "belongsTo") {
+
+              col.ColumnType = col.columnType;
+              col.Name = col.ColumnName;
+              console.log("Json api column", col)
+              that.newRowData.push({
+                    meta: col,
+                    value: null,
+                    options: [],
+                  }
+              );
+            } else {
+              return null;
+            }
+          } else if (col.ColumnType.startsWith('file.')) {
             assetColumns.push(col.ColumnName)
             that.newRowData.push({
-                meta: col,
-                value: []
-              }
+                  meta: col,
+                  value: []
+                }
             );
           } else if (col.ColumnType === 'truefalse') {
             that.newRowData.push({
-                meta: col,
-                value: false
-              }
+                  meta: col,
+                  value: col.ColumnType.DefaultValue
+                }
             );
           } else {
             that.newRowData.push({
                 meta: col,
-                value: ""
+              value: col.ColumnType.DefaultValue
               }
             );
           }
@@ -1367,7 +1474,7 @@ const tableComponent = {
         // headerFilter: false,
       },
       currentPagination: {},
-      defaultColumns: ['updated_at', 'created_at', 'reference_id', 'permission'],
+      defaultColumns: ['updated_at', 'created_at', 'reference_id', 'permission', 'user_account_id', 'usergroup_id'],
       tableSchema: {ColumnModel: []},
       rows: [],
       tableData: null,
