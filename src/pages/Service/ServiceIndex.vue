@@ -1,31 +1,43 @@
 <template>
-  <q-page-container>
-    <q-page>
-      <div class="row ">
-        <img class="q-pa-sm" style="width: 50px;height: 50px;margin-right: -13px; margin-top: 15px"
-             src="statics/icons/app-logo-128x128.png"/>
-        <div class="col-10 q-pa-md">
-          <span class="text-h3 ">Daptin</span>
-        </div>
-        <div class="col-12 q-pa-md">
-          <q-splitter
-            v-model="splitterModel"
-            style="height: 400px"
-          >
+  <q-layout>
+    <q-drawer side="left" overlay elevated v-model="indexDrawer">
+      <div class="q-pa-md">
+        <q-tree
+          :nodes="simple"
+          node-key="label"
+          selected-color="primary"
+          :selected.sync="selected"
+          default-expand-all
+        />
+      </div>
+      <div class="q-mini-drawer-hide absolute" style="top: 15px; right: -17px">
+        <q-btn
+          dense
+          round
+          unelevated
+          color="accent"
+          icon="chevron_left"
+          @click="indexDrawer = false"
+        />
+      </div>
+    </q-drawer>
+    <q-page-container>
+      <q-page>
 
-            <template v-slot:before>
-              <div class="q-pa-md">
-                <q-tree
-                  :nodes="simple"
-                  node-key="label"
-                  selected-color="primary"
-                  :selected.sync="selected"
-                  default-expand-all
-                />
-              </div>
-            </template>
 
-            <template v-slot:after>
+        <div class=" ">
+          <div class="row ">
+
+
+            <div class="col-12 q-pa-md">
+              <img @click="indexDrawer=true" class="q-pa-sm"
+                   style="width: 50px;height: 50px;margin-right: -13px; margin-top: 15px"
+                   src="statics/icons/app-logo-128x128.png"/>
+              <span class="text-h3 q-pa-md">Daptin</span>
+            </div>
+            <div class="col-12 q-pa-md">
+
+
               <q-tab-panels
                 v-model="selected"
                 animated
@@ -73,51 +85,32 @@
                   <div class="text-h4 q-mb-md">Enter daptin endpoint</div>
 
                   <div class="row">
-                    <div class="col-4">
+                    <div class="col-12">
                       <q-input label="Endpoint" v-model="newEndpoint" value="http://localhost:6336"></q-input>
                     </div>
                   </div>
                   <div class="row" style="padding-top: 10px">
-                    <div class="col-2">
+                    <div class="col-6">
                       <q-btn @click="testConnectionWithEndpoint()" label="Test connection"
                              class="bg-grey-1 float-left"></q-btn>
                     </div>
-                    <div class="col-2">
+                    <div class="col-6">
                       <q-btn @click="connectAndResumeApp()" color="green" class="float-right" label="Connect"></q-btn>
                     </div>
                   </div>
                 </q-tab-panel>
 
-                <q-tab-panel name="Room service">
-                  <div class="text-h4 q-mb-md">Room service</div>
-                  <p>Lorem ipsum dolor sit, amet consectetur adipisicing elit. Quis praesentium cumque magnam odio iure
-                    quidem, quod illum numquam possimus obcaecati commodi minima assumenda consectetur culpa fuga nulla
-                    ullam. In, libero.</p>
-                  <p>Lorem ipsum dolor sit, amet consectetur adipisicing elit. Quis praesentium cumque magnam odio iure
-                    quidem, quod illum numquam possimus obcaecati commodi minima assumenda consectetur culpa fuga nulla
-                    ullam. In, libero.</p>
-                  <p>Lorem ipsum dolor sit, amet consectetur adipisicing elit. Quis praesentium cumque magnam odio iure
-                    quidem, quod illum numquam possimus obcaecati commodi minima assumenda consectetur culpa fuga nulla
-                    ullam. In, libero.</p>
-                </q-tab-panel>
 
-                <q-tab-panel name="Room view">
-                  <div class="text-h4 q-mb-md">Room view</div>
-                  <p>Lorem ipsum dolor sit, amet consectetur adipisicing elit. Quis praesentium cumque magnam odio iure
-                    quidem, quod illum numquam possimus obcaecati commodi minima assumenda consectetur culpa fuga nulla
-                    ullam. In, libero.</p>
-                  <p>Lorem ipsum dolor sit, amet consectetur adipisicing elit. Quis praesentium cumque magnam odio iure
-                    quidem, quod illum numquam possimus obcaecati commodi minima assumenda consectetur culpa fuga nulla
-                    ullam. In, libero.</p>
-                </q-tab-panel>
               </q-tab-panels>
-            </template>
-          </q-splitter>
 
+            </div>
+          </div>
         </div>
-      </div>
-    </q-page>
-  </q-page-container>
+
+      </q-page>
+    </q-page-container>
+  </q-layout>
+
 </template>
 
 <script>
@@ -168,9 +161,9 @@ export default {
         })
         localStorage.setItem("DAPTIN_ENDPOINT", that.newEndpoint);
         localStorage.removeItem("token");
-        that.initDaptinClient().then(function (res){
+        that.initDaptinClient().then(function (res) {
           that.$router.push('/')
-        }).catch(function (err){
+        }).catch(function (err) {
           console.log("Failed to connect with the instance", err);
           that.$q.notify({
             type: "negative",
@@ -249,6 +242,7 @@ export default {
     return {
       splitterModel: 30,
       platformTab: null,
+      indexDrawer: true,
       newEndpoint: 'http://localhost:8080',
       downloadProgress: null,
       selected: 'Start new locally',
