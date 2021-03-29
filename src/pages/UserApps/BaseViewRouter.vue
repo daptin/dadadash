@@ -1,12 +1,12 @@
 <template>
 
   <div>
-    <q-tab-panels keep-alive v-model="baseItem.document_name">
-      <q-tab-panel :key="item.reference_id" style="padding: 0" :name="item.document_name"
+    <q-tab-panels keep-alive v-model="baseItem.reference_id">
+      <q-tab-panel :key="item.reference_id" style="padding: 0" :name="item.reference_id"
                    v-for="item in baseConfig.items">
         <component :is="baseItemComponentMap[item.document_extension]"
-                   :baseItem="baseItemConfigMap[item.document_name]"
-                   v-if="baseItemConfigMap[item.document_name]"
+                   :baseItem="baseItemConfigMap[item.reference_id]"
+                   v-if="baseItemConfigMap[item.reference_id]"
                    @save-base-item-contents="saveBaseItemContents"
         ></component>
       </q-tab-panel>
@@ -66,7 +66,7 @@ export default {
             baseItemConfig.targetTable = that.tableMap[baseItemConfig.target.name]
           }
         }
-        that.baseItemConfigMap[item.document_name] = baseItemConfig;
+        that.baseItemConfigMap[item.reference_id] = baseItemConfig;
       }
 
 
@@ -94,7 +94,7 @@ export default {
       const that = this;
       console.log("Save contents for base", that.baseItem, baseEncodedFileItem.length);
 
-      that.baseItemConfigMap[that.baseItem.document_name].file = baseEncodedFileItem;
+      that.baseItemConfigMap[that.baseItem.reference_id].file = baseEncodedFileItem;
       try {
 
         var originalContent = this.getJsonFromDocument(that.baseItem.document_content[0])

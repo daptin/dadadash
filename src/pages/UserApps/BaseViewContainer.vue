@@ -94,12 +94,14 @@
 
         <base-view-router ref="viewRouter" v-if="baseLoaded && selectedBaseItem" :base-config="baseConfig"
                           :baseItem="selectedBaseItem"></base-view-router>
+
+
         <div v-if="!selectedBaseItem" class="row">
           <div class="col-6 offset-3 q-pa-md q-gutter-sm">
-            <q-card>
+            <q-card flat>
               <q-card-section>
                 <div class="row">
-                  <div class="col-6">
+                  <div class="col-6" v-if="baseConfig.items && baseConfig.items.length > 0">
                     Select an item to open
                     <q-list>
                       <q-item :key="item.reference_id"
@@ -123,9 +125,22 @@
 
 
                   </div>
-                  <div class="col-6">
-                    Or <br/>
-                    <q-btn @click="showAddNewItemMenu()" label="Add new item"></q-btn>
+                  <div class="col-12">
+
+                    <div class="row q-pa-md">
+
+                      <div class="col-4 q-pa-md" :disable="item.disabled" clickable @click="addBaseItem(item)" v-close-popup
+                           v-for="item in baseItemTypes" v-if="!item.disabled"
+                           :key="item.label">
+                        <q-item-section>
+                          <q-btn style="size: 300px; height: 200px;" size="xl" :icon="item.icon" :label="item.label">
+                          </q-btn>
+                        </q-item-section>
+                      </div>
+                      <q-separator/>
+
+                    </div>
+
                   </div>
                 </div>
 
@@ -225,10 +240,10 @@
                     <q-checkbox label="Allow guests to see this item"
                                 v-model="itemConfiguration.allowGuests"></q-checkbox>
                   </div>
-<!--                  <div class="col-12">-->
-<!--                    <q-checkbox label="Show this on frontpage"-->
-<!--                                v-model="itemConfiguration.showOnFrontpage"></q-checkbox>-->
-<!--                  </div>-->
+                  <!--                  <div class="col-12">-->
+                  <!--                    <q-checkbox label="Show this on frontpage"-->
+                  <!--                                v-model="itemConfiguration.showOnFrontpage"></q-checkbox>-->
+                  <!--                  </div>-->
                 </div>
               </div>
             </div>
@@ -289,6 +304,7 @@
 
 <script>
 import {mapActions, mapGetters} from 'vuex';
+import Vue from 'vue'
 import BaseViewRouter from "pages/UserApps/BaseViewRouter";
 import {v4 as uuidv4} from 'uuid';
 
@@ -449,9 +465,17 @@ export default {
           that.baseItemMap[that.newName] = that.baseItemMap[originalTitle];
           // that.$refs.viewRouter.reloadBaseItem()
           delete that.baseItemMap[originalTitle];
-          if (originalTitle === that.selectedItem) {
-            that.$router.push('/workspace/' + that.workspaceName + "/" + that.baseName + "/" + that.newName)
+
+          for (var i = 0; i < that.baseConfig.items.length; i++) {
+            if (that.baseConfig.items[i].document_name === that.itemBeingEdited.document_name) {
+               Vue.set(that.baseConfig.items[i], "document_name", that.newName)
+            }
+
           }
+
+          // if (originalTitle === that.selectedItem) {
+          that.$router.push('/workspace/' + that.workspaceName + "/" + that.baseName + "/" + that.newName)
+          // }
           // that.refreshData()
         }).catch(function (err) {
           console.log("Failed to update item name", err)
@@ -861,6 +885,7 @@ export default {
       that.newRowData = [];
       that.sourceMap = {};
       console.log("Updated base ", that.selectedItem, that.baseName, that.selectedBaseItem);
+      that.baseLoaded = false;
 
       that.selectedItem = that.$route.params.itemName;
       that.baseName = that.$route.params.baseName;

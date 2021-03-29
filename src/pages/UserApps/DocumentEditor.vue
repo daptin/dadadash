@@ -152,6 +152,8 @@ body[data-editor="DecoupledDocumentEditor"] {
 import {mapActions, mapGetters} from "vuex";
 import '../../statics/ckeditor/ckeditor'
 import JSZip from 'jszip'
+import * as Y from 'yjs'
+import {WebsocketProvider} from 'y-websocket'
 
 function debounce(func, wait, immediate) {
   var timeout;
@@ -344,28 +346,91 @@ export default {
           licenseKey: '',
 
         }
+        const ydoc = new Y.Doc()
+        // const yxmlText = ydoc.get('my text type', Y.XmlText)
+        // yxmlText.insert(0, that.contents)
 
-        console.log("loading ckeditor", that.decodedAuthToken())
+        console.log("loading ckeditor", that.decodedAuthToken(), that.contents)
         CKSource.Editor
           .create({
             "page-1": document.querySelector('#page-1'),
+
+          }, {
+            initialData: [that.contents],
+            cloudServices: {
+              // PROVIDE CORRECT VALUES HERE:
+              tokenUrl: 'https://example.com/cs-token-endpoint',
+              uploadUrl: 'https://your-organization-id.cke-cs.com/easyimage/upload/',
+              webSocketUrl: 'your-organization-id.cke-cs.com/ws/'
+            },
+            collaboration: {
+              channelId: 'document-id'
+            },
+            sidebar: {
+              container: document.querySelector( '#sidebar' )
+            },
+            presenceList: {
+              container: document.querySelector( '#presence-list-container' )
+            }
           })
           .then(editor => {
             document.querySelector('.document-editor__toolbar').appendChild(editor.ui.view.toolbar.element);
+            console.log("edior", editor)
+            window.editor = editor;
+            // editor.data.init(that.contents)
             that.editor = editor;
-            editor.setData("page-1", that.contents);
+
+            // const provider = new WebsocketProvider('ws://localhost:6336/yjs/', 'monaco-demo', ydoc)
+            // const ytext = ydoc.getText('monaco')
+
+            // Method 1: Define a top-level type
+            // const yxmlFragment = ydoc.getXmlFragment('my xml-fragment type')
+
+
+            // yxmlFragment.observe(function () {
+            //   console.log("yxmlFragment changed", arguments)
+            // })
+
+
+            // editor.setData("page-1", that.contents);
+            // yxmlFragment.insert(0, [yxmlText]);
+
             // that.pageReflow()
-            const saveMethod = debounce(function (){
+            const saveMethod = debounce(function () {
               that.contents = editor.getData()["page-1"];
               that.saveDocument()
             }, 1200, false);
 
             if (that.decodedAuthToken()) {
               editor.onChange((res) => { //提供onChange方法获取数据
-                // console.log("Editor on change", res)
+                console.log("Editor on change", res, editor, arguments)
                 // console.log("Editor contents", that.contents)
                 saveMethod();
               })
+
+              editor.model.on("applyOperation", function (eventInfo, operations) {
+                const operation = operations[0];
+                window.op = operation;
+                // window.fr = yxmlFragment;
+                // console.log("applyOperation", operation.toJSON(), yxmlFragment);
+                if (operation.type  === "move"){
+
+                } else if (operation.type === "insert") {
+                  var node = operation.nodes.getNode(0).data;
+                  // var row = operation.position.path[0];
+                  // var col = operation.position.path[1];
+                  // var str = ytext.toString();
+                  // var lines = str.split("\n");
+                  // var index = 0;
+                  // for (var i=0;i<row;i++) {
+                  //   index += lines[i].length;
+                  // }
+                  // index += col;
+                  // console.log("Insert node", index, node)
+                  // ytext.insert(index, node)
+                }
+              })
+
             }
 
 

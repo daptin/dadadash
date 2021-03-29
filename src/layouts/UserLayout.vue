@@ -128,6 +128,9 @@ export default {
 
           }).catch(function (err) {
             console.log("Failed to become admin", err);
+            that.loaded = true;
+            this.$router.push("/login");
+            return
           })
         }
 

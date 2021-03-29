@@ -5,7 +5,7 @@
       <div class="row">
         <div style="border-left: 1px solid black" class="col-12">
           <div class="row">
-            <div class="col-4 print-hide">
+            <div class="col-6 print-hide">
               <div class="row">
                 <div class="col-12 q-pa-sm">
                   <q-btn color="dark" label="Insert diagram template">
@@ -20,15 +20,13 @@
                     </q-menu>
                   </q-btn>
                 </div>
-                <div class="col-12 q-pa-sm">
-                  <textarea style="width: 100%; height: calc(100vh - 200px)" @keyup="updateDiagram()"
-                            v-model="diagramSpec">
-              </textarea>
+                <div style="min-height: 60vh;" class="col-12 q-pa-sm">
+                  <codemirror style="width: 100%" :options="cmOptions" ref="editor"></codemirror>
                 </div>
               </div>
 
             </div>
-            <div class="col-8 q-pa-sm" style="height: calc(100vh - 100px);">
+            <div class="col-6 q-pa-sm" style="height: calc(100vh - 100px);">
               <div class="mermaid" style="height: calc(100vh - 200px)">
               </div>
             </div>
@@ -47,6 +45,15 @@
 <script>
 import mermaid from 'mermaid';
 import {mapActions} from "vuex";
+import CodeMirror from 'codemirror'
+
+import 'codemirror/lib/codemirror.css'
+import 'codemirror/theme/3024-day.css'
+import * as Y from 'yjs'
+import {WebsocketProvider} from 'y-websocket'
+import {CodemirrorBinding} from 'y-codemirror'
+
+import 'codemirror/mode/markdown/markdown'
 
 function debounce(func, wait, immediate) {
   var timeout;
@@ -68,6 +75,15 @@ export default {
   name: "MermaidGraphEditor",
   data() {
     return {
+      editor: null,
+      ytext: null,
+      cmOptions: {
+        theme: '3024-day',
+        lineNumbers: true,
+        mode: "markdown",
+        height: '600px',
+        line: true,
+      },
       showSideBar: true,
       diagramSpec: 'sequenceDiagram\n' +
         '                participant Alice\n' +
@@ -235,34 +251,40 @@ export default {
       eventMap: {},
       originalDiagram: null,
       debouncedSave: null,
+      debouncedUpdate: null,
     }
   },
   methods: {
     setDiagramFromTemplate(template) {
-      this.diagramSpec = template.template;
+      // this.diagramSpec = template.template;
+      this.ytext.delete(0, this.ytext.toString().length)
+      this.ytext.insert(0, template.template)
       this.updateDiagram();
-      this.saveDiagram();
     },
     saveDiagram() {
       const that = this;
-      // console.log("save diagram", that.baseItem)
-      if (that.originalDiagram === that.diagramSpec) {
+      console.log("save diagram", that.baseItem)
+
+      let newDiagram = that.ytext.toString();
+      if (that.originalDiagram === newDiagram) {
         return
       }
-      that.originalDiagram = that.diagramSpec;
+      that.originalDiagram = newDiagram;
       let diagram = JSON.stringify({
-        diagramSpec: that.diagramSpec
+        diagramSpec: newDiagram
       });
       console.log("save diagram")
       that.$emit("save-base-item-contents", btoa(diagram))
     },
     updateDiagram() {
       const that = this;
+      let diagramString = this.ytext.toString();
+      console.log("Update diagram", diagramString)
       var element = document.querySelector(".mermaid");
       var insertSvg = function (svgCode, bindFunctions) {
         element.innerHTML = svgCode;
       };
-      that.calendar = mermaid.mermaidAPI.render('mermaid', this.diagramSpec, insertSvg);
+      that.calendar = mermaid.mermaidAPI.render('mermaid', diagramString, insertSvg);
       that.debouncedSave()
     },
     ...mapActions(['createRow', "loadData", "updateRow"]),
@@ -274,6 +296,8 @@ export default {
   mounted() {
     const that = this;
     that.containerId = "id-" + new Date().getMilliseconds();
+    that.debouncedSave = debounce(that.saveDiagram, 300, false)
+    that.debouncedUpdate = debounce(that.updateDiagram, 300, false)
     console.log("Mounted Mermaid Graph Editor", that.containerId, this.baseItem);
     const file = this.baseItem.file;
     console.log("File: ", JSON.stringify(file));
@@ -290,15 +314,41 @@ export default {
     }
     that.mermaidEditorConfig = mermaidEditorConfig;
 
+    const ydoc = new Y.Doc()
+    const provider = new WebsocketProvider(
+      'ws://localhost:6336/live/document/' + this.baseItem.reference_id + "/document_content",
+      "yjs?token=" + localStorage.getItem("token"),
+      ydoc
+    )
+    const ytext = ydoc.getText('codemirror')
+    that.ytext = ytext;
 
-    that.debouncedSave = debounce(that.saveDiagram, 300, false)
-    setTimeout(function () {
-      console.log("initialize mermaid")
-      mermaid.mermaidAPI.initialize({
-        startOnLoad: false
-      });
-      that.updateDiagram()
-    }, 200)
+    console.log("Ytext value - ", ytext.toString())
+
+    window.ed = that.$refs.editor;
+
+    that.$refs.editor.codemirror.setSize(600, 800)
+
+
+    const binding = new CodemirrorBinding(ytext, that.$refs.editor.codemirror, provider.awareness)
+
+
+    ytext.observe(function () {
+      console.log("Ytext updates: ", ytext.toString())
+      that.debouncedUpdate();
+      // that.updateDiagram();
+    })
+    provider.connect();
+
+
+    // setTimeout(function () {
+    //   console.log("initialize mermaid", that.$refs.editor);
+    //   that.$refs.editor.codemirror.setSize(500, 600)
+    //   mermaid.mermaidAPI.initialize({
+    //     startOnLoad: false
+    //   });
+    //   // that.updateDiagram()
+    // }, 200)
   }
 }
 </script>
