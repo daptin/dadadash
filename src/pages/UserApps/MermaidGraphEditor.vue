@@ -44,7 +44,7 @@
 </style>
 <script>
 import mermaid from 'mermaid';
-import {mapActions} from "vuex";
+import {mapActions, mapGetters} from "vuex";
 import CodeMirror from 'codemirror'
 
 import 'codemirror/lib/codemirror.css'
@@ -255,6 +255,7 @@ export default {
     }
   },
   methods: {
+    ...mapGetters(["authToken"]),
     setDiagramFromTemplate(template) {
       // this.diagramSpec = template.template;
       this.ytext.delete(0, this.ytext.toString().length)
@@ -315,14 +316,13 @@ export default {
     that.mermaidEditorConfig = mermaidEditorConfig;
     that.$refs.editor.codemirror.setSize(600, 800)
 
-    let token = localStorage.getItem("token");
-    if (token) {
+    if (that.authToken) {
 
 
       const ydoc = new Y.Doc()
       const provider = new WebsocketProvider(
         'ws://localhost:6336/live/document/' + this.baseItem.reference_id + "/document_content",
-        "yjs?token=" + token,
+        "yjs?token=" + that.authToken,
         ydoc
       )
       const ytext = ydoc.getText('codemirror')

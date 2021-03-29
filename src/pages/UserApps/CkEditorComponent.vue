@@ -1,11 +1,22 @@
 <template>
   <q-page-container style="padding-top: 0; overflow: hidden;">
     <q-page style="min-height: 0 ; height:calc(100vh  - 46px); ">
-      <div class="row">
-        <div class="col-8 offset-2">
+      <div class="print-hide document-editor__toolbar"></div>
+      <div class="row" style=" overflow: hidden; width: 100vw">
 
-          <div id="qid"></div>
-
+        <div class="col-12" style="height:calc(100vh  - 80px); overflow-y: scroll">
+          <div class="row-editor" v-for="page in pages">
+            <div v-html="page.html" :id="page.id" class="editor"
+                 :style="{
+              'min-height': pageSetting.height + 'px',
+              'width': pageSetting.width  + 'px',
+              'margin-left': '-300'  + 'px',
+              'padding-left': pageSetting.margin.left  + 'px',
+              'padding-right': pageSetting.margin.right  + 'px',
+              'padding-top': pageSetting.margin.top  + 'px',
+              'padding-bottom': pageSetting.margin.bottom  + 'px',
+            }"></div>
+          </div>
         </div>
 
       </div>
@@ -90,42 +101,57 @@
 
 </template>
 <style scoped>
+@import '../../statics/ckeditor/ckeditor.css';
 
-@media print {
-  .ql-toolbar {
-    display: none;
+@page {
+  size: 5.5in 8.5in;
+}
+
+@page :right {
+  @bottom-right {
+    content: counter(page);
   }
 }
 
-.ql-toolbar {
-  float: left;
-  position: absolute;
-  width: 100%;
+
+@media print {
+  .document-heading {
+    display: none;
+  }
+
+  body {
+    background: #fff !important;
+  }
+
+  body[data-editor="DecoupledDocumentEditor"] .row-editor {
+    background: white;
+    top: 0;
+    left: 0;
+    border: none;
+    box-shadow: none;
+    position: absolute;
+  }
+
+  body[data-editor="DecoupledDocumentEditor"] .row-editor .editor {
+    border: none !important;
+    box-shadow: none !important;
+    margin: 0 !important;
+  }
+
 }
 
-.quill-editor {
-  height: calc(100vh - 150px);
-  width: 8.3in;
+
+body[data-editor="DecoupledDocumentEditor"] {
+  background: #eeebeb;
+  border: none;
 }
 
 </style>
 <script>
 
-
-import 'quill/dist/quill.core.css' // import styles
-import 'quill/dist/quill.snow.css' // for snow theme
-import 'quill/dist/quill.bubble.css' // for bubble theme
-
 import {mapActions, mapGetters} from "vuex";
-// import '../../statics/ckeditor/ckeditor'
+import '../../statics/ckeditor/ckeditor'
 import JSZip from 'jszip'
-import * as Y from 'yjs'
-import {WebsocketProvider} from 'y-websocket'
-import {QuillBinding} from 'y-quill'
-import Quill from 'quill'
-import QuillCursors from 'quill-cursors'
-
-Quill.register('modules/cursors', QuillCursors)
 
 function debounce(func, wait, immediate) {
   var timeout;
@@ -150,15 +176,6 @@ export default {
 
   data() {
     return {
-      ytext: null,
-      saveDebounced: null,
-      quillEditorOption: {
-        cursors: true,
-        history: {
-          userOnly: true
-        },
-        placeholder: 'Start collaborating...',
-      },
       file: null,
       pageSettingDialog: false,
       pageSetting: {
@@ -177,9 +194,14 @@ export default {
           right: 20,
         }
       },
+      pages: [{
+        id: "page-1",
+        html: "",
+        header: ""
+      }],
       pageHeight: 1200,
       showSharingBox: false,
-      ...mapGetters(['endpoint', 'decodedAuthToken', 'authToken']),
+      ...mapGetters(['endpoint', 'decodedAuthToken']),
       contents: "",
       newNameDialog: false,
       newName: null,
@@ -202,65 +224,156 @@ export default {
     logout() {
       this.$emit("logout");
     },
-
-
+    // pageReflow(currentPage = 1) {
+    //   const that = this;
+    //   const nextPageNumber = currentPage + 1;
+    //   let allItems = Array.prototype.slice.call(document.querySelector("#page-" + currentPage).children);
+    //   console.log("All items", allItems);
+    //   var currentHeight = 0;
+    //   var currentPageItems = [];
+    //   let currentItem = allItems[0];
+    //   for (; true;) {
+    //     currentHeight = currentItem ? currentItem.offsetTop + currentItem.offsetHeight : 0;
+    //     if (!currentItem || currentHeight > that.pageSetting.height) {
+    //       console.log("Page break here please", currentItem, currentHeight);
+    //       let pageContents = currentPageItems.map(function (e) {
+    //         return e.outerHTML
+    //       }).join("");
+    //       console.log("page contents", currentPage, pageContents);
+    //       if (pageContents.length < 1) {
+    //         return;
+    //       }
+    //       that.editor.setData("page-" + currentPage, pageContents);
+    //       currentHeight = 0;
+    //       that.pages.push({
+    //         id: "page-" + nextPageNumber
+    //       });
+    //       (function (newPageName) {
+    //         setTimeout(function () {
+    //           var newPageDetails = {};
+    //           newPageDetails[newPageName] = document.querySelector("#" + newPageName)
+    //           that.editor.add(newPageDetails);
+    //
+    //           var remainingItems = [];
+    //           while (currentItem != null) {
+    //             remainingItems.push(currentItem)
+    //             currentItem = currentItem.nextSibling
+    //           }
+    //           if (remainingItems < 2) {
+    //             return
+    //           }
+    //           that.editor.setData(newPageName, remainingItems.map(function (e) {
+    //             return e.outerHTML
+    //           }).join(""))
+    //           that.pageReflow(nextPageNumber)
+    //         }, 100);
+    //       })("page-" + nextPageNumber);
+    //       return;
+    //     }
+    //     if (!currentItem) {
+    //       break;
+    //     }
+    //     currentPageItems.push(currentItem);
+    //     currentItem = currentItem.nextSibling;
+    //   }
+    //
+    //
+    // },
     loadEditor() {
       const that = this;
 
 
       setTimeout(function () {
-        console.log("loading ckeditor", that.decodedAuthToken(), that.contents)
 
-        const ydoc = new Y.Doc()
-        let token = that.authToken();
-        console.log("Token", token)
-        const provider = new WebsocketProvider(
-          'ws://localhost:6336/live/document/' + that.baseItem.reference_id + "/document_content",
-          "yjs?token=" + token,
-          ydoc
-        )
-        window.ydoc = ydoc;
-        const ytext = ydoc.getText('quill')
-        console.log("Yxml loaded", that.$refs.myQuillEditor, ytext);
-        that.ytext = ytext;
 
-        var editorContainer = document.getElementById("qid")
-        const editor = new Quill(editorContainer, {
-          modules: {
-            cursors: true,
-            toolbar: [
-              [{'font': []}, {'size': []}],
-              ['bold', 'italic', 'underline', 'strike'],
-              [{'color': []}, {'background': []}],
-              [{'script': 'super'}, {'script': 'sub'}],
-              [{'header': '1'}, {'header': '2'}, 'blockquote', 'code-block'],
-              [{'list': 'ordered'}, {'list': 'bullet'}, {'indent': '-1'}, {'indent': '+1'}],
-              ['direction', {'align': []}],
-              ['link', 'image', 'video', 'formula'],
-              ['clean']
-            ],
-            history: {
-              userOnly: true
-            }
+        window.document.body.setAttribute("data-editor", "DecoupledDocumentEditor");
+
+
+        CKSource.Editor.defaultConfig = {
+
+          toolbar: {
+            items: [
+              'undo',
+              'redo',
+              'removeFormat',
+              '|',
+              'heading',
+              'fontSize',
+              'fontFamily',
+              'fontBackgroundColor',
+              'fontColor',
+              '|',
+              'bold',
+              'italic',
+              'underline',
+              'strikethrough',
+              'highlight',
+              '|',
+              'numberedList',
+              'bulletedList',
+              'todoList',
+              '|',
+              'alignment',
+              'indent',
+              'outdent',
+              '|',
+              'link',
+              'blockQuote',
+              'imageUpload',
+              'insertTable',
+              'mediaEmbed'
+            ]
           },
-          placeholder: 'Start collaborating...',
-          theme: 'snow' // or 'bubble'
-        })
+          language: 'en',
+          image: {
+            toolbar: [
+              'imageTextAlternative',
+              'imageStyle:full',
+              'imageStyle:side'
+            ]
+          },
+          table: {
+            contentToolbar: [
+              'tableColumn',
+              'tableRow',
+              'mergeTableCells',
+              'tableCellProperties',
+              'tableProperties'
+            ]
+          },
+          licenseKey: '',
 
-        const binding = new QuillBinding(ytext, editor, provider.awareness)
+        }
 
-        provider.awareness.setLocalStateField('user', {
-          name: that.decodedAuthToken().name,
-          color: 'blue'
-        })
+        console.log("loading ckeditor", that.decodedAuthToken())
+        CKSource.Editor
+          .create({
+            "page-1": document.querySelector('#page-1'),
+          })
+          .then(editor => {
+            document.querySelector('.document-editor__toolbar').appendChild(editor.ui.view.toolbar.element);
+            that.editor = editor;
+            editor.setData("page-1", that.contents);
+            // that.pageReflow()
+            const saveMethod = debounce(function (){
+              that.contents = editor.getData()["page-1"];
+              that.saveDocument()
+            }, 1200, false);
 
-        ytext.observe(function (event, transaction) {
+            if (that.decodedAuthToken()) {
+              editor.onChange((res) => { //提供onChange方法获取数据
+                // console.log("Editor on change", res)
+                // console.log("Editor contents", that.contents)
+                saveMethod();
+              })
+            }
 
-          if (transaction.local) {
-            // console.log("change tyext", event, transaction)
-            that.saveDebounced();
-          }
-        })
+
+            window.editor = editor; //将实例暴露给window
+          })
+          .catch(err => {
+            console.error(err);
+          });
 
 
       }, 100)
@@ -309,7 +422,6 @@ export default {
       const that = this;
 
       var zip = new JSZip();
-      // console.log("save document", that.ytext.toString())
       zip.file("contents.html", this.contents);
       zip.file("page-setting.json", JSON.stringify(this.pageSetting));
 
@@ -330,7 +442,6 @@ export default {
   mounted() {
     const that = this;
     this.containerId = "id-" + new Date().getMilliseconds();
-    this.saveDebounced = debounce(this.saveDocument, 3 * 1000, false)
 
 
     console.log("Loaded document", that.baseItem)

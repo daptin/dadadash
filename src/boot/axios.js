@@ -33,7 +33,14 @@ import DataActionBlock from "pages/Components/DataActionBlock";
 import DataActionNode from "pages/Components/DataActionNode";
 import VueAutosuggest from "vue-autosuggest";
 
+// import VueQuillEditor from 'vue-quill-editor'
+import QuillCursors from 'quill-cursors'
+import Quill from 'quill';
 
+Quill.register('modules/cursors', QuillCursors)
+
+
+// Vue.use(VueQuillEditor, /* { default global options } */)
 Vue.use(VueAutosuggest);
 
 Vue.component('data-action-block', DataActionBlock)
