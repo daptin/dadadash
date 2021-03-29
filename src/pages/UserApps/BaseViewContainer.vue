@@ -63,12 +63,12 @@
       v-model="documentTab"
       show-if-above
       mini
-
+      :persistent="false"
       mini-to-overlay
       :width="400"
       :breakpoint="500"
       bordered
-      :mini="documentTabminiState && !!selectedBaseItem"
+      :mini="documentTabminiState"
       @mouseover="documentTabminiState = false"
       @mouseout="documentTabminiState = true"
       content-class="bg-white print-hide"
