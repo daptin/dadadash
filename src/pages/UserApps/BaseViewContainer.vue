@@ -1,78 +1,118 @@
 <template>
   <q-layout class="user-area-pattern" view="lHh Lpr lFf">
 
-    <q-page-container>
-      <q-page>
-        <div class="row print-hide" style="width: 100vw; height: 40px;">
 
-          <q-btn flat class="text-primary tabMenuButton" id="listTableButton" icon="fas fa-bars">
-            <q-menu>
-              <q-list style="min-width: 280px">
-                <q-item clickable v-close-popup
-                        @click="$router.push('/workspace/' + workspaceName + '/' + baseName + '/' + item.document_name)"
-                        v-for="item in baseConfig.items"
-                        :key="item.document_name">
-                  <q-item-section>{{ item.document_name }}</q-item-section>
-                  <q-item-section avatar>
-                    <q-icon
-                      :name="baseItemTypes[item.document_extension] ? baseItemTypes[item.document_extension].icon : item.document_extension"></q-icon>
-                  </q-item-section>
-                </q-item>
-                <q-separator/>
+    <base-view-router style="padding-top: 50px" ref="viewRouter" v-if="baseLoaded && selectedBaseItem"
+                      :base-config="baseConfig"
+                      :baseItem="selectedBaseItem"></base-view-router>
 
-              </q-list>
-            </q-menu>
-          </q-btn>
 
-          <q-tabs style="max-width: calc(100vw - 150px); height: 40px"
-                  class="text-black"
-                  inline-label
-                  shrink
-                  outside-arrows
-
-          >
-            <q-route-tab style="border: 1px solid black; border-radius: 4px"
-                         :key="item.reference_id"
-                         v-if="item.document_extension !== 'summary'" v-for="item in baseConfig.items"
-                         :to="'/workspace/' + workspaceName + '/' + baseName + '/' + item.document_name" exact replace
-            >
-              <span>
-                <q-icon
-                  :name="baseItemTypes[item.document_extension] ? baseItemTypes[item.document_extension].icon : item.document_extension"></q-icon> &nbsp;&nbsp;&nbsp;
-              </span>
-              {{
-                item.document_name
-              }}
-              <q-tooltip>
-                Right click for menu
-              </q-tooltip>
-              <q-menu context-menu
-                      style="min-width: 300px">
+    <div v-if="!selectedBaseItem" class="row">
+      <div class="col-6 offset-3 q-pa-md q-gutter-sm">
+        <q-card flat>
+          <q-card-section>
+            <div class="row">
+              <div class="col-6" v-if="baseConfig.items && baseConfig.items.length > 0">
+                Select an item to open
                 <q-list>
-                  <q-item clickable>
-                    <q-item-section @click="configureBaseItem(item)">
-                      <q-item-label>Configure</q-item-label>
-                    </q-item-section>
-                  </q-item>
-                  <q-item clickable @click="renameBaseItem(item)">
-                    <q-item-section>
-                      <q-item-label>Rename</q-item-label>
-                    </q-item-section>
-                  </q-item>
-                  <q-item clickable @click="deleteBaseItem(item)">
-                    <q-item-section>
-                      <q-item-label>Delete</q-item-label>
-                    </q-item-section>
+                  <q-item :key="item.reference_id"
+                          v-if="item.document_extension !== 'summary'" v-for="item in baseConfig.items"
+                  >
+                    <q-btn
+                      @click="$router.push('/workspace/' + workspaceName + '/' + baseName + '/' + item.document_name)"
+                      exact replace
+                    >
+                      <span>
+                        <q-icon
+                          :name="baseItemTypes[item.document_extension] ? baseItemTypes[item.document_extension].icon : item.document_extension"></q-icon> &nbsp;&nbsp;&nbsp;
+                      </span>
+                      {{
+                        item.document_name
+                      }}
+                    </q-btn>
+
                   </q-item>
                 </q-list>
-              </q-menu>
-            </q-route-tab>
 
 
-          </q-tabs>
-          <q-btn ref="newItemMenuButton" flat class="text-primary tabMenuButton" id="newTableButton" icon="fas fa-plus">
+              </div>
+              <div class="col-12">
+
+                <div class="row q-pa-md">
+
+                  <div class="col-4 q-pa-md" :disable="item.disabled" clickable @click="addBaseItem(item)"
+                       v-close-popup
+                       v-for="item in baseItemTypes" v-if="!item.disabled"
+                       :key="item.label">
+                    <q-item-section>
+                      <q-btn style="size: 300px; height: 200px;" size="xl" :icon="item.icon" :label="item.label">
+                      </q-btn>
+                    </q-item-section>
+                  </div>
+                  <q-separator/>
+
+                </div>
+
+              </div>
+            </div>
+
+          </q-card-section>
+        </q-card>
+      </div>
+    </div>
+
+
+    <user-header-bar @delete-base="deleteBase"
+                     style="border-bottom: 1px solid black"
+                     @search="searchDocuments"
+                     @hide-document-bars="documentTab = !documentTab"
+                     @reload-bases="refreshBaseData"
+                     :buttons="{
+        before: [
+            // {icon: 'fas fa-bars', event: 'hide-document-bars'},
+          ],
+        beforeTitle: [
+            {icon: 'fas fa-bars', event: 'hide-document-bars'},
+          ],
+        after: [
+            {icon: 'fas fa-sync-alt', tooltip: 'Reload base and all items', event: 'reload-bases'},
+            {icon: 'fas fa-trash', tooltip: 'Delete this base and all items in it. To delete a single item, right click on the tab', event: 'delete-base'},
+          ],
+        }" :onBack="() => {$router.push('/workspace/' + $route.params.workspaceName)}"
+                     :title='$route.params.workspaceName
+                     + "&nbsp;&nbsp; › &nbsp;&nbsp;" + ($route.params.baseName)
+                     + ( $route.params.itemName ? "&nbsp;&nbsp; › &nbsp;&nbsp;" + ($route.params.itemName) : "" )  '
+    ></user-header-bar>
+    <q-drawer
+      v-model="documentTab"
+      show-if-above
+      mini
+      mini-to-overlay
+      :width="400"
+      :breakpoint="500"
+      bordered
+      :mini="documentTabminiState"
+      @mouseover="documentTabminiState = false"
+      @mouseout="documentTabminiState = true"
+      content-class="bg-grey-3 print-hide"
+    >
+      <q-scroll-area style="overflow: hidden" class="fit">
+        <q-list padding>
+
+          <q-item clickable>
+            <q-item-section avatar>
+
+              <q-icon
+                name="fas fa-plus">
+              </q-icon>
+
+            </q-item-section>
+
+            <q-item-section>
+              Add new document
+            </q-item-section>
             <q-menu>
-              <q-list style="min-width: 280px">
+              <q-list>
 
                 <q-item :disable="item.disabled" clickable @click="addBaseItem(item)" v-close-popup
                         v-for="item in baseItemTypes"
@@ -86,92 +126,51 @@
 
               </q-list>
             </q-menu>
-          </q-btn>
+          </q-item>
 
-        </div>
+          <q-item
+            :key="item.reference_id"
+            v-if="item.document_extension !== 'summary'" v-for="item in baseConfig.items"
+            :to="'/workspace/' + workspaceName + '/' + baseName + '/' + item.document_name"
+            clickable
+            v-ripple>
+            <q-item-section avatar>
+              <q-icon size="sm"
+                :name="baseItemTypes[item.document_extension] ? baseItemTypes[item.document_extension].icon : item.document_extension"/>
+            </q-item-section>
 
-        <q-separator class="print-hide"></q-separator>
+            <q-item-section>
+              {{
+                item.document_name
+              }}
+            </q-item-section>
 
-        <base-view-router ref="viewRouter" v-if="baseLoaded && selectedBaseItem" :base-config="baseConfig"
-                          :baseItem="selectedBaseItem"></base-view-router>
+            <q-menu context-menu
+                    style="min-width: 300px">
+              <q-list>
+                <q-item clickable>
+                  <q-item-section @click="configureBaseItem(item)">
+                    <q-item-label>Configure</q-item-label>
+                  </q-item-section>
+                </q-item>
+                <q-item clickable @click="renameBaseItem(item)">
+                  <q-item-section>
+                    <q-item-label>Rename</q-item-label>
+                  </q-item-section>
+                </q-item>
+                <q-item clickable @click="deleteBaseItem(item)">
+                  <q-item-section>
+                    <q-item-label>Delete</q-item-label>
+                  </q-item-section>
+                </q-item>
+              </q-list>
+            </q-menu>
 
+          </q-item>
 
-        <div v-if="!selectedBaseItem" class="row">
-          <div class="col-6 offset-3 q-pa-md q-gutter-sm">
-            <q-card flat>
-              <q-card-section>
-                <div class="row">
-                  <div class="col-6" v-if="baseConfig.items && baseConfig.items.length > 0">
-                    Select an item to open
-                    <q-list>
-                      <q-item :key="item.reference_id"
-                              v-if="item.document_extension !== 'summary'" v-for="item in baseConfig.items"
-                      >
-                        <q-btn
-                          @click="$router.push('/workspace/' + workspaceName + '/' + baseName + '/' + item.document_name)"
-                          exact replace
-                        >
-                      <span>
-                        <q-icon
-                          :name="baseItemTypes[item.document_extension] ? baseItemTypes[item.document_extension].icon : item.document_extension"></q-icon> &nbsp;&nbsp;&nbsp;
-                      </span>
-                          {{
-                            item.document_name
-                          }}
-                        </q-btn>
-
-                      </q-item>
-                    </q-list>
-
-
-                  </div>
-                  <div class="col-12">
-
-                    <div class="row q-pa-md">
-
-                      <div class="col-4 q-pa-md" :disable="item.disabled" clickable @click="addBaseItem(item)" v-close-popup
-                           v-for="item in baseItemTypes" v-if="!item.disabled"
-                           :key="item.label">
-                        <q-item-section>
-                          <q-btn style="size: 300px; height: 200px;" size="xl" :icon="item.icon" :label="item.label">
-                          </q-btn>
-                        </q-item-section>
-                      </div>
-                      <q-separator/>
-
-                    </div>
-
-                  </div>
-                </div>
-
-              </q-card-section>
-            </q-card>
-          </div>
-        </div>
-
-
-      </q-page>
-
-    </q-page-container>
-
-    <user-header-bar @delete-base="deleteBase"
-                     style="border-bottom: 1px solid black"
-                     @search="searchDocuments"
-                     @reload-bases="refreshBaseData"
-                     :buttons="{
-        before: [
-            // {icon: 'fas fa-search', event: 'search'},
-          ],
-        after: [
-            {icon: 'fas fa-sync-alt', tooltip: 'Reload base and all items', event: 'reload-bases'},
-            {icon: 'fas fa-trash', tooltip: 'Delete this base and all items in it. To delete a single item, right click on the tab', event: 'delete-base'},
-          ],
-        }" :onBack="() => {$router.push('/workspace/' + $route.params.workspaceName)}"
-                     :title='$route.params.workspaceName
-                     + "&nbsp;&nbsp; › &nbsp;&nbsp;" + ($route.params.baseName)
-                     + ( $route.params.itemName ? "&nbsp;&nbsp; › &nbsp;&nbsp;" + ($route.params.itemName) : "" )  '
-    ></user-header-bar>
-
+        </q-list>
+      </q-scroll-area>
+    </q-drawer>
 
     <q-dialog v-model="confirmDeleteBaseMessage">
       <q-card style="background: white">
@@ -468,7 +467,7 @@ export default {
 
           for (var i = 0; i < that.baseConfig.items.length; i++) {
             if (that.baseConfig.items[i].document_name === that.itemBeingEdited.document_name) {
-               Vue.set(that.baseConfig.items[i], "document_name", that.newName)
+              Vue.set(that.baseConfig.items[i], "document_name", that.newName)
             }
 
           }
@@ -898,6 +897,8 @@ export default {
   props: ["baseConfiguration"],
   data() {
     return {
+      documentTab: false,
+      documentTabminiState: false,
       showBaseConfigurationModel: false,
       baseItemMap: {},
       itemConfiguration: {},

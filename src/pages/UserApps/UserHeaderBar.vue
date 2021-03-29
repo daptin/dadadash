@@ -3,6 +3,7 @@
   <q-header reveal class="bg-white text-black print-hide" position="top" expand>
     <q-bar class="bg-primary text-white" style="height: 48px" v-if="decodedAuthToken() !== null">
       <q-btn v-if="onBack !==  false" flat @click="onBack ? onBack() : $router.back()" icon="fas fa-arrow-left"></q-btn>
+      <q-btn :key="btn.icon" v-for="btn in buttons.beforeTitle" flat @click="buttonClicked(btn)" :icon="btn.icon"></q-btn>
       <q-toolbar-title v-if="title && $q.screen.gt.md" style="text-transform: capitalize" v-html="title">
       </q-toolbar-title>
 

@@ -1,17 +1,15 @@
 <template>
 
-  <div>
-    <q-tab-panels keep-alive v-model="baseItem.reference_id">
-      <q-tab-panel :key="item.reference_id" style="padding: 0" :name="item.reference_id"
-                   v-for="item in baseConfig.items">
-        <component :is="baseItemComponentMap[item.document_extension]"
-                   :baseItem="baseItemConfigMap[item.reference_id]"
-                   v-if="baseItemConfigMap[item.reference_id]"
-                   @save-base-item-contents="saveBaseItemContents"
-        ></component>
-      </q-tab-panel>
-    </q-tab-panels>
-  </div>
+  <q-tab-panels keep-alive v-model="baseItem.reference_id">
+    <q-tab-panel :key="item.reference_id" style="padding: 0" :name="item.reference_id"
+                 v-for="item in baseConfig.items">
+      <component :is="baseItemComponentMap[item.document_extension]"
+                 :baseItem="baseItemConfigMap[item.reference_id]"
+                 v-if="baseItemConfigMap[item.reference_id]"
+                 @save-base-item-contents="saveBaseItemContents"
+      ></component>
+    </q-tab-panel>
+  </q-tab-panels>
 
 </template>
 

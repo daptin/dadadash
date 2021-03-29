@@ -3,7 +3,7 @@
 
   <div>
     <router-view @logout="triggerLogout()" v-if="loaded"/>
-    <q-dialog persistent v-model="showOfflineDialog" position="bottom">
+    <q-dialog v-if="showOfflineDialog" persistent v-model="showOfflineDialog" position="bottom">
       <q-card style="width: 350px">
         <q-linear-progress :value="1" color="red"/>
 
@@ -15,7 +15,8 @@
 
           <q-space/>
 
-          <q-btn @click="$router.push('/backend')" color="primary" label="Go to server selector page" icon="fast_forward"/>
+          <q-btn @click="$router.push('/backend')" color="primary" label="Go to server selector page"
+                 icon="fast_forward"/>
         </q-card-section>
       </q-card>
     </q-dialog>
