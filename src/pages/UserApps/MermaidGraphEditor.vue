@@ -313,33 +313,39 @@ export default {
       }
     }
     that.mermaidEditorConfig = mermaidEditorConfig;
-
-    const ydoc = new Y.Doc()
-    const provider = new WebsocketProvider(
-      'ws://localhost:6336/live/document/' + this.baseItem.reference_id + "/document_content",
-      "yjs?token=" + localStorage.getItem("token"),
-      ydoc
-    )
-    const ytext = ydoc.getText('codemirror')
-    that.ytext = ytext;
-
-    console.log("Ytext value - ", ytext.toString())
-
-    window.ed = that.$refs.editor;
-
     that.$refs.editor.codemirror.setSize(600, 800)
 
+    let token = localStorage.getItem("token");
+    if (token) {
 
-    const binding = new CodemirrorBinding(ytext, that.$refs.editor.codemirror, provider.awareness)
+
+      const ydoc = new Y.Doc()
+      const provider = new WebsocketProvider(
+        'ws://localhost:6336/live/document/' + this.baseItem.reference_id + "/document_content",
+        "yjs?token=" + token,
+        ydoc
+      )
+      const ytext = ydoc.getText('codemirror')
+      that.ytext = ytext;
+
+      const binding = new CodemirrorBinding(ytext, that.$refs.editor.codemirror, provider.awareness)
 
 
-    ytext.observe(function () {
-      // console.log("Ytext updates: ", ytext.toString())
-      that.debouncedUpdate();
-      // that.updateDiagram();
-    })
-    provider.connect();
+      ytext.observe(function () {
+        // console.log("Ytext updates: ", ytext.toString())
+        that.debouncedUpdate();
+        // that.updateDiagram();
+      })
+      provider.connect();
+    } else {
+      that.ytext = that.diagramSpec;
+      that.$refs.editor.codemirror.setValue(that.diagramSpec)
+      that.updateDiagram();
+      //   mermaid.mermaidAPI.initialize({
+      //     startOnLoad: false
+      //   });
 
+    }
 
     // setTimeout(function () {
     //   console.log("initialize mermaid", that.$refs.editor);

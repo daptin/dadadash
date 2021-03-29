@@ -3,12 +3,12 @@
 
     <div v-if="documents.length === 0">
 
-            <q-page-container>
-              <q-page>
-                <router-view></router-view>
+      <q-page-container>
+        <q-page>
+          <router-view></router-view>
 
-              </q-page>
-            </q-page-container>
+        </q-page>
+      </q-page-container>
 
 
     </div>
@@ -18,7 +18,6 @@
                           :title="currentItem ? currentItem.document_name : 'Home'"></guest-header-bar>
       </div>
       <div class="col-12">
-
         <component v-if="currentItem" :is="baseItemComponentMap[currentItem.document_extension]"
                    :baseItem="baseItemConfigMap[currentItem.document_name]"
         ></component>
@@ -26,8 +25,9 @@
       </div>
     </div>
 
-    <q-drawer class="bg-primary" side="left" v-model="leftDrawerOpen" v-if="documents.length > 0">
-      <q-scroll-area style="height: 100vh">
+    <q-drawer class="bg-primary print-hide" side="left" content-style="overflow-y: hidden" v-model="leftDrawerOpen"
+              v-if="documents.length > 0">
+      <q-scroll-area content-style="overflow-y: hidden" style="height: 100vh">
         <q-list bordered>
           <q-item-label header><span class="text-bold">Workspaces</span></q-item-label>
         </q-list>
@@ -37,12 +37,12 @@
                   @click="setCurrentItem(item)" v-for="item in workspaceMap[workspace].items"
                   :key="item.document_name">
             <q-item-section avatar>
-              <q-icon v-if="baseItemTypes()[item.document_extension]"
+              <q-icon size="xs" v-if="baseItemTypes()[item.document_extension]"
                       :name="baseItemTypes()[item.document_extension].icon"/>
             </q-item-section>
             <q-item-section>
               <q-item-label lines="1">{{ item.document_name }}</q-item-label>
-              <q-item-section side class="text-black">{{ item.document_path.split("/")[2] }}</q-item-section>
+              <q-item-label side style="font-size: 10px">{{ item.document_path.split("/")[2] }}</q-item-label>
             </q-item-section>
           </q-item>
         </q-list>
@@ -79,8 +79,13 @@ export default {
     setCurrentItem(item) {
       const that = this;
       that.currentItem = null;
+      console.log("set new item", item)
       that.$nextTick().then(function () {
-        that.currentItem = item
+        if (item.document_extension !== "table") {
+          that.currentItem = item
+        } else {
+          // that.get
+        }
       })
     },
     ...mapActions(['loadModel', 'loadData'])
@@ -203,6 +208,7 @@ export default {
         'view': 'edit-data-table',
         'table': 'edit-data-table',
         'document': 'document-editor',
+        'mermaid_graph': 'mermaid-graph-editor',
         'folder': 'file-browser',
         'spreadsheet': 'spreadsheet-editor',
         'calendar': 'calendar-view',

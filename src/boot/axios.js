@@ -31,6 +31,10 @@ import FlowyPlugin from "@hipsjs/flowy-vue";
 import VueCodemirror from 'vue-codemirror'
 import DataActionBlock from "pages/Components/DataActionBlock";
 import DataActionNode from "pages/Components/DataActionNode";
+import VueAutosuggest from "vue-autosuggest";
+
+
+Vue.use(VueAutosuggest);
 
 Vue.component('data-action-block', DataActionBlock)
 Vue.component('data-action-node', DataActionNode)

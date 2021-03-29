@@ -91,7 +91,7 @@
           </div>
         </q-menu>
       </q-btn>
-      <!--      <q-img :src="decodedAuthToken().picture" width="40px" ></q-img>-->
+
     </q-bar>
   </q-header>
 

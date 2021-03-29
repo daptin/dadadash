@@ -58,6 +58,7 @@
     "swagger-parser": "^10.0.2",
     "tabulator-tables": "^4.6.2",
     "uuid": "^8.3.1",
+    "vue-autosuggest": "^2.2.0",
     "vue-codemirror": "^4.0.6",
     "vue-context": "^6.0.0",
     "vue-horizontal-scroll": "^0.2.4",

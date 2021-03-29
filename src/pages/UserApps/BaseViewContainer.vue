@@ -7,59 +7,35 @@
                       :baseItem="selectedBaseItem"></base-view-router>
 
 
-    <div v-if="!selectedBaseItem" class="row">
-      <div class="col-6 offset-3 q-pa-md q-gutter-sm">
-        <q-card flat>
+    <q-page-container v-if="!selectedBaseItem">
+      <q-page>
+        <q-card style="padding-top: 50px" flat>
+          <q-card-section>
+            <span class="text-h4">Create a new document</span>
+          </q-card-section>
           <q-card-section>
             <div class="row">
-              <div class="col-6" v-if="baseConfig.items && baseConfig.items.length > 0">
-                Select an item to open
-                <q-list>
-                  <q-item :key="item.reference_id"
-                          v-if="item.document_extension !== 'summary'" v-for="item in baseConfig.items"
-                  >
-                    <q-btn
-                      @click="$router.push('/workspace/' + workspaceName + '/' + baseName + '/' + item.document_name)"
-                      exact replace
-                    >
-                      <span>
-                        <q-icon
-                          :name="baseItemTypes[item.document_extension] ? baseItemTypes[item.document_extension].icon : item.document_extension"></q-icon> &nbsp;&nbsp;&nbsp;
-                      </span>
-                      {{
-                        item.document_name
-                      }}
+
+              <div class="col-4 q-pa-md" :disable="item.disabled" clickable @click="addBaseItem(item)"
+                   v-close-popup
+                   v-for="item in baseItemTypes" v-if="!item.disabled"
+                   :key="item.label">
+                <q-item class="q-pa-md">
+                  <q-item-section>
+                    <q-btn style="size: 300px; height: 200px;" size="xl" :icon="item.icon" :label="item.label">
                     </q-btn>
-
-                  </q-item>
-                </q-list>
-
+                  </q-item-section>
+                </q-item>
 
               </div>
-              <div class="col-12">
+              <q-separator/>
 
-                <div class="row q-pa-md">
-
-                  <div class="col-4 q-pa-md" :disable="item.disabled" clickable @click="addBaseItem(item)"
-                       v-close-popup
-                       v-for="item in baseItemTypes" v-if="!item.disabled"
-                       :key="item.label">
-                    <q-item-section>
-                      <q-btn style="size: 300px; height: 200px;" size="xl" :icon="item.icon" :label="item.label">
-                      </q-btn>
-                    </q-item-section>
-                  </div>
-                  <q-separator/>
-
-                </div>
-
-              </div>
             </div>
 
           </q-card-section>
         </q-card>
-      </div>
-    </div>
+      </q-page>
+    </q-page-container>
 
 
     <user-header-bar @delete-base="deleteBase"
@@ -87,6 +63,7 @@
       v-model="documentTab"
       show-if-above
       mini
+
       mini-to-overlay
       :width="400"
       :breakpoint="500"
@@ -94,25 +71,33 @@
       :mini="documentTabminiState"
       @mouseover="documentTabminiState = false"
       @mouseout="documentTabminiState = true"
-      content-class="bg-grey-3 print-hide"
+      content-class="bg-white print-hide"
+      style="overflow-y: hidden;"
+      content-style="overflow-y: hidden;"
     >
-      <q-scroll-area style="overflow: hidden" class="fit">
+      <div style="overflow-y: hidden; padding-top: 140px" class="fit">
+
         <q-list padding>
 
-          <q-item clickable>
+          <q-item ref="newItemButton" clickable>
             <q-item-section avatar>
 
-              <q-icon
-                name="fas fa-plus">
+              <q-icon size="xs"
+                      name="fas fa-plus">
               </q-icon>
 
             </q-item-section>
 
-            <q-item-section>
+            <q-item-section v-if="!documentFilterKeyword">
               Add new document
             </q-item-section>
+
+            <q-item-section v-if="documentFilterKeyword">
+              Add new document named '{{ documentFilterKeyword }}'
+            </q-item-section>
+
             <q-menu>
-              <q-list>
+              <q-list style="min-height: 500px">
 
                 <q-item :disable="item.disabled" clickable @click="addBaseItem(item)" v-close-popup
                         v-for="item in baseItemTypes"
@@ -130,13 +115,13 @@
 
           <q-item
             :key="item.reference_id"
-            v-if="item.document_extension !== 'summary'" v-for="item in baseConfig.items"
+            v-if="item.document_extension !== 'summary'" v-for="item in filteredDocuments"
             :to="'/workspace/' + workspaceName + '/' + baseName + '/' + item.document_name"
             clickable
             v-ripple>
             <q-item-section avatar>
-              <q-icon size="sm"
-                :name="baseItemTypes[item.document_extension] ? baseItemTypes[item.document_extension].icon : item.document_extension"/>
+              <q-icon size="xs"
+                      :name="baseItemTypes[item.document_extension] ? baseItemTypes[item.document_extension].icon : item.document_extension"/>
             </q-item-section>
 
             <q-item-section>
@@ -144,32 +129,54 @@
                 item.document_name
               }}
             </q-item-section>
+            <q-item-section side>
+              <q-btn size="xs" flat icon="fas fa-wrench">
+                <q-menu
+                  style="min-width: 300px">
+                  <q-list>
+                    <q-item clickable>
+                      <q-item-section @click="configureBaseItem(item)">
+                        <q-item-label>Configure</q-item-label>
+                      </q-item-section>
+                    </q-item>
+                    <q-item clickable @click="renameBaseItem(item)">
+                      <q-item-section>
+                        <q-item-label>Rename</q-item-label>
+                      </q-item-section>
+                    </q-item>
+                    <q-item clickable @click="deleteBaseItem(item)">
+                      <q-item-section>
+                        <q-item-label>Delete</q-item-label>
+                      </q-item-section>
+                    </q-item>
+                  </q-list>
+                </q-menu>
+              </q-btn>
+            </q-item-section>
 
-            <q-menu context-menu
-                    style="min-width: 300px">
-              <q-list>
-                <q-item clickable>
-                  <q-item-section @click="configureBaseItem(item)">
-                    <q-item-label>Configure</q-item-label>
-                  </q-item-section>
-                </q-item>
-                <q-item clickable @click="renameBaseItem(item)">
-                  <q-item-section>
-                    <q-item-label>Rename</q-item-label>
-                  </q-item-section>
-                </q-item>
-                <q-item clickable @click="deleteBaseItem(item)">
-                  <q-item-section>
-                    <q-item-label>Delete</q-item-label>
-                  </q-item-section>
-                </q-item>
-              </q-list>
-            </q-menu>
 
           </q-item>
 
         </q-list>
-      </q-scroll-area>
+      </div>
+
+      <div v-if="decodedAuthToken != null" class="absolute-top q-pa-sm" style="height: 150px; ">
+        <div class="bg-transparent">
+          <q-avatar size="40px" class="">
+            <img :src="decodedAuthToken.picture">
+          </q-avatar>
+          <!--          <div :style="{'display': documentTabminiState ? 'none' : 'block', 'font-size': '10px'}" class="text-weight-light absolute-bottom q-pa-md" >-->
+          <!--            {{ decodedAuthToken.name }}-->
+          <!--          </div>-->
+        </div>
+        <div class="absolute-bottom q-pa-md"
+             :style="{'display': documentTabminiState ? 'none' : 'block', 'font-size': '10px'}">
+          <q-input label="search document" @keypress.enter="selectFirstFilteredDocument()"
+                   v-model="documentFilterKeyword"></q-input>
+        </div>
+      </div>
+
+
     </q-drawer>
 
     <q-dialog v-model="confirmDeleteBaseMessage">
@@ -347,6 +354,17 @@ export default {
   },
 
   methods: {
+    selectFirstFilteredDocument() {
+      const that = this;
+      if (that.documentFilterKeyword) {
+        var filteredDocs = that.filteredDocuments;
+        if (filteredDocs.length > 0) {
+          that.$router.push('/workspace/' + that.workspaceName + '/' + that.baseName + '/' + filteredDocs[0].document_name)
+        } else {
+          that.selectedBaseItem = null;
+        }
+      }
+    },
     showAddNewItemMenu() {
       document.getElementById("newTableButton").click()
     },
@@ -486,6 +504,11 @@ export default {
       const that = this;
       console.log("Add new item to base", itemTemplate);
       let newItemLabel = "New " + itemTemplate.type + " - " + Math.floor(Math.random() * 90 + 10);
+
+      if (that.documentFilterKeyword && that.documentFilterKeyword.length > 0) {
+        newItemLabel = that.documentFilterKeyword;
+      }
+
       let newItem = {
         type: itemTemplate.type,
         label: newItemLabel
@@ -531,8 +554,15 @@ export default {
         that.ensureBaseTables().then(function () {
           that.selectedBaseItem = finalNewItem;
           that.$nextTick().then(function () {
-            that.$refs.viewRouter.reloadBaseItem()
-            that.renameBaseItem(finalNewItem);
+            that.$refs.viewRouter.reloadBaseItem();
+
+            if (that.documentFilterKeyword === newItemLabel) {
+              that.documentFilterKeyword = null;
+              that.$router.push('/workspace/' + that.workspaceName + "/" + that.baseName + "/" + newItemLabel)
+            } else {
+              that.renameBaseItem(finalNewItem);
+            }
+
           })
         }).catch(function (err) {
           console.log("Failed to ensure tables for new items", err);
@@ -820,7 +850,15 @@ export default {
                 return new Promise(function (resolve, reject) {
                   var generateRandomDataAndLoad = function () {
 
+                    var maxtries = 10;
+
                     setTimeout(function () {
+
+                      if (maxtries < 1) {
+                        return;
+                      }
+                      maxtries -= 1;
+
                       that.executeAction({
                         tableName: "world",
                         actionName: "generate_random_data",
@@ -898,7 +936,8 @@ export default {
   data() {
     return {
       documentTab: false,
-      documentTabminiState: false,
+      documentFilterKeyword: null,
+      documentTabminiState: true,
       showBaseConfigurationModel: false,
       baseItemMap: {},
       itemConfiguration: {},
@@ -943,7 +982,20 @@ export default {
     }
   },
   computed: {
-    ...mapGetters(['endpoint', 'authToken', 'tables', 'baseItemTypes'])
+    filteredDocuments() {
+      const that = this;
+      if (that.documentFilterKeyword === '' || that.documentFilterKeyword == null) {
+        return this.baseConfig.items;
+      }
+      var x = this.baseConfig.items.filter(function (item) {
+        console.log("Filter documents by keyword", item, that.documentFilterKeyword, item.document_name.indexOf(that.documentFilterKeyword),
+          item.document_name.indexOf(that.documentFilterKeyword) > -1)
+        return item.document_name.indexOf(that.documentFilterKeyword) > -1
+      });
+      console.log("filtered docs", x)
+      return x;
+    },
+    ...mapGetters(['endpoint', 'authToken', 'tables', 'baseItemTypes', 'decodedAuthToken'])
   },
   updated() {
   },

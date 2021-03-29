@@ -11,7 +11,7 @@
             <q-menu auto-close anchor="bottom left" self="top left">
               <q-item clickable>
                 <q-item-section>
-                  <q-checkbox  size="xs" @change="refreshData()" label="Show column filters"
+                  <q-checkbox size="xs" @change="refreshData()" label="Show column filters"
                               v-model="tabulatorOptions.headerFilter"></q-checkbox>
                 </q-item-section>
               </q-item>
@@ -52,28 +52,28 @@
 
             <div class="q-pa-md" v-for="column in newRowData">
               <q-input
-                  :label="column.meta.ColumnName"
-                  v-if="['label', 'measurement', 'value', 'email'].indexOf(column.meta.ColumnType) > -1"
-                  filled
-                  v-model="column.value"
-                  :value="column.DefaultValue"
+                :label="column.meta.ColumnName"
+                v-if="['label', 'measurement', 'value', 'email'].indexOf(column.meta.ColumnType) > -1"
+                filled
+                v-model="column.value"
+                :value="column.DefaultValue"
               />
 
 
               <q-select
-                  filled
-                  v-model="column.value"
-                  v-if="['entity'].indexOf(column.meta.ColumnType) > -1 && (column.meta.jsonApi === 'belongsTo' || column.meta.jsonApi === 'hasOne')"
-                  :label="column.meta.ColumnName"
-                  :options="column.options"
-                  :loading="column.loading"
-                  use-input
-                  @filter="function(x, y, z){onEntitySelectScroll(x, y, z, column)}"
+                filled
+                v-model="column.value"
+                v-if="['entity'].indexOf(column.meta.ColumnType) > -1 && (column.meta.jsonApi === 'belongsTo' || column.meta.jsonApi === 'hasOne')"
+                :label="column.meta.ColumnName"
+                :options="column.options"
+                :loading="column.loading"
+                use-input
+                @filter="function(x, y, z){onEntitySelectScroll(x, y, z, column)}"
               />
 
               <q-btn-dropdown
-                  v-if="['enum'].indexOf(column.meta.ColumnType) > -1"
-                  :label="column.value || column.meta.ColumnName">
+                v-if="['enum'].indexOf(column.meta.ColumnType) > -1"
+                :label="column.value || column.meta.ColumnName">
                 <q-list>
                   <q-item :key="option.value"
                           v-for="option in column.meta.Options"
@@ -87,9 +87,9 @@
               </q-btn-dropdown>
 
               <q-file
-                  filled bottom-slots v-model="column.value" :label="column.meta.ColumnName"
-                  v-if="column.meta.ColumnType.startsWith('file.')"
-                  counter>
+                filled bottom-slots v-model="column.value" :label="column.meta.ColumnName"
+                v-if="column.meta.ColumnType.startsWith('file.')"
+                counter>
                 <template v-slot:prepend>
                   <q-icon name="cloud_upload" @click.stop/>
                 </template>
@@ -955,10 +955,10 @@ const tableComponent = {
               col.Name = col.ColumnName;
               console.log("Json api column", col)
               that.newRowData.push({
-                    meta: col,
-                    value: null,
-                    options: [],
-                  }
+                  meta: col,
+                  value: null,
+                  options: [],
+                }
               );
             } else {
               return null;
@@ -966,20 +966,20 @@ const tableComponent = {
           } else if (col.ColumnType.startsWith('file.')) {
             assetColumns.push(col.ColumnName)
             that.newRowData.push({
-                  meta: col,
-                  value: []
-                }
+                meta: col,
+                value: []
+              }
             );
           } else if (col.ColumnType === 'truefalse') {
             that.newRowData.push({
-                  meta: col,
-                  value: col.ColumnType.DefaultValue
-                }
+                meta: col,
+                value: col.ColumnType.DefaultValue
+              }
             );
           } else {
             that.newRowData.push({
                 meta: col,
-              value: col.ColumnType.DefaultValue
+                value: col.ColumnType.DefaultValue
               }
             );
           }
@@ -1118,7 +1118,7 @@ const tableComponent = {
                 params: {
                   column_name: columnDefinition.field,
                   new_column_name: columnField,
-                  world_id: that.table.reference_id,
+                  table_name: that.tableName,
                 }
               }).then(function (res) {
                 console.log("Update field definition for column", columnComponent, columnField);
@@ -1139,7 +1139,6 @@ const tableComponent = {
                   })
                 }, 6000)
               })
-
 
 
             }
@@ -1196,8 +1195,8 @@ const tableComponent = {
               });
             } else {
               obj = cell._cell.row.data;
-              console.log("Create new row with data", obj, Object.values(obj).filter(e => !!e && e !== "" && !(e instanceof  Array && e.length === 0)), Object.values(obj));
-              if (Object.values(obj).filter(e => !!e && e !== "" && !(e instanceof  Array && e.length === 0)).length === 1) {
+              console.log("Create new row with data", obj, Object.values(obj).filter(e => !!e && e !== "" && !(e instanceof Array && e.length === 0)), Object.values(obj));
+              if (Object.values(obj).filter(e => !!e && e !== "" && !(e instanceof Array && e.length === 0)).length === 1) {
                 that.spreadsheet.addData([{}])
               }
               obj["tableName"] = that.tableName;
@@ -1501,6 +1500,7 @@ const tableComponent = {
   },
   mounted() {
     const that = this;
+
     that.columnHeaderContextMenu = [
       {
         label: "Rename Column",

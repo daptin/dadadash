@@ -114,9 +114,8 @@
                                :items="files"></paginated-card-view>
         </div>
       </div>
-      <!--      <q-page-sticky :offset="[10, 10]" v-if="showUploadComponent">-->
-      <!--        -->
-      <!--      </q-page-sticky>-->
+
+
     </q-page>
 
     <q-dialog v-model="newNamePrompt" persistent>
