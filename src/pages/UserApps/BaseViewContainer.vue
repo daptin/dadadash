@@ -68,7 +68,7 @@
       :width="400"
       :breakpoint="500"
       bordered
-      :mini="documentTabminiState"
+      :mini="documentTabminiState && !!selectedBaseItem"
       @mouseover="documentTabminiState = false"
       @mouseout="documentTabminiState = true"
       content-class="bg-white print-hide"
@@ -928,6 +928,11 @@ export default {
       that.baseName = that.$route.params.baseName;
       console.log("Refresh data, update the selected item", that.selectedItem, that.baseItemMap);
       that.selectedBaseItem = that.baseItemMap[that.selectedItem]
+
+      if (that.baseConfig.items.length === 0) {
+        that.documentTab = false;
+      }
+
       that.baseLoaded = true;
       return Promise.resolve();
     },

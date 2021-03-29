@@ -356,21 +356,11 @@ export default {
             "page-1": document.querySelector('#page-1'),
 
           }, {
-            initialData: [that.contents],
-            cloudServices: {
-              // PROVIDE CORRECT VALUES HERE:
-              tokenUrl: 'https://example.com/cs-token-endpoint',
-              uploadUrl: 'https://your-organization-id.cke-cs.com/easyimage/upload/',
-              webSocketUrl: 'your-organization-id.cke-cs.com/ws/'
-            },
-            collaboration: {
-              channelId: 'document-id'
-            },
             sidebar: {
-              container: document.querySelector( '#sidebar' )
+              container: document.querySelector('#sidebar')
             },
             presenceList: {
-              container: document.querySelector( '#presence-list-container' )
+              container: document.querySelector('#presence-list-container')
             }
           })
           .then(editor => {
@@ -379,6 +369,7 @@ export default {
             window.editor = editor;
             // editor.data.init(that.contents)
             that.editor = editor;
+            editor.setData("page-1", that.contents);
 
             // const provider = new WebsocketProvider('ws://localhost:6336/yjs/', 'monaco-demo', ydoc)
             // const ytext = ydoc.getText('monaco')
@@ -409,11 +400,12 @@ export default {
               })
 
               editor.model.on("applyOperation", function (eventInfo, operations) {
+                console.log("Apply operation", operations);
                 const operation = operations[0];
                 window.op = operation;
                 // window.fr = yxmlFragment;
                 // console.log("applyOperation", operation.toJSON(), yxmlFragment);
-                if (operation.type  === "move"){
+                if (operation.type === "move") {
 
                 } else if (operation.type === "insert") {
                   var node = operation.nodes.getNode(0).data;

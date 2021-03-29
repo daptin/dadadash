@@ -1,6 +1,6 @@
 <template>
   <div class="row">
-    <div class="col-12">
+    <div class="col-12" style="padding-bottom: 50px">
       <q-card style="background: transparent" flat>
         <q-card-section>
           <div style="float: left; padding-top: 5px">
@@ -377,6 +377,7 @@ export default {
       Promise.all(promises).then(function (res) {
 
         console.log("All workspace entries created");
+        that.$router.push("/workspace/" + that.workspaceName + "/" + newBaseRow.document_name)
         that.refreshData();
 
       }).catch(function (e) {
