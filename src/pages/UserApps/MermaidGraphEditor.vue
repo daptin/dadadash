@@ -5,7 +5,7 @@
       <div class="row">
         <div style="border-left: 1px solid black" class="col-12">
           <div class="row">
-            <div class="col-6 col-sm-12 col-xs-12 print-hide">
+            <div class="col-6  col-lg-6 col-xl-6 col-sm-12 col-xs-12 print-hide">
               <div class="row">
                 <div class="col-12 q-pa-sm">
                   <q-btn color="dark" label="Insert diagram template">
@@ -26,7 +26,7 @@
               </div>
 
             </div>
-            <div class="col-6  col-sm-12 col-xs-12 q-pa-sm" style="min-height: calc(100vh - 100px);">
+            <div class="col-6 col-lg-6 col-xl-6 col-sm-12 col-xs-12 q-pa-sm" style="min-height: calc(100vh - 100px);">
               <div class="mermaid" style="height: calc(100vh - 200px)">
               </div>
             </div>
