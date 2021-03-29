@@ -121,9 +121,11 @@ import {mapActions, mapGetters} from "vuex";
 import JSZip from 'jszip'
 import * as Y from 'yjs'
 import {WebsocketProvider} from 'y-websocket'
-import {QuillBinding} from 'y-quill'
+import {QuillBinding} from 'y-quill';
+import { IndexeddbPersistence } from 'y-indexeddb';
 import Quill from 'quill'
 import QuillCursors from 'quill-cursors'
+import {fromUint8Array, toUint8Array} from 'js-base64'
 
 Quill.register('modules/cursors', QuillCursors)
 
@@ -151,6 +153,7 @@ export default {
   data() {
     return {
       ytext: null,
+      ydoc: null,
       saveDebounced: null,
       quillEditorOption: {
         cursors: true,
@@ -180,7 +183,7 @@ export default {
       pageHeight: 1200,
       showSharingBox: false,
       ...mapGetters(['endpoint', 'decodedAuthToken', 'authToken']),
-      contents: "",
+      contents: null,
       newNameDialog: false,
       newName: null,
       document: null,
@@ -218,11 +221,17 @@ export default {
           'ws://localhost:6336/live/document/' + that.baseItem.reference_id + "/document_content",
           "yjs?token=" + token,
           ydoc
-        )
-        window.ydoc = ydoc;
+        );
+        const indexeddbProvider = new IndexeddbPersistence('y-indexeddb', ydoc)
+
+
+        that.ydoc = ydoc;
         const ytext = ydoc.getText('quill')
         console.log("Yxml loaded", that.$refs.myQuillEditor, ytext);
         that.ytext = ytext;
+        if (that.contents) {
+          Y.applyUpdate(that.ydoc, toUint8Array(that.contents.encodedStateVector))
+        }
 
         var editorContainer = document.getElementById("qid")
         const editor = new Quill(editorContainer, {
@@ -257,7 +266,6 @@ export default {
         ytext.observe(function (event, transaction) {
 
           if (transaction.local) {
-            // console.log("change tyext", event, transaction)
             that.saveDebounced();
           }
         })
@@ -310,7 +318,12 @@ export default {
 
       var zip = new JSZip();
       // console.log("save document", that.ytext.toString())
-      zip.file("contents.html", this.contents);
+      let docString = JSON.stringify({
+        plaintext: that.ytext.toString(),
+        encodedStateVector: fromUint8Array(Y.encodeStateAsUpdate(that.ydoc))
+      });
+      // console.log("doc string", docString)
+      zip.file("contents.json", docString);
       zip.file("page-setting.json", JSON.stringify(this.pageSetting));
 
 
@@ -340,10 +353,11 @@ export default {
 
       JSZip.loadAsync(atob(that.file)).then(function (zipFile) {
         // that.contents = atob(that.file.contents);
-        zipFile.file("contents.html").async("string").then(function (data) {
+        zipFile.file("contents.json").async("string").then(function (data) {
           // data is "Hello World\n"
           // console.log("Loaded file: ", data)
-          that.contents = data;
+          var persistedData = JSON.parse(data)
+          that.contents = persistedData;
           that.loadEditor()
         }).catch(function (err) {
           console.log("Failed to open contents.html", err)
