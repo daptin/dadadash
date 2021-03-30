@@ -5,7 +5,7 @@
                  v-for="item in baseConfig.items">
       <component :is="baseItemComponentMap[item.document_extension]"
                  :baseItem="baseItemConfigMap[item.reference_id]"
-                 v-if="baseItemConfigMap[item.reference_id]"
+                 v-if="!documentLoading && baseItemConfigMap[item.reference_id]"
                  @save-base-item-contents="saveBaseItemContents"
       ></component>
     </q-tab-panel>
@@ -49,8 +49,9 @@ export default {
         let baseItemConfig = item;
         if (item.document_content) {
           try {
-            var extendConfig = JSON.parse(atob(item.document_content[0].contents))
-            baseItemConfig = {...item, ...extendConfig};
+            // console.log("Read document contents", item.document_content[0].contents)
+            // var extendConfig = JSON.parse(atob(item.document_content[0].contents))
+            // baseItemConfig = {...item, ...extendConfig};
           } catch (e) {
             console.log("Failed to read contents of item", e, item)
             baseItemConfig = item;
@@ -124,12 +125,36 @@ export default {
         })
       })
     },
-    ...mapActions(['updateRow']),
+    ...mapActions(['updateRow', 'loadOneData']),
+    ensureBaseItemContents(base) {
+      const that = this;
+      that.documentLoading = true;
+      if (!base.document_content[0].contents) {
+        console.log("Contents missing ");
+        that.loadOneData({
+          referenceId: that.baseItem.reference_id,
+          tableName: "document",
+          params: {
+            included_relations: "document_content"
+          }
+        }).then(function (res) {
+          console.log("data contents loaded", res);
+          var contents = JSON.parse(atob(res.data.document_content[0].contents));
+          var extendedItem = {...base, ...contents}
+          that.baseItemConfigMap[extendedItem.reference_id] = extendedItem;
+          that.documentLoading = false;
+        }).catch(function (err) {
+          that.documentLoading = false;
+        })
+
+      }
+    }
   },
 
   data() {
     return {
       showComponent: true,
+      documentLoading: true,
       baseItemConfig: null,
       baseItemConfigMap: {},
       baseItemComponentMap: {
@@ -148,14 +173,16 @@ export default {
   mounted() {
     console.log("Mounted base view router", this.baseItem, this.baseConfig);
     const that = this;
+    that.ensureBaseItemContents(this.baseItem)
     that.reloadBaseItem();
-
     console.log("Base item config 1", that.baseItemConfig)
 
   },
   watch: {
     'baseItem': function (e) {
+      console.log("base item changeD", this.baseItem)
       // this.reloadBaseItem();
+      this.ensureBaseItemContents(this.baseItem)
     }
   }
 }

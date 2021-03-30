@@ -277,7 +277,7 @@ export function loadData({commit}, params) {
 
 export function loadOneData({commit}, params) {
   var tableName = params.tableName;
-  return daptinClient.jsonApi.find(tableName, params.referenceId);
+  return daptinClient.jsonApi.find(tableName, params.referenceId, params.params);
 }
 
 export function loadDataRelations({commit}, params) {

@@ -127,6 +127,34 @@ export default {
             });
             that.loadTable("world");
 
+            let defaultworkspacename = "my workspace";
+            var newRow = {
+              document_name: defaultworkspacename,
+              tableName: "document",
+              document_extension: "folder",
+              mime_type: 'workspace/root',
+              document_path: defaultworkspacename,
+              document_content: [],
+            }
+            console.log("Create folder request", newRow)
+
+            that.createRow(newRow).then(function (res) {
+              that.$emit("new-workspace-created")
+            }).catch(function (e) {
+              console.log("Failed to create folder", e)
+              that.$q.notify({
+                message: "Failed to create folder: " + JSON.stringify(e)
+              });
+            }).then(function (res) {
+              console.log("created new workspace: ", res.data)
+            }).catch(function (err) {
+              that.$q.notify({
+                type: "error",
+                message: "failed to create default workspace, please try creating one manually"
+              })
+            });
+
+
           }).catch(function (err) {
             console.log("Failed to become admin", err);
             that.loaded = true;
@@ -160,7 +188,9 @@ export default {
 
   },
   methods: {
-    ...mapActions(['getDefaultCloudStore', 'loadModel', 'executeAction', 'loadData', 'setDecodedAuthToken', 'loadTable', 'logout']),
+    ...mapActions(['getDefaultCloudStore', 'loadModel',
+      'executeAction', 'createRow',
+      'loadData', 'setDecodedAuthToken', 'loadTable', 'logout']),
     triggerLogout() {
 
       this.logout();

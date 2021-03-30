@@ -122,11 +122,15 @@ import JSZip from 'jszip'
 import * as Y from 'yjs'
 import {WebsocketProvider} from 'y-websocket'
 import {QuillBinding} from 'y-quill';
-import { IndexeddbPersistence } from 'y-indexeddb';
+// import { IndexeddbPersistence } from 'y-indexeddb';
 import Quill from 'quill'
 import QuillCursors from 'quill-cursors'
 import {fromUint8Array, toUint8Array} from 'js-base64'
+import ImageResize from 'quill-image-resize-module';
+import { ImageDrop } from 'quill-image-drop-module';
 
+Quill.register('modules/imageDrop', ImageDrop);
+Quill.register('modules/imageResize', ImageResize);
 Quill.register('modules/cursors', QuillCursors)
 
 function debounce(func, wait, immediate) {
@@ -222,7 +226,7 @@ export default {
           "yjs?token=" + token,
           ydoc
         );
-        const indexeddbProvider = new IndexeddbPersistence('y-indexeddb', ydoc)
+        // const indexeddbProvider = new IndexeddbPersistence('y-indexeddb', ydoc)
 
 
         that.ydoc = ydoc;
@@ -230,12 +234,14 @@ export default {
         console.log("Yxml loaded", that.$refs.myQuillEditor, ytext);
         that.ytext = ytext;
         if (that.contents) {
-          Y.applyUpdate(that.ydoc, toUint8Array(that.contents.encodedStateVector))
+          // Y.applyUpdate(that.ydoc, toUint8Array(that.contents.encodedStateVector))
         }
 
         var editorContainer = document.getElementById("qid")
         const editor = new Quill(editorContainer, {
           modules: {
+            imageResize: {},
+            imageDrop: true,
             cursors: true,
             toolbar: [
               [{'font': []}, {'size': []}],
@@ -266,6 +272,7 @@ export default {
         ytext.observe(function (event, transaction) {
 
           if (transaction.local) {
+            console.log("local transaction, trigger save", event)
             that.saveDebounced();
           }
         })

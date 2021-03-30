@@ -27,30 +27,30 @@ import DocumentEditorComponent from "pages/UserApps/DocumentEditor.vue";
 import MermaidGraphEditor from "pages/UserApps/MermaidGraphEditor";
 import SpreadsheetEditor from "pages/UserApps/SpreadsheetEditor";
 import HorizontalScroll from 'vue-horizontal-scroll'
-import FlowyPlugin from "@hipsjs/flowy-vue";
+// import FlowyPlugin from "@hipsjs/flowy-vue";
+
+
 import VueCodemirror from 'vue-codemirror'
 import DataActionBlock from "pages/Components/DataActionBlock";
 import DataActionNode from "pages/Components/DataActionNode";
-import VueAutosuggest from "vue-autosuggest";
+// import VueAutosuggest from "vue-autosuggest";
 
 // import VueQuillEditor from 'vue-quill-editor'
-import QuillCursors from 'quill-cursors'
-import Quill from 'quill';
+// import QuillCursors from 'quill-cursors'
+// import Quill from 'quill';
 
-Quill.register('modules/cursors', QuillCursors)
+// Quill.register('modules/cursors', QuillCursors)
 
 
 // Vue.use(VueQuillEditor, /* { default global options } */)
-Vue.use(VueAutosuggest);
+// Vue.use(VueAutosuggest);
 
 Vue.component('data-action-block', DataActionBlock)
 Vue.component('data-action-node', DataActionNode)
 
-Vue.use(VueCodemirror, /* {
-  options: { theme: 'base16-dark', ... },
-  events: ['scroll', ...]
-} */)
-Vue.use(FlowyPlugin);
+Vue.use(VueCodemirror)
+
+// Vue.use(FlowyPlugin);
 Vue.component('vue-horizontal-scroll', HorizontalScroll);
 Vue.component('v-jstree', VJstree);
 Vue.component('ace-editor', AceEditor);

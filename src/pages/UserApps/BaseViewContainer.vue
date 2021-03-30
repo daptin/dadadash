@@ -435,7 +435,7 @@ export default {
         that.$q.notify({
           message: "Item deleted"
         });
-        delete that.baseItemMap[that.itemBeingEdited.document_name];
+        delete that.baseDocumentsItemMap[that.itemBeingEdited.document_name];
         var indexToDelete = -1;
         for (var i = 0; i < that.baseConfig.items.length; i++) {
           if (that.baseConfig.items[i].document_name === that.itemBeingEdited.document_name) {
@@ -479,9 +479,9 @@ export default {
           document_name: that.newName,
         }).then(function (res) {
           console.log("Updated item name", res);
-          that.baseItemMap[that.newName] = that.baseItemMap[originalTitle];
+          that.baseDocumentsItemMap[that.newName] = that.baseDocumentsItemMap[originalTitle];
           // that.$refs.viewRouter.reloadBaseItem()
-          delete that.baseItemMap[originalTitle];
+          delete that.baseDocumentsItemMap[originalTitle];
 
           for (var i = 0; i < that.baseConfig.items.length; i++) {
             if (that.baseConfig.items[i].document_name === that.itemBeingEdited.document_name) {
@@ -549,7 +549,7 @@ export default {
         var finalNewItem = {...newItem, ...res.data}
         console.log("New item created, ensure new tables", finalNewItem)
         that.baseConfig.items.push(finalNewItem);
-        that.baseItemMap[newItemLabel] = finalNewItem;
+        that.baseDocumentsItemMap[newItemLabel] = finalNewItem;
 
         that.ensureBaseTables().then(function () {
           that.selectedBaseItem = finalNewItem;
@@ -652,10 +652,13 @@ export default {
     showUploadData() {
 
     },
+    setCurrentDocument(doc){
+      this.selectedItem = doc;
+    },
     ...mapActions(['loadData', 'getTableSchema', 'updateRow', 'createRow', 'deleteRow', 'executeAction', 'loadModel', 'deleteTableByName']),
     refreshBaseData() {
       const that = this;
-      that.baseItemMap = {};
+      that.baseDocumentsItemMap = {};
 
       return new Promise(function (resolve, reject) {
 
@@ -704,13 +707,14 @@ export default {
           var baseRow = res.data[0];
           that.baseRow = baseRow
           if (!baseRow.document_content) {
-            alert("Base configuration is empty - " + baseRow)
+            alert("Base configuration is empty - " + baseRow);
+
             return
           }
           var baseConfigString = baseRow.document_content[0].contents;
           that.baseConfig = JSON.parse(atob(baseConfigString));
           that.baseConfig.name = that.baseName;
-          console.log("selected base item 1", that.selectedItem, that.baseConfig, that.baseItemMap, that.selectedBaseItem)
+          console.log("selected base item 1", that.selectedItem, that.baseConfig, that.baseDocumentsItemMap, that.selectedBaseItem)
 
 
           queryPayload = {
@@ -728,7 +732,7 @@ export default {
               page: {
                 size: 100,
               },
-              included_relations: "document_content"
+              included_relations: ""
             }
           };
           that.baseConfig.items = [];
@@ -739,16 +743,16 @@ export default {
             for (var i = 0; i < res.data.length; i++) {
               try {
                 var item = res.data[i];
-                that.baseItemMap[item.document_name] = item;
+                that.baseDocumentsItemMap[item.document_name] = item;
                 that.baseConfig.items.push(item);
-                var itemConfig = JSON.parse(atob(item.document_content[0].contents))
-                item = {...item, ...itemConfig}
-                that.baseItemMap[item.document_name] = item;
+                // var itemConfig = JSON.parse(atob(item.document_content[0].contents))
+                // item = {...item, ...itemConfig}
+                // that.baseDocumentsItemMap[item.document_name] = item;
               } catch (e) {
                 console.log("failed to parse item data", e)
               }
             }
-            that.selectedBaseItem = that.baseItemMap[that.selectedItem];
+            that.setCurrentDocument(that.baseDocumentsItemMap[that.selectedItem])
             that.ensureBaseTables().then(function () {
               resolve()
             }).catch(reject)
@@ -802,10 +806,10 @@ export default {
             updateSchema.Tables.push(targetTableConfig);
             baseItem.targetTable = targetTableConfig;
 
-            that.baseItemMap[baseItem.document_name].document_content[0].contents = btoa(JSON.stringify(baseItem))
-            console.log("Update base request", that.baseItemMap[baseItem.document_name])
-            that.baseItemMap[baseItem.document_name].tableName = "document";
-            promises.push(that.updateRow(that.baseItemMap[baseItem.document_name]))
+            that.baseDocumentsItemMap[baseItem.document_name].document_content[0].contents = btoa(JSON.stringify(baseItem))
+            console.log("Update base request", that.baseDocumentsItemMap[baseItem.document_name])
+            that.baseDocumentsItemMap[baseItem.document_name].tableName = "document";
+            promises.push(that.updateRow(that.baseDocumentsItemMap[baseItem.document_name]))
           }
         }
       }
@@ -926,8 +930,8 @@ export default {
 
       that.selectedItem = that.$route.params.itemName;
       that.baseName = that.$route.params.baseName;
-      console.log("Refresh data, update the selected item", that.selectedItem, that.baseItemMap);
-      that.selectedBaseItem = that.baseItemMap[that.selectedItem]
+      console.log("Refresh data, update the selected item", that.selectedItem, that.baseDocumentsItemMap);
+      that.selectedBaseItem = that.baseDocumentsItemMap[that.selectedItem]
 
       if (that.baseConfig.items.length === 0) {
         that.documentTab = false;

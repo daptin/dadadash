@@ -45,10 +45,10 @@
 <script>
 import mermaid from 'mermaid';
 import {mapActions, mapGetters} from "vuex";
-import CodeMirror from 'codemirror'
 
 import 'codemirror/lib/codemirror.css'
 import 'codemirror/theme/3024-day.css'
+
 import * as Y from 'yjs'
 import {WebsocketProvider} from 'y-websocket'
 import {CodemirrorBinding} from 'y-codemirror'
@@ -255,7 +255,6 @@ export default {
     }
   },
   methods: {
-    ...mapGetters(["authToken"]),
     setDiagramFromTemplate(template) {
       // this.diagramSpec = template.template;
       this.ytext.delete(0, this.ytext.toString().length)
@@ -290,7 +289,9 @@ export default {
     },
     ...mapActions(['createRow', "loadData", "updateRow"]),
   },
-  computed: {},
+  computed: {
+    ...mapGetters(["authToken"]),
+  },
 
   watch: {},
   props: ["baseItem"],
@@ -318,6 +319,7 @@ export default {
 
     if (that.authToken) {
 
+      // console.log("Auth token is ", that.authToken, that.authToken())
 
       const ydoc = new Y.Doc()
       const provider = new WebsocketProvider(

@@ -55,6 +55,8 @@
     "npm": "^6.14.7",
     "quasar": "^1.0.0",
     "quill-cursors": "^3.0.1",
+    "quill-image-drop-module": "^1.0.3",
+    "quill-image-resize-module": "^3.0.0",
     "rapidoc": "^8.1.2",
     "simplemde": "^1.11.2",
     "swagger-parser": "^10.0.2",
