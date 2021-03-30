@@ -111,6 +111,7 @@
 </style>
 <script>
 
+var randomColor = require('randomcolor'); // import the script
 
 import 'quill/dist/quill.core.css' // import styles
 import 'quill/dist/quill.snow.css' // for snow theme
@@ -234,7 +235,7 @@ export default {
         console.log("Yxml loaded", that.$refs.myQuillEditor, ytext);
         that.ytext = ytext;
         if (that.contents) {
-          // Y.applyUpdate(that.ydoc, toUint8Array(that.contents.encodedStateVector))
+          Y.applyUpdate(that.ydoc, toUint8Array(that.contents.encodedStateVector))
         }
 
         var editorContainer = document.getElementById("qid")
@@ -266,7 +267,7 @@ export default {
 
         provider.awareness.setLocalStateField('user', {
           name: that.decodedAuthToken().name,
-          color: 'blue'
+          color: randomColor()
         })
 
         ytext.observe(function (event, transaction) {

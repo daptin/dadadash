@@ -57,6 +57,7 @@
     "quill-cursors": "^3.0.1",
     "quill-image-drop-module": "^1.0.3",
     "quill-image-resize-module": "^3.0.0",
+    "randomcolor": "^0.6.2",
     "rapidoc": "^8.1.2",
     "simplemde": "^1.11.2",
     "swagger-parser": "^10.0.2",

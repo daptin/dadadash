@@ -116,7 +116,7 @@
           <q-item
             :key="item.reference_id"
             v-if="item.document_extension !== 'summary'" v-for="item in filteredDocuments"
-            :to="'/workspace/' + workspaceName + '/' + baseName + '/' + item.document_name"
+            @click="$router.push('/workspace/' + workspaceName + '/' + baseName + '/' + item.document_name)"
             clickable
             v-ripple>
             <q-item-section avatar>
@@ -129,31 +129,27 @@
                 item.document_name
               }}
             </q-item-section>
-            <q-item-section side>
-              <q-btn size="xs" flat icon="fas fa-wrench">
-                <q-menu
-                  style="min-width: 300px">
-                  <q-list>
-                    <q-item clickable>
-                      <q-item-section @click="configureBaseItem(item)">
-                        <q-item-label>Configure</q-item-label>
-                      </q-item-section>
-                    </q-item>
-                    <q-item clickable @click="renameBaseItem(item)">
-                      <q-item-section>
-                        <q-item-label>Rename</q-item-label>
-                      </q-item-section>
-                    </q-item>
-                    <q-item clickable @click="deleteBaseItem(item)">
-                      <q-item-section>
-                        <q-item-label>Delete</q-item-label>
-                      </q-item-section>
-                    </q-item>
-                  </q-list>
-                </q-menu>
-              </q-btn>
-            </q-item-section>
 
+            <q-menu anchor="top right" context-menu
+                    style="min-width: 300px">
+              <q-list>
+                <q-item clickable>
+                  <q-item-section @click="configureBaseItem(item)">
+                    <q-item-label>Configure</q-item-label>
+                  </q-item-section>
+                </q-item>
+                <q-item clickable @click="renameBaseItem(item)">
+                  <q-item-section>
+                    <q-item-label>Rename</q-item-label>
+                  </q-item-section>
+                </q-item>
+                <q-item clickable @click="deleteBaseItem(item)">
+                  <q-item-section>
+                    <q-item-label>Delete</q-item-label>
+                  </q-item-section>
+                </q-item>
+              </q-list>
+            </q-menu>
 
           </q-item>
 
@@ -161,6 +157,8 @@
       </div>
 
       <div v-if="decodedAuthToken != null" class="absolute-top q-pa-sm" style="height: 150px; ">
+        <q-btn size="sm" :style="{'display': documentTabminiState || !documentTab ? 'none' : 'block'}"
+               class="q-pa-md float-right" flat color="dark" icon="fas fa-power-off"></q-btn>
         <div class="bg-transparent">
           <q-avatar size="40px" class="">
             <img :src="decodedAuthToken.picture">
@@ -170,8 +168,8 @@
           <!--          </div>-->
         </div>
         <div class="absolute-bottom q-pa-md"
-             :style="{'display': documentTabminiState ? 'none' : 'block', 'font-size': '10px'}">
-          <q-input label="search document" @keypress.enter="selectFirstFilteredDocument()"
+        >
+          <q-input autofocus label="search document" @keypress.enter="selectFirstFilteredDocument()"
                    v-model="documentFilterKeyword"></q-input>
         </div>
       </div>
@@ -315,15 +313,6 @@ import BaseViewRouter from "pages/UserApps/BaseViewRouter";
 import {v4 as uuidv4} from 'uuid';
 
 
-function makeid(length) {
-  var result = '';
-  var characters = 'abcdefghijklmnopqrstuvwxyz';
-  var charactersLength = characters.length;
-  for (var i = 0; i < length; i++) {
-    result += characters.charAt(Math.floor(Math.random() * charactersLength));
-  }
-  return result;
-}
 
 window.XLSX = XLSX;
 
@@ -551,26 +540,18 @@ export default {
         that.baseConfig.items.push(finalNewItem);
         that.baseDocumentsItemMap[newItemLabel] = finalNewItem;
 
-        that.ensureBaseTables().then(function () {
-          that.selectedBaseItem = finalNewItem;
-          that.$nextTick().then(function () {
-            that.$refs.viewRouter.reloadBaseItem();
+        that.selectedBaseItem = finalNewItem;
+        that.$nextTick().then(function () {
+          that.$refs.viewRouter.reloadBaseItem();
 
-            if (that.documentFilterKeyword === newItemLabel) {
-              that.documentFilterKeyword = null;
-              that.$router.push('/workspace/' + that.workspaceName + "/" + that.baseName + "/" + newItemLabel)
-            } else {
-              that.renameBaseItem(finalNewItem);
-            }
+          if (that.documentFilterKeyword === newItemLabel) {
+            that.documentFilterKeyword = null;
+            that.$router.push('/workspace/' + that.workspaceName + "/" + that.baseName + "/" + newItemLabel)
+          } else {
+            that.renameBaseItem(finalNewItem);
+          }
 
-          })
-        }).catch(function (err) {
-          console.log("Failed to ensure tables for new items", err);
-          that.$q.notify({
-            type: "negative",
-            message: "Something went wrong while creating new item: " + JSON.stringify(err)
-          })
-        });
+        })
 
 
       }).catch(function (err) {
@@ -603,6 +584,9 @@ export default {
         for (var i = 0; i < res.data.length; i++) {
           var item = res.data[i];
           console.log("Delete item", item);
+          if (item.document_extension === "table") {
+            console.log("need to delete associated table", item)
+          }
           promises.push(that.deleteRow({
             tableName: "document",
             reference_id: item.id
@@ -613,7 +597,7 @@ export default {
 
           for (var i = 0; i < that.baseConfig.items.length; i++) {
             var item = that.baseConfig.items[i];
-            if (item.document_extension === "table") {
+            if (item.document_extension === "table" && item.targetTable) {
               console.log("target table details,", item);
               that.deleteTableByName(item.targetTable.TableName)
             }
@@ -652,7 +636,7 @@ export default {
     showUploadData() {
 
     },
-    setCurrentDocument(doc){
+    setCurrentDocument(doc) {
       this.selectedItem = doc;
     },
     ...mapActions(['loadData', 'getTableSchema', 'updateRow', 'createRow', 'deleteRow', 'executeAction', 'loadModel', 'deleteTableByName']),
@@ -753,170 +737,11 @@ export default {
               }
             }
             that.setCurrentDocument(that.baseDocumentsItemMap[that.selectedItem])
-            that.ensureBaseTables().then(function () {
-              resolve()
-            }).catch(reject)
+            resolve()
           });
         })
 
 
-      })
-
-
-    },
-    ensureBaseTables() {
-      const that = this;
-      console.log("Ensure base tables", this.baseConfig)
-
-      var promises = [];
-      var updateSchema = {
-        Tables: [],
-      };
-
-
-      for (let i = 0; i < that.baseConfig.items.length; i++) {
-        const baseItem = that.baseConfig.items[i];
-        if (baseItem.document_extension === "table") {
-          console.log("Table item", baseItem, baseItem.targetTable);
-          var targetTable = baseItem.targetTable;
-          if (!targetTable) {
-            var targetTableConfig = baseItem.attributes;
-            if (!targetTableConfig) {
-              console.log("No columns defined for table: ", baseItem)
-              targetTableConfig = {
-                Columns: []
-              }
-            }
-            targetTableConfig.TableName = "tab_" + makeid(7)
-
-            for (let j = 0; j < targetTableConfig.Columns.length; j++) {
-              const column = targetTableConfig.Columns[j];
-              if (column.ColumnType.startsWith("file.")) {
-                column.DataType = "blob"
-                column.IsForeignKey = true
-                column.ForeignKeyData = {
-                  DataSource: "cloud_store",
-                  Namespace: "localstore",
-                  KeyName: column.ColumnName,
-                }
-              }
-            }
-
-            console.log("No target table exists for this item, creating one", baseItem.document_name, targetTableConfig.TableName);
-            updateSchema.Tables.push(targetTableConfig);
-            baseItem.targetTable = targetTableConfig;
-
-            that.baseDocumentsItemMap[baseItem.document_name].document_content[0].contents = btoa(JSON.stringify(baseItem))
-            console.log("Update base request", that.baseDocumentsItemMap[baseItem.document_name])
-            that.baseDocumentsItemMap[baseItem.document_name].tableName = "document";
-            promises.push(that.updateRow(that.baseDocumentsItemMap[baseItem.document_name]))
-          }
-        }
-      }
-
-      return new Promise(function (resolve, reject) {
-        Promise.all(promises).then(function () {
-          if (updateSchema.Tables.length > 0) {
-            that.$q.loadingBar.start();
-
-            that.$q.notify({
-              message: "Creating " + updateSchema.Tables.length + " tables"
-            });
-            that.executeAction({
-              tableName: "world",
-              actionName: "upload_system_schema",
-              params: {
-                schema_file: [{
-                  contents: "application/json," + btoa(JSON.stringify(updateSchema)),
-                  name: that.baseName + ".json"
-                }]
-              }
-            }).then(function (res) {
-              that.$q.loadingBar.stop();
-              console.log("Tables created", res);
-              that.$q.notify({
-                message: "Base tables created, please wait while we generate random data to begin"
-              });
-              // that.$nextTick().then(function () {
-              //   that.$q.loadingBar.start();
-              // })
-
-
-              console.log("Try to create random data for the new base");
-              that.$q.notify({
-                message: "Generating random data for " + updateSchema.Tables.length + " tables"
-              });
-              that.$q.loadingBar.start();
-              var randomDataPromises = []
-              randomDataPromises = updateSchema.Tables.map(function (table) {
-                console.log("Create random data for ", table.TableName);
-
-                return new Promise(function (resolve, reject) {
-                  var generateRandomDataAndLoad = function () {
-
-                    var maxtries = 10;
-
-                    setTimeout(function () {
-
-                      if (maxtries < 1) {
-                        return;
-                      }
-                      maxtries -= 1;
-
-                      that.executeAction({
-                        tableName: "world",
-                        actionName: "generate_random_data",
-                        params: {
-                          "table_name": table.TableName,
-                          "count": 10,
-                        }
-                      }).then(function (res) {
-                        console.log("Generate random data response", res)
-                        if (!res || res === "") {
-                          console.log("data generate failed, try again", res)
-                          that.$q.loadingBar.increment(5);
-                          generateRandomDataAndLoad()
-                          return
-                        }
-                        that.$q.loadingBar.increment(5);
-                        console.log("Random data generated for table", table.TableName)
-                        resolve();
-
-                      }).catch(function (err) {
-                        generateRandomDataAndLoad()
-                        console.log("Failed to generate random data for ", table.TableName, "Trying again in 5 seconds")
-                      })
-                    }, 5000)
-
-
-                  }
-                  generateRandomDataAndLoad()
-
-                })
-
-
-              })
-              Promise.all(randomDataPromises).then(function () {
-                that.$q.loadingBar.stop();
-                resolve()
-              }).catch(function (err) {
-                console.log("Failed to create random data", err)
-              })
-
-
-            }).catch(function (err) {
-              console.log("Failed to create table", err)
-              that.$q.notify({
-                message: "Failed to create tables for the base"
-              });
-              reject()
-            })
-
-
-          } else {
-            resolve();
-          }
-        })
       })
 
 

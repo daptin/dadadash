@@ -43,6 +43,7 @@
 
 </style>
 <script>
+var randomColor = require('randomcolor'); // import the script
 import mermaid from 'mermaid';
 import {mapActions, mapGetters} from "vuex";
 
@@ -54,6 +55,7 @@ import {WebsocketProvider} from 'y-websocket'
 import {CodemirrorBinding} from 'y-codemirror'
 
 import 'codemirror/mode/markdown/markdown'
+import {fromUint8Array, toUint8Array} from "js-base64";
 
 function debounce(func, wait, immediate) {
   var timeout;
@@ -76,6 +78,7 @@ export default {
   data() {
     return {
       editor: null,
+      ydoc: null,
       ytext: null,
       cmOptions: {
         theme: '3024-day',
@@ -263,7 +266,7 @@ export default {
     },
     saveDiagram() {
       const that = this;
-      console.log("save diagram", that.baseItem)
+      console.log("save diagram", that.baseItem, that.ydoc)
 
       let newDiagram = that.ytext.toString();
       if (that.originalDiagram === newDiagram) {
@@ -271,9 +274,10 @@ export default {
       }
       that.originalDiagram = newDiagram;
       let diagram = JSON.stringify({
-        diagramSpec: newDiagram
-      });
-      console.log("save diagram")
+        diagramSpec: newDiagram,
+        encodedStateVector: fromUint8Array(Y.encodeStateAsUpdate(that.ydoc))
+      })
+
       that.$emit("save-base-item-contents", btoa(diagram))
     },
     updateDiagram() {
@@ -290,7 +294,7 @@ export default {
     ...mapActions(['createRow', "loadData", "updateRow"]),
   },
   computed: {
-    ...mapGetters(["authToken"]),
+    ...mapGetters(["authToken", 'decodedAuthToken']),
   },
 
   watch: {},
@@ -298,9 +302,9 @@ export default {
   mounted() {
     const that = this;
     that.containerId = "id-" + new Date().getMilliseconds();
-    that.debouncedSave = debounce(that.saveDiagram, 300, false)
-    that.debouncedUpdate = debounce(that.updateDiagram, 300, false)
-    console.log("Mounted Mermaid Graph Editor", that.containerId, this.baseItem);
+    that.debouncedSave = debounce(that.saveDiagram, 3 * 1000, false)
+    that.debouncedUpdate = debounce(that.updateDiagram, 3 * 1000, false)
+    console.log("Mounted Mermaid Graph Editor", that.decodedAuthToken, that.containerId, this.baseItem);
     const file = this.baseItem.file;
     console.log("File: ", JSON.stringify(file));
     let mermaidEditorConfig = {};
@@ -327,12 +331,25 @@ export default {
         "yjs?token=" + that.authToken,
         ydoc
       )
+      that.ydoc = ydoc;
       const ytext = ydoc.getText('codemirror')
       that.ytext = ytext;
 
+      if (that.mermaidEditorConfig.encodedStateVector) {
+
+        Y.applyUpdate(that.ydoc, toUint8Array(that.mermaidEditorConfig.encodedStateVector))
+      }
+
       const binding = new CodemirrorBinding(ytext, that.$refs.editor.codemirror, provider.awareness)
+      if (that.decodedAuthToken && that.decodedAuthToken.name) {
+        provider.awareness.setLocalStateField('user', {
+          name: that.decodedAuthToken.name,
+          color: randomColor()
+        })
 
+      }
 
+      that.debouncedUpdate();
       ytext.observe(function () {
         // console.log("Ytext updates: ", ytext.toString())
         that.debouncedUpdate();
