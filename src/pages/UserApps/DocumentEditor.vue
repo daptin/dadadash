@@ -223,7 +223,7 @@ export default {
         let token = that.authToken();
         console.log("Token", token)
         const provider = new WebsocketProvider(
-          'ws://localhost:6336/live/document/' + that.baseItem.reference_id + "/document_content",
+          (window.location.protocol === "https:" ? "wss:" : "ws:") +  '//' + window.location.host + '/live/document/' + that.baseItem.reference_id + "/document_content",
           "yjs?token=" + token,
           ydoc
         );

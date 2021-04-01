@@ -166,7 +166,7 @@ export default {
         return
       }
       currentGroups.splice(toRemove, 1)
-
+      that.tableSchema.DefaultGroups = currentGroups;
 
       that.updateRow({
         tableName: "world",
@@ -264,9 +264,12 @@ export default {
           break;
         case 'newRowGroups':
           var currentGroups = that.tableSchema.DefaultGroups;
+          if (!currentGroups) {
+            currentGroups = [];
+          }
           console.log("Current groups", currentGroups);
           currentGroups.push(this.addToGroupId.name);
-
+          that.tableSchema.DefaultGroups = currentGroups;
 
           that.updateRow({
             tableName: "world",

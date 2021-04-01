@@ -327,7 +327,7 @@ export default {
 
       const ydoc = new Y.Doc()
       const provider = new WebsocketProvider(
-        'ws://localhost:6336/live/document/' + this.baseItem.reference_id + "/document_content",
+        (window.location.protocol === "https:" ? "wss:" : "ws:") +  '//' + window.location.host + '/live/document/' + this.baseItem.reference_id + "/document_content",
         "yjs?token=" + that.authToken,
         ydoc
       )

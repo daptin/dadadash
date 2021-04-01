@@ -1351,7 +1351,7 @@ const tableComponent = {
         console.log("Table row", res, arguments);
         if (!res.data || res.data.length !== 1) {
           that.$q.notify({
-            message: "No data in this table is available to guests"
+            message: "No data in table " + tableName
           });
           return;
         }
