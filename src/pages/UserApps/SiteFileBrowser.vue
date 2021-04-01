@@ -3,27 +3,6 @@
     <q-page class="q-pa-sm">
       <div class="row" style="height: calc(100vh - 200px)">
 
-        <div
-          class="col-2 col-xl-2 col-lg-3 col-md-3 col-sm-4 col-xs-12"
-          style="border-right: 3px solid black">
-      <span @click="window.open(site.hostname)" class="text-bold"><i class="fas fa-home"
-                                                                     style="font-size: 1.2em; cursor: pointer"></i> {{
-          site.name
-        }}</span>
-          <v-jstree
-            multiple
-            allow-batch
-            ref="tree"
-            draggable
-            @item-click="fileTreeItemClicked"
-            @item-drag-start="fileTreeItemDragStart"
-            @item-drag-end="fileTreeItemDragEnd"
-            @item-drop-before="fileTreeItemDropBefore"
-            @item-drop="fileTreeItemDrop"
-
-            :async="loadFilePathDataForTree" :data="asyncFileData"
-            whole-row></v-jstree>
-        </div>
 
         <div class="col-10 col-md-9 col-sm-8 col-xs-12" v-if="!showFileEditor && !showFilePreview">
 
