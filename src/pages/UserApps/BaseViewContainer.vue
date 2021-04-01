@@ -16,7 +16,7 @@
           <q-card-section>
             <div class="row">
 
-              <div class="col-4 col-xs-12 col-sm-12 q-pa-md" :disable="item.disabled" clickable
+              <div class="col-4 col-lg-3 col-xl-3 col-xs-12 col-md-4 col-sm-6 q-pa-md" :disable="item.disabled" clickable
                    @click="addBaseItem(item)"
                    v-close-popup
                    v-for="item in baseItemTypes" v-if="!item.disabled"

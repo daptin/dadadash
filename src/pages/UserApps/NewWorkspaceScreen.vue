@@ -80,7 +80,7 @@ export default {
           console.log("Create folder request", newRow)
 
           that.createRow(newRow).then(function (res) {
-            that.$emit("new-workspace-created")
+            that.$emit("new-workspace-created", res.data);
           }).catch(function (e) {
             console.log("Failed to create folder", e)
             that.$q.notify({

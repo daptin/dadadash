@@ -70,7 +70,7 @@
           </div>
           <div class="col-10 col-sm-12 col-md-10 col-lg-10 col-xl-10 col-xs-12" style="background: #F2F1F9">
             <new-workspace-screen v-if="showNewWorkspace || !currentWorkspace"
-                                  @new-workspace-created="refreshData"></new-workspace-screen>
+                                  @new-workspace-created="newWorkspaceCreated"></new-workspace-screen>
             <workspace-view @delete-workspace="deleteWorkspace" :workspace-name="currentWorkspace"
                             v-if="!showNewWorkspace && currentWorkspace"></workspace-view>
 
@@ -149,11 +149,20 @@ export default {
       console.log("Current path changed", newVal);
       localStorage.setItem("_last_current_path", newVal)
     },
-    '$route.params.currentWorkspace': function (newVal) {
+    '$route.params.workspaceName': function (newVal) {
       console.log("Workspace changed", newVal)
     }
   },
   methods: {
+    newWorkspaceCreated(workspace){
+      const that = this;
+      console.log("new workspace", workspace)
+      that.$router.push("/workspace/" + workspace.document_name);
+      this.refreshData();
+      this.openWorkspace({
+        label: workspace.document_name
+      })
+    },
     openWorkspace(workspace) {
       console.log("open workspace", workspace)
       this.$router.push("/workspace/" + workspace.label)
@@ -297,6 +306,7 @@ export default {
 
     },
     refreshData(searchTerm) {
+      console.log(this.$route.params)
       const that = this;
       that.showNewWorkspace = false;
       that.selectedFile = null;
