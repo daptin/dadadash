@@ -1,8 +1,8 @@
 <template>
   <q-page-container style="padding-top: 0; overflow: hidden;">
-    <q-page style="min-height: 0 ; height:calc(100vh  - 46px); ">
+    <q-page id="page" style="min-height: 0;">
       <div class="row">
-        <div class="col-8 offset-2">
+        <div class="col-8 col-xs-12 col-sm-12  offset-xs-0 offset-sm-0 ">
 
           <div id="qid"></div>
 
@@ -92,15 +92,21 @@
 <style scoped>
 
 @media print {
-  .ql-toolbar {
-    display: none;
+  .ql-toolbar.ql-snow {
+    display: none !important;
+    visibility: hidden !important;
   }
-}
-
-.ql-toolbar {
-  float: left;
-  position: absolute;
-  width: 100%;
+  #page {
+    margin-left: -50px;
+    margin-top: -50px;
+    z-index: 999;
+  }
+  .ql-container.ql-snow {
+    border: none !important;
+  }
+  .q-tab-panels {
+    padding-top: 0 !important;
+  }
 }
 
 .quill-editor {
@@ -128,7 +134,8 @@ import Quill from 'quill'
 import QuillCursors from 'quill-cursors'
 import {fromUint8Array, toUint8Array} from 'js-base64'
 import ImageResize from 'quill-image-resize-module';
-import { ImageDrop } from 'quill-image-drop-module';
+import {ImageDrop} from 'quill-image-drop-module';
+import './sticky-toolbar';
 
 Quill.register('modules/imageDrop', ImageDrop);
 Quill.register('modules/imageResize', ImageResize);
@@ -239,10 +246,12 @@ export default {
         }
 
         var editorContainer = document.getElementById("qid")
+
         const editor = new Quill(editorContainer, {
           modules: {
             imageResize: {},
             imageDrop: true,
+            sticky_toolbar: true,
             cursors: true,
             toolbar: [
               [{'font': []}, {'size': []}],

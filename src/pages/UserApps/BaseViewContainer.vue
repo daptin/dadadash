@@ -2,7 +2,7 @@
   <q-layout class="user-area-pattern" view="lHh Lpr lFf">
 
 
-    <base-view-router style="padding-top: 50px" ref="viewRouter" v-if="baseLoaded && selectedBaseItem"
+    <base-view-router class="base-view-router" ref="viewRouter" v-if="baseLoaded && selectedBaseItem"
                       :base-config="baseConfig"
                       :baseItem="selectedBaseItem"></base-view-router>
 
@@ -16,7 +16,8 @@
           <q-card-section>
             <div class="row">
 
-              <div class="col-4 q-pa-md" :disable="item.disabled" clickable @click="addBaseItem(item)"
+              <div class="col-4 col-xs-12 col-sm-12 q-pa-md" :disable="item.disabled" clickable
+                   @click="addBaseItem(item)"
                    v-close-popup
                    v-for="item in baseItemTypes" v-if="!item.disabled"
                    :key="item.label">
@@ -41,6 +42,7 @@
     <user-header-bar @delete-base="deleteBase"
                      style="border-bottom: 1px solid black"
                      @search="searchDocuments"
+                     class="print-hide"
                      @hide-document-bars="documentTab = !documentTab"
                      @reload-bases="refreshBaseData"
                      :buttons="{
@@ -72,6 +74,7 @@
       @mouseover="documentTabminiState = false"
       @mouseout="documentTabminiState = true"
       content-class="bg-white print-hide"
+      class="print-hide"
       style="overflow-y: hidden;"
       content-style="overflow-y: hidden;"
     >
@@ -273,20 +276,15 @@
 </template>
 <style scoped>
 
-/*.q-tab {*/
-/*  border: 1px solid black;*/
-/*  border-radius: 4px;*/
-/*  height: 39px;*/
-/*  top: 4px;*/
-/*  margin-left: 2px;*/
-/*  margin-right: 2px;*/
+@media print {
+  .base-view-router {
+    padding-top: 0 !important;
+  }
+}
 
-/*}*/
-
-/*.q-tab .q-tab__content {*/
-/*  left: -20px;*/
-/*  margin-top: -4px;*/
-/*}*/
+.base-view-router {
+  padding-top: 50px;
+}
 
 .q-tab span i.q-icon {
   margin-top: -5px;
