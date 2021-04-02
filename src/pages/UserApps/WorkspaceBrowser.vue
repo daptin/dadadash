@@ -77,7 +77,7 @@
           </div>
         </div>
       </q-page>
-      <user-header-bar :onBack="false" style="border-bottom: 1px solid black" @search="searchDocuments"
+      <user-header-bar @toggle-left-drawer="$emit('toggle-left-drawer')" :onBack="false" style="border-bottom: 1px solid black" @search="searchDocuments"
                        @show-uploader="showUploader"
                        :buttons="{
         before: [

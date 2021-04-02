@@ -1,9 +1,11 @@
 <template>
 
-  <q-header reveal class="bg-white text-black print-hide" position="top" expand>
-    <q-bar class="bg-primary text-white" style="height: 48px" v-if="decodedAuthToken() !== null">
+  <q-header reveal class="print-hide" position="top" expand>
+    <q-bar style="height: 48px" v-if="decodedAuthToken() !== null">
+      <q-btn  flat @click="$emit('toggle-left-drawer')" icon="menu"></q-btn>
       <q-btn v-if="onBack !==  false" flat @click="onBack ? onBack() : $router.back()" icon="fas fa-arrow-left"></q-btn>
-      <q-btn :key="btn.icon" v-for="btn in buttons.beforeTitle" flat @click="buttonClicked(btn)" :icon="btn.icon"></q-btn>
+      <q-btn :key="btn.icon" v-for="btn in buttons.beforeTitle" flat @click="buttonClicked(btn)"
+             :icon="btn.icon"></q-btn>
       <q-toolbar-title v-if="title && $q.screen.gt.md" style="text-transform: capitalize" v-html="title">
       </q-toolbar-title>
 
@@ -78,15 +80,24 @@
 
               <div class="text-subtitle1 q-mt-md q-mb-xs">{{ decodedAuthToken().name }}</div>
 
-              <q-btn
-                color="black"
-                label="Logout"
-                push
-                rounded
-                @click="triggerLogout()"
-                size="sm"
-                v-close-popup
-              />
+              <q-btn-group>
+                <q-btn
+                  label="Dark mode"
+                  push
+                  rounded
+                  :dark-percentage="true"
+                  @click="$q.dark.toggle()"
+                  size="sm"
+                />
+                <q-btn
+                  label="Logout"
+                  push
+                  rounded
+                  @click="triggerLogout()"
+                  size="sm"
+                  v-close-popup
+                />
+              </q-btn-group>
             </div>
           </div>
         </q-menu>

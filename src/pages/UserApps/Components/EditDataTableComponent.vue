@@ -1,13 +1,13 @@
 <template>
-  <q-page-container style="padding-top: 0; background: rgb(242, 241, 249)">
+  <q-page-container style="padding-top: 0;">
     <q-page style="overflow: hidden">
 
       <div v-if="decodedAuthToken" class="row" style="">
-        <q-bar style="padding-left: 5px; width: 100% ; background: white">
+        <div style="padding-left: 5px; width: 100% ;">
           <q-input @keypress.enter="filterRows()" v-model="searchQuery" label="filter"></q-input>
           <span style="font-size: 12px" class="text-bold">Total {{ pagination.total }} records | Showing {{spreadsheet.getDataCount()}}</span>
           <q-btn size="sm" @click="showEditRow()" icon="fas fa-plus " flat label="New row"></q-btn>
-          <q-btn size="sm" icon="fas fa-lock" @click="showPermissionsDrawer()" color="primary" flat
+          <q-btn size="sm" icon="fas fa-lock" @click="showPermissionsDrawer()" color="warning" flat
                  label="Table Permissions"></q-btn>
           <q-btn size="sm" icon="fas fa-sync" @click="refreshData()" flat label="Refresh data">
 
@@ -16,7 +16,7 @@
           <q-btn v-if="selectedRows.length > 0" @click="deleteSelectedRows" flat color="red" size="sm">Delete selected
             rows
           </q-btn>
-        </q-bar>
+        </div>
         <q-separator></q-separator>
       </div>
 

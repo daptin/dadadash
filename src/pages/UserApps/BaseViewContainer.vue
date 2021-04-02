@@ -39,7 +39,7 @@
     </q-page-container>
 
 
-    <user-header-bar @delete-base="deleteBase"
+    <user-header-bar @toggle-left-drawer="$emit('toggle-left-drawer')" @delete-base="deleteBase"
                      style="border-bottom: 1px solid black"
                      @search="searchDocuments"
                      class="print-hide"

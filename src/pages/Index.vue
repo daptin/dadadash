@@ -2,12 +2,12 @@
   <q-page-container>
     <q-page>
 
-      <div class="row" style="overflow-y: scroll; height: calc(100vh - 12px); background: #F2F1F9">
+      <div class="row" style="overflow-y: scroll; height: calc(100vh - 12px);">
 
         <div class="col-8 col-md-8 col-xs-12 col-lg-9 col-sm-6">
           <div class="row">
             <div class="col-6 col-md-6 col-lg-4 col-xl-4 col-xs-12 col-sm-12 q-pa-sm q-gutter-sm">
-              <q-card class="bg-white">
+              <q-card>
 
 
                 <q-card-section>
@@ -79,7 +79,7 @@
 
 
             <div class="col-6  col-md-6 col-lg-4 col-xl-3 col-xs-12 col-sm-12 q-pa-sm q-gutter-sm">
-              <q-card class="bg-white">
+              <q-card>
 
                 <q-card-section>
                   <q-item>
@@ -119,7 +119,7 @@
             </div>
 
             <div class="col-6 col-md-6 col-lg-4 col-xl-3 col-xs-12 col-sm-12 q-pa-sm q-gutter-sm">
-              <q-card class="bg-white">
+              <q-card>
 
                 <q-card-section>
                   <q-item>
@@ -177,7 +177,7 @@
             </div>
 
             <div class="col-6  col-md-6 col-lg-4 col-xl-3 col-xs-12 col-sm-12 q-pa-sm q-gutter-sm">
-              <q-card class="bg-white">
+              <q-card>
                 <q-card-section>
                   <q-item>
                     <q-item-section avatar>
@@ -228,7 +228,7 @@
         <div class="col-4  col-md-4 col-lg-3 col-xl-3 col-xs-12 col-sm-6 q-pa-sm q-gutter-sm">
           <div class="row">
             <div class="col-12">
-              <q-card class="bg-white">
+              <q-card>
                 <q-card-section>
                   <q-item>
                     <q-item-section avatar>

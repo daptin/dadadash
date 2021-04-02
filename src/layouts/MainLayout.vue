@@ -248,7 +248,7 @@ text-align: center;
     </q-drawer>
 
     <router-view v-if="isAdmin || isUser"/>
-    <user-header-bar v-if="loaded" :buttons="{before: [], after: []}" :on-back="false"></user-header-bar>
+    <user-header-bar @toggle-left-drawer="toggleAdminDrawer()" v-if="loaded" :buttons="{before: [], after: []}" :on-back="false"></user-header-bar>
 
   </q-layout>
 </template>
@@ -347,12 +347,15 @@ export default {
 
   },
   methods: {
+    toggleAdminDrawer(){
+      this.showAdminDrawer = !this.showAdminDrawer;
+    },
     ...mapActions(['getDefaultCloudStore', 'loadModel', 'executeAction', 'loadData', 'setDecodedAuthToken']),
     logout() {
       localStorage.removeItem("token");
       localStorage.removeItem("user");
       this.$router.push("/login");
-      window.location = window.location;
+      window.location = window.location + "";
     }
   }
 }

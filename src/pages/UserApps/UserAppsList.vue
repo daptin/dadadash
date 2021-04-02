@@ -1,6 +1,6 @@
 <template>
   <q-page-container>
-    <user-header-bar :buttons="{}"></user-header-bar>
+    <user-header-bar @toggle-left-drawer="$emit('toggle-left-drawer')" :buttons="{}"></user-header-bar>
   </q-page-container>
 
 
