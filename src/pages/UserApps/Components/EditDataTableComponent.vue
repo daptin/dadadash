@@ -1504,6 +1504,11 @@ const tableComponent = {
   },
   data() {
     return {
+      spreadsheet: {
+        getDataCount(){
+          return 0
+        }
+      },
       newColumnTypeToBeAdded: null,
       columnHeaderContextMenu: null,
       pagination: {},

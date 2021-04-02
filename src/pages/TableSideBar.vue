@@ -3,11 +3,11 @@
     <q-page>
 
       <div class="row ">
-        <div class="col-12 q-pa-md">
+        <div class="col-12 q-pa-xs">
           <q-btn color="primary" label="New table" icon="fas fa-plus" @click="$router.push('/tables/create')"></q-btn>
         </div>
-        <div class="col-12 q-pa-md">
-          <q-card>
+        <div class="col-12">
+          <q-card flat>
             <q-card-section>
               <q-markup-table flat>
                 <thead>

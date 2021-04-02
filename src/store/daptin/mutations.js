@@ -31,7 +31,12 @@ export function setSelectedActionForEditor(state, action) {
 export function setActions(state, actions) {
   state.actions = [];
   for (var i = 0; i < actions.length; i++) {
-    actions[i].ActionSchema = JSON.parse(actions[i].action_schema)
+    try {
+      actions[i].ActionSchema = JSON.parse(actions[i].action_schema)
+    } catch (e) {
+      console.log("Failed to parse json action schema", actions[i].ActionSchema)
+      actions[i].ActionSchema = {}
+    }
     state.actions.push(actions[i])
   }
 }

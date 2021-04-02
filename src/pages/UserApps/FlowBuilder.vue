@@ -484,16 +484,40 @@ export default {
           this.newNodeData.node = {
             Type: newDataBlockForTable.name,
             Method: this.newNodeData.operationId,
-            Attributes: this.newNodeData.parameters ? this.newNodeData.parameters.map(e => e.name) : {},
+            Attributes: {},
           }
-          if (this.newNodeData.requestBody.content) {
+          var properties = {};
+          if (this.newNodeData.requestBody && this.newNodeData.requestBody.content) {
             var bodyContent = Object.values(this.newNodeData.requestBody.content)[0]
             console.log("request body content", bodyContent);
-            var properties = Object.keys(bodyContent.schema.properties);
-            properties.map(function (e){
-              that.newNodeData.node.Attributes[e] = ""
-            })
+            properties = bodyContent.schema.properties;
+            properties = Object.keys(bodyContent.schema.properties);
+
+          } else {
+            var parameters = this.newNodeData.parameters;
+            if (parameters) {
+              for (var i = 0; i < parameters.length; i++) {
+                var param = parameters[i];
+                switch (param.in) {
+                  case "body":
+                    var schema = param.schema;
+                    if (schema.$ref) {
+                      var schemaBody = newDataBlockForTable.ParsedApi.definitions[schema.$ref.split('/').pop()]
+                      console.log("body schema", schema, schemaBody)
+                      properties = schemaBody.properties;
+                    } else {
+                      properties = param.properties;
+                    }
+                    break;
+                  default:
+                    console.log("supported parameter type", param)
+                }
+              }
+            }
           }
+          Object.keys(properties).map(function (e) {
+            that.newNodeData.node.Attributes[e] = ""
+          })
           break;
       }
 
