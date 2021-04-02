@@ -2,14 +2,6 @@
   <q-page-container>
     <q-page>
 
-
-      <!--      <q-page-sticky style="z-index: 3000" position="bottom-right" :offset="[20, 20]">-->
-<!--        <q-btn @click="newUserDrawer = true" label="Add User" fab icon="add"/>-->
-<!--      </q-page-sticky>-->
-
-<!--      <q-page-sticky v-if="!showHelp" position="top-right" :offset="[0, 0]">-->
-<!--        <q-btn flat @click="showHelp = true" fab icon="fas fa-question"/>-->
-<!--      </q-page-sticky>-->
       <q-card flat>
         <q-card-section>
           <div class="row q-gutter-sm">
@@ -22,7 +14,7 @@
           </div>
         </q-card-section>
         <q-card-section>
-          <q-markup-table flast>
+          <q-markup-table flat>
             <tbody>
             <tr style="cursor: pointer" @click="$router.push('/user/' + user.email)" v-for="user in usersFiltered">
               <td>{{ user.email }}</td>

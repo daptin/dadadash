@@ -39,7 +39,7 @@ export default {
     }
   },
   mounted() {
-    this.$q.dark.set(true)
+    // this.$q.dark.set(true)
     const that = this;
     that.initDaptinClient().then(function () {
 
