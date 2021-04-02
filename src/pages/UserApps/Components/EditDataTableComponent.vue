@@ -3,22 +3,14 @@
     <q-page style="overflow: hidden">
 
       <div v-if="decodedAuthToken" class="row" style="">
-        <q-bar style="padding-left: 0; width: 100% ; background: white">
+        <q-bar style="padding-left: 5px; width: 100% ; background: white">
+          <q-input @keypress.enter="filterRows()" v-model="searchQuery" label="filter"></q-input>
+          <span style="font-size: 12px" class="text-bold">Total {{ pagination.total }} records | Showing {{spreadsheet.getDataCount()}}</span>
+          <q-btn size="sm" @click="showEditRow()" icon="fas fa-plus " flat label="New row"></q-btn>
+          <q-btn size="sm" icon="fas fa-lock" @click="showPermissionsDrawer()" color="primary" flat
+                 label="Table Permissions"></q-btn>
+          <q-btn size="sm" icon="fas fa-sync" @click="refreshData()" flat label="Refresh data">
 
-          <q-btn size="sm" @click="showNewRowDrawer()" flat label="New row"></q-btn>
-          <q-btn size="sm" @click="showPermissionsDrawer()" color="primary" flat label="Table Permissions"></q-btn>
-          <q-btn size="sm" flat label="Table Options">
-            <q-menu auto-close anchor="bottom left" self="top left">
-              <q-item clickable>
-                <q-item-section>
-                  <q-checkbox size="xs" @change="refreshData()" label="Show column filters"
-                              v-model="tabulatorOptions.headerFilter"></q-checkbox>
-                </q-item-section>
-              </q-item>
-              <q-item clickable @click="refreshData()">
-                <q-item-section>Refresh data</q-item-section>
-              </q-item>
-            </q-menu>
           </q-btn>
 
           <q-btn v-if="selectedRows.length > 0" @click="deleteSelectedRows" flat color="red" size="sm">Delete selected
@@ -28,9 +20,9 @@
         <q-separator></q-separator>
       </div>
 
-      <div class="row">
-        <div class="col-12" style="background: rgb(242, 241, 249)">
-          <div id="spreadsheet" style="height: calc(100vh - 82px); width: 100vw; border-top: 1px solid black"></div>
+      <div class="row" style="padding-right: 50px">
+        <div class="col-12" style="background: rgb(242, 241, 249); ">
+          <div id="spreadsheet" style="height: calc(100vh - 82px); width: 100vw; border-top: 1px solid black; "></div>
         </div>
       </div>
 
@@ -115,10 +107,17 @@
               />
 
               <span v-if="['content', 'json'].indexOf(column.meta.ColumnType) > -1 ">{{ column.meta.ColumnName }}</span>
-              <q-editor
+              <codemirror
+                :options='{
+                  theme: "3024-day",
+                  lineNumbers: true,
+                  mode: "markdown",
+                  height: "600px",
+                  line: true,
+                }'
                 :toolbar="[
-        ['viewsource']
-      ]"
+                  ['viewsource']
+                ]"
                 :label="column.meta.ColumnName"
                 v-if="['content', 'json'].indexOf(column.meta.ColumnType) > -1 "
                 v-model="column.value"
@@ -275,7 +274,7 @@ div.tabulator-col:nth-child(1) > div:nth-child(1) > div:nth-child(1) > div:nth-c
 
 .tabulator-row .tabulator-cell {
   font-size: 12px;
-  height: 127px;
+  height: 150px;
   border-right: none;
   padding: 7px;
   overflow: auto;
@@ -503,6 +502,40 @@ const tableComponent = {
   props: ["baseItem"],
   // todo use the config property to show only configured columns for this view and not all columns
   methods: {
+    showEditRow(row) {
+      console.log("Edit row", row)
+      const that = this;
+      this.editRow = row;
+
+      that.newRowData.map(function (e) {
+
+        if (row && row[e.meta.ColumnName]) {
+          e.value = row && row[e.meta.ColumnName];
+          return;
+        }
+
+        if (e.meta.DefaultValue) {
+          e.value = e.meta.DefaultValue;
+          return;
+        }
+
+        e.value = "";
+        if (e.meta.ColumnType.startsWith('file.')) {
+          e.value = []
+        } else if (e.meta.ColumnType === 'truefalse') {
+          e.value = false
+        } else {
+          e.value = ""
+        }
+      });
+
+      this.tablePermissionDrawer = false;
+      this.newRowDrawer = true;
+      this.showRowEditorDrawer()
+    },
+    filterRows() {
+      this.refreshData();
+    },
     onEntitySelectScroll(filterValue, update, abort, column) {
       console.log("load data for select menu", arguments, column);
       const that = this;
@@ -764,7 +797,7 @@ const tableComponent = {
       this.newRowDrawer = false;
       this.tablePermissionDrawer = true;
     },
-    showNewRowDrawer() {
+    showRowEditorDrawer() {
       this.tablePermissionDrawer = false;
       this.newRowDrawer = true;
     },
@@ -794,13 +827,22 @@ const tableComponent = {
       const that = this;
       const obj = {};
       const promises = [];
-      console.log("Save row", that.newRowData, that.tableSchema);
+      console.log("Save row", that.newRowData, that.editRow, that.tableSchema);
       that.newRowData.map(function (e) {
         if (!e.meta.ColumnType.startsWith('file.')) {
-          if (e.meta.jsonApi && e.value) {
-            obj[e.meta.ColumnName] = {
-              type: e.meta.type,
-              id: e.value.value,
+          if (e.meta.jsonApi) {
+            if (e.value) {
+              console.log("fk column set on save", e.meta.ColumnName, e.value)
+              if (!e.value.value) {
+                delete (obj, e.meta.ColumnName)
+                return
+              }
+              obj[e.meta.ColumnName] = {
+                type: e.meta.type,
+                id: e.value.value,
+              }
+            } else {
+              delete (obj, e.meta.ColumnName)
             }
           } else {
             obj[e.meta.ColumnName] = e.value;
@@ -866,29 +908,34 @@ const tableComponent = {
       console.log("Promises list", promises, obj);
       obj['tableName'] = that.tableName;
 
+      let anyColumnValueReadPromiseFailFunction = function (e) {
+        console.log("Failed to upload file", e);
+        that.$q.notify({
+          message: "Failed to upload file: " + e[0]
+        })
+      };
       Promise.all(promises).then(function () {
-        that.createRow(obj).then(function (res) {
-          that.$q.notify({
-            message: "Row created"
-          });
-          that.spreadsheet.setData();
-          that.newRowData.map(function (e) {
-            if (e.meta.DefaultValue) {
-              e.value = e.meta.DefaultValue;
-              return;
-            }
 
-            e.value = "";
-            if (e.meta.ColumnType.startsWith('file.')) {
-              e.value = []
-            } else if (e.meta.ColumnType === 'truefalse') {
-              e.value = false
-            } else {
-              e.value = ""
-            }
-          });
+        let successFunction = function (res) {
+          console.log("success on save", res.data)
+
+          if (!that.editRow) {
+            that.$q.notify({
+              message: "Row created"
+            });
+          } else {
+            that.$q.notify({
+              message: "Row updated"
+            });
+          }
+          that.editRow = null;
+          if (res.data) {
+            that.spreadsheet.updateData([res.data]);
+          }
+
           that.newRowDrawer = false;
-        }).catch(function (e) {
+        };
+        let handleUpdateFailFunction = function (e) {
           console.log("Failed to save row", e)
           if (e instanceof Array || e[0]) {
             that.$q.notify({
@@ -909,13 +956,18 @@ const tableComponent = {
               })
             }
           }
-        });
-      }).catch(function (e) {
-        console.log("Failed to upload file", e);
-        that.$q.notify({
-          message: "Failed to upload file: " + e[0]
-        })
-      })
+        };
+        if (that.editRow) {
+          obj["id"] = that.editRow["reference_id"]
+          obj.tableName = that.tableName;
+          that.updateRow(obj).then(successFunction).catch(handleUpdateFailFunction);
+
+        } else {
+          that.createRow(obj).then(successFunction).catch(handleUpdateFailFunction);
+
+        }
+
+      }).catch(anyColumnValueReadPromiseFailFunction)
 
 
     },
@@ -937,6 +989,87 @@ const tableComponent = {
       that.getTableSchema(tableName).then(function (res) {
         that.tableSchema = res;
         console.log("Schema", that.tableSchema);
+        //define row context menu contents
+        var rowMenu = [
+          {
+            label: "<i class='fas fa-pen'></i> Edit row",
+            action: function (e, row) {
+              that.showEditRow(row._row.data);
+              // row.update({name:"Steve Bobberson"});
+            }
+          },
+          {
+            label: "<i class='fas fa-check-square'></i> Select Row",
+            action: function (e, row) {
+              row.select();
+            }
+          },
+          {
+            separator: true,
+          },
+          {
+            label: "Show actions",
+            menu: [
+              {
+                label: "<i class='fas fa-trash'></i> Delete Row",
+                action: function (e, row) {
+                  row.delete();
+                }
+              },
+              {
+                label: "<i class='fas fa-ban'></i> Disabled Option",
+                disabled: true,
+              },
+            ]
+          }
+        ]
+
+//define column header menu as column visibility toggle
+        var headerMenu = function () {
+          var menu = [];
+          var columns = this.getColumns();
+
+          for (let column of columns) {
+
+            //create checkbox element using font awesome icons
+            let icon = document.createElement("i");
+            icon.classList.add("fas");
+            icon.classList.add(column.isVisible() ? "fa-check-square" : "fa-square");
+
+            //build label
+            let label = document.createElement("span");
+            let title = document.createElement("span");
+
+            title.textContent = " " + column.getDefinition().title;
+
+            label.appendChild(icon);
+            label.appendChild(title);
+
+            //create menu item
+            menu.push({
+              label: label,
+              action: function (e) {
+                //prevent menu closing
+                e.stopPropagation();
+
+                //toggle current column visibility
+                column.toggle();
+
+                //change menu item icon
+                if (column.isVisible()) {
+                  icon.classList.remove("fa-square");
+                  icon.classList.add("fa-check-square");
+                } else {
+                  icon.classList.remove("fa-check-square");
+                  icon.classList.add("fa-square");
+                }
+              }
+            });
+          }
+
+          return menu;
+        };
+
         // that.loadData({tableName: tableName}).then(function (data) {
         //   console.log("Loaded data", data);
         //   that.rows = data.data;
@@ -1030,11 +1163,13 @@ const tableComponent = {
         });
 
 
+
         let TABULATOR_DEFAULT_OPTIONS = {
           data: [],
           columns: columns,
           // pagination: "remote",
           tooltips: true,
+          rowContextMenu: rowMenu,
           ajaxSorting: true,
           columnTitleChanged: function (columnComponent) {
             console.log("Title updated for column", columnComponent, that.newColumnTypeToBeAdded);
@@ -1159,8 +1294,9 @@ const tableComponent = {
             that.selectedRows = data;
           },
           rowClick: function (e, row) {
-            console.log("Row clicked", row);
-            row.toggleSelect();
+            console.log("Row clicked", row, that.newRowData);
+            that.showEditRow(row._row.data);
+            // row.toggleSelect();
           },
           cellDblClick: function (e, cell) {
             // e - the click event object
@@ -1269,6 +1405,7 @@ const tableComponent = {
           },
           ajaxResponse: function (url, params, response) {
             console.log("ajax call complete", url, params, response);
+            that.pagination = response.links;
             //url - the URL of the request
             //params - the parameters passed with the request
             //response - the JSON object returned in the body of the response.
@@ -1369,6 +1506,8 @@ const tableComponent = {
     return {
       newColumnTypeToBeAdded: null,
       columnHeaderContextMenu: null,
+      pagination: {},
+      editRow: null,
       columnTypes: [
         {
           name: "label",
@@ -1477,6 +1616,7 @@ const tableComponent = {
       tableSchema: {ColumnModel: []},
       rows: [],
       tableData: null,
+      searchFilter: null,
       newRowDrawer: false,
       newRowData: [],
       selectedRows: [],

@@ -144,7 +144,7 @@ OutFields:`)
     },
     editAction() {
       const that = this;
-      console.log("Delete action", this.selectedAction);
+      console.log("edit action", this.selectedAction);
       this.newAction.tableName = "action";
       this.newAction.id = this.selectedAction.id;
       this.updateRow(this.newAction).then(function (res) {
