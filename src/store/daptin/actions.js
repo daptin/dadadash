@@ -313,8 +313,8 @@ export function loadModel({commit}, tableName) {
   return new Promise(function (resolve, reject){
     console.log("Load models", tableName)
     daptinClient.worldManager.loadModel(tableName, true).then(function (res){
-      console.log("models loaded", res)
-      resolve();
+      // console.log("models loaded", res)
+      resolve(res);
     }).catch(reject)
   });
 }
