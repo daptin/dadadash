@@ -2,34 +2,39 @@
   <q-page-container>
     <q-page>
 
-    <div class="row q-gutter-sm">
-      <div class="col-8 q-pa-md">
-        <q-btn @click="newGroupDrawer = true" label="Add Group" fab icon="add" color="primary"/>
-      </div>
-      <div class="col-12 q-pa-md">
-        <q-markup-table>
-          <tbody>
-          <tr style="cursor: pointer" @click="$router.push('/groups/' + group.reference_id)" v-for="group in groups">
-            <td>{{group.name}}</td>
-          </tr>
-          </tbody>
-        </q-markup-table>
-
-      </div>
-    </div>
-
-    <q-drawer overlay :width="500" content-class="bg-grey-3" side="right" v-model="newGroupDrawer">
-      <q-scroll-area class="fit row">
-        <div class="q-pa-md">
-          <span class="text-h6">Create group</span>
-          <q-form class="q-gutter-md">
-            <q-input label="Name" v-model="group.name"></q-input>
-            <q-btn color="primary" @click="createGroup()">Create</q-btn>
-            <q-btn @click="newGroupDrawer = false">Cancel</q-btn>
-          </q-form>
+      <div class="row q-gutter-sm">
+        <div class="col-8 q-pa-md">
+          <q-btn @click="newGroupDrawer = true" label="Add Group" fab icon="add" color="primary"/>
         </div>
-      </q-scroll-area>
-    </q-drawer>
+        <div class="col-12 q-pa-md">
+          <q-input v-model="filter"></q-input>
+        </div>
+        <div class="col-12 q-pa-md">
+          <q-markup-table>
+            <tbody>
+            <tr style="cursor: pointer"
+                v-if="!filter || filter =='' || group.name.indexOf(filter) > -1"
+                @click="$router.push('/groups/' + group.reference_id)" v-for="group in groups">
+              <td>{{ group.name }}</td>
+            </tr>
+            </tbody>
+          </q-markup-table>
+
+        </div>
+      </div>
+
+      <q-drawer overlay :width="500" content-class="bg-grey-3" side="right" v-model="newGroupDrawer">
+        <q-scroll-area class="fit row">
+          <div class="q-pa-md">
+            <span class="text-h6">Create group</span>
+            <q-form class="q-gutter-md">
+              <q-input label="Name" v-model="group.name"></q-input>
+              <q-btn color="primary" @click="createGroup()">Create</q-btn>
+              <q-btn @click="newGroupDrawer = false">Cancel</q-btn>
+            </q-form>
+          </div>
+        </q-scroll-area>
+      </q-drawer>
 
     </q-page>
 
@@ -38,82 +43,89 @@
 </template>
 
 <script>
-  import {mapActions, mapGetters, mapState} from 'vuex';
+import {mapActions, mapGetters, mapState} from 'vuex';
 
-  export default {
-    name: 'UserGroupsPage',
-    methods: {
-      editGroup(evt, group) {
-        console.log("Edit group", group)
-      },
-      createGroup() {
-        const that = this;
-        console.log("new group", this.group);
-        this.group.tableName = "usergroup";
-        that.createRow(that.group).then(function (res) {
-          that.user = {};
-          that.$q.notify({
-            message: "Group created"
-          });
-          that.refresh();
-          that.newGroupDrawer = false;
-        }).catch(function (e) {
-          if (e instanceof Array) {
-            that.$q.notify({
-              message: e[0].title
-            })
-          } else {
-            that.$q.notify({
-              message: "Failed to create group"
-            })
-          }
+export default {
+  name: 'UserGroupsPage',
+  methods: {
+    editGroup(evt, group) {
+      console.log("Edit group", group)
+    },
+    createGroup() {
+      const that = this;
+      console.log("new group", this.group);
+      this.group.tableName = "usergroup";
+      that.createRow(that.group).then(function (res) {
+        that.user = {};
+        that.$q.notify({
+          message: "Group created"
         });
-      },
-      ...mapActions(['loadData', 'getTableSchema', 'createRow']),
-      refresh() {
-        var tableName = "usergroup";
-        const that = this;
-        this.loadData({
-          tableName: tableName,
-          params: {
-            page: {
-              size: 500
-            }
-          }
-        }).then(function (data) {
-          console.log("Loaded data", data);
-          that.groups = data.data;
-        })
-      }
+        that.refresh();
+        that.newGroupDrawer = false;
+      }).catch(function (e) {
+        if (e instanceof Array) {
+          that.$q.notify({
+            message: e[0].title
+          })
+        } else {
+          that.$q.notify({
+            message: "Failed to create group"
+          })
+        }
+      });
     },
-    data() {
-      return {
-        text: '',
-        showHelp: false,
-        group: {},
-        filter: null,
-        newGroupDrawer: false,
-        groups: [],
-        columns: [
-          {
-            name: 'name',
-            field: 'name',
-            label: 'Group name',
-            align: 'left',
-            sortable: true,
-          }
-        ],
-        ...mapState([])
-      }
-    },
-    mounted() {
-      this.refresh();
-    },
-    computed: {
-      ...mapGetters(['selectedTable']),
+    ...mapActions(['loadData', 'getTableSchema', 'createRow']),
+    refresh() {
+      var tableName = "usergroup";
+      const that = this;
+      console.log("Filter groups", this.filter)
+      this.loadData({
+        tableName: tableName,
+        params: {
+          page: {
+            size: 2000
+          },
+          filter: this.filter,
+          sort: "name"
+        }
+      }).then(function (data) {
+        console.log("Loaded data", data);
+        that.groups = data.data;
+      })
+    }
+  },
+  data() {
+    return {
+      text: '',
+      showHelp: false,
+      group: {},
+      filter: null,
+      newGroupDrawer: false,
+      groups: [],
+      columns: [
+        {
+          name: 'name',
+          field: 'name',
+          label: 'Group name',
+          align: 'left',
+          sortable: true,
+        }
+      ],
       ...mapState([])
-    },
+    }
+  },
+  mounted() {
+    this.refresh();
+  },
+  computed: {
+    ...mapGetters(['selectedTable']),
+    ...mapState([])
+  },
 
-    watch: {}
+  watch: {
+    filter: function () {
+      this.refresh()
+    }
   }
+}
 </script>

@@ -108,11 +108,9 @@ export function refreshTables({commit, state}) {
 export function initDaptinClient({commit, state}) {
 
   return new Promise(function (resolve, reject) {
-    console.log("Platform ", Platform)
+    console.log("Platform ", Platform, state.endpoint)
 
-    let endpoint = window.location.hostname === "site.daptin.com" ? "http://localhost:6336" :
-      window.location.protocol + "//" + window.location.hostname + (window.location.port === "80" ?
-      "" : ':' + window.location.port);
+    let endpoint = state.endpoint;
 
     if (Platform.is.win) {
       let newEndpoint = localStorage.getItem("DAPTIN_ENDPOINT")

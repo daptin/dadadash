@@ -117,7 +117,7 @@
 
           <q-card-actions align="right" class="text-primary">
             <q-btn @click="showAddObjectToGroup = false" flat label="Cancel" v-close-popup/>
-            <q-btn @click="addObjectToGroup()" flat label="Add user" v-close-popup/>
+            <q-btn @click="addObjectToGroup()" flat label="Add" v-close-popup/>
           </q-card-actions>
         </q-card>
       </q-dialog>
@@ -173,6 +173,7 @@ export default {
   computed: {
     filteredTables() {
       const that = this;
+      console.log("All tables", that.tables())
       return that.tables().filter(function (e) {
         if (!that.relationFilter) {
           return !e.table_name.startsWith('tab_');

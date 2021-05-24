@@ -593,7 +593,7 @@ export default {
       column: 'count'
     }).then(function (res) {
       console.log("User account aggregates", res);
-      that.userAggregate = res.data[0];
+      that.userAggregate = res.data[0].attributes;
     });
 
 
@@ -602,7 +602,7 @@ export default {
       column: 'count'
     }).then(function (res) {
       console.log("cloud store aggregates", res);
-      that.cloudStoreAggregate = res.data[0];
+      that.cloudStoreAggregate = res.data[0].attributes;
     });
 
 
@@ -615,7 +615,7 @@ export default {
       var enableStat = null;
       var disableStat = null;
       for (var i in res.data) {
-        var stat = res.data[i];
+        var stat = res.data[i].attributes;
         if (stat.enable === true || stat.enable === 1) {
           enableStat = stat;
         } else {
@@ -640,14 +640,14 @@ export default {
       column: 'count',
     }).then(function (res) {
       console.log("Action aggregates", res);
-      that.actionAggregate = res.data[0];
+      that.actionAggregate = res.data[0].attributes;
     });
     that.loadAggregates({
       tableName: 'integration',
       column: 'count',
     }).then(function (res) {
       console.log("Integration aggregates", res);
-      that.integrationAggregate = res.data[0];
+      that.integrationAggregate = res.data[0].attributes;
     });
 
     that.loadServerConfig().then(function (res) {
