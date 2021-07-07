@@ -64,6 +64,11 @@ export function baseItemTypes() {
       type: "document",
       icon: 'fas fa-file-alt'
     },
+    "yjsdocument": {
+      label: "Collaborative editor",
+      type: "yjsdocument",
+      icon: 'fas fa-file-contract'
+    },
     "folder": {
       label: "Folder",
       type: "folder",

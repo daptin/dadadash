@@ -105,7 +105,7 @@
                 <q-item :disable="item.disabled" clickable @click="addBaseItem(item)" v-close-popup
                         v-for="item in baseItemTypes"
                         :key="item.label">
-                  <q-item-section>{{ item.label }}</q-item-section>
+                  <q-item-section>{{ item.label }} {{ item.icon }}</q-item-section>
                   <q-item-section avatar>
                     <q-icon :name="item.icon"></q-icon>
                   </q-item-section>

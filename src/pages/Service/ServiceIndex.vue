@@ -1,6 +1,6 @@
 <template>
   <q-layout>
-    <q-drawer side="left" overlay elevated v-model="indexDrawer">
+    <q-drawer side="left" v-model="indexDrawer">
       <div class="q-pa-md">
         <q-tree
           :nodes="simple"
@@ -8,16 +8,6 @@
           selected-color="primary"
           :selected.sync="selected"
           default-expand-all
-        />
-      </div>
-      <div class="q-mini-drawer-hide absolute" style="top: 15px; right: -17px">
-        <q-btn
-          dense
-          round
-          unelevated
-          color="accent"
-          icon="chevron_left"
-          @click="indexDrawer = false"
         />
       </div>
     </q-drawer>
@@ -29,13 +19,16 @@
           <div class="row ">
 
 
-            <div class="col-12 q-pa-md">
+            <div class="col-6 q-pa-md">
               <img @click="indexDrawer=true" class="q-pa-sm"
                    style="width: 50px;height: 50px;margin-right: -13px; margin-top: 15px"
                    src="statics/icons/app-logo-128x128.png"/>
               <span class="text-h3 q-pa-md">Daptin</span>
             </div>
-            <div class="col-12 q-pa-md">
+
+          </div>
+          <div class="row">
+            <div class="col-6 q-pa-md">
 
 
               <q-tab-panels

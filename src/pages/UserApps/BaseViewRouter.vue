@@ -268,6 +268,8 @@ export default {
 
       that.baseItem.document_content[0].contents = "application/json," + btoa(JSON.stringify(originalContent));
       that.baseItem.tableName = "document";
+      delete that.baseItem["user_account_id"];
+      console.log("save content with data", that.baseItem)
       that.updateRow(that.baseItem).then(function (res) {
         console.log("base item content updated")
       }).catch(function (err) {
@@ -329,6 +331,7 @@ export default {
         'view': 'edit-data-table',
         'table': 'edit-data-table',
         'document': 'document-editor',
+        'yjsdocument': 'collaborative-editor',
         'folder': 'file-browser',
         'spreadsheet': 'spreadsheet-editor',
         'mermaid_graph': 'mermaid-graph-editor',

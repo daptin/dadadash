@@ -33,6 +33,7 @@ import HorizontalScroll from 'vue-horizontal-scroll'
 import VueCodemirror from 'vue-codemirror'
 import DataActionBlock from "pages/Components/DataActionBlock";
 import DataActionNode from "pages/Components/DataActionNode";
+import CkDocumentEditor from "pages/UserApps/CkDocumentEditor";
 // import VueAutosuggest from "vue-autosuggest";
 
 // import VueQuillEditor from 'vue-quill-editor'
@@ -61,7 +62,8 @@ Vue.component('workspace-view', WorkspaceView);
 Vue.component('add-base-view', AddBaseView);
 Vue.component('base-view-router', BaseViewRouter);
 Vue.component('calendar-view', CalendarComponent);
-Vue.component('document-editor', DocumentEditorComponent);
+Vue.component('collaborative-editor', DocumentEditorComponent);
+Vue.component('document-editor', CkDocumentEditor);
 Vue.component('mermaid-graph-editor', MermaidGraphEditor);
 Vue.component('spreadsheet-editor', SpreadsheetEditor);
 Vue.component('edit-data-table', EditDataTableComponent);

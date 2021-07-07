@@ -616,7 +616,7 @@ const tableComponent = {
       let formatter = null;
       let editor = true;
       let width = 200
-      if (col.ColumnType === "content" || col.ColumnType === "json") {
+      if (col.ColumnType === "content" || col.ColumnType === "json" || col.ColumnType === "text") {
         formatter = "textarea"
         width = 300
       } else if (col.ColumnType === "truefalse") {
@@ -1075,7 +1075,7 @@ const tableComponent = {
         //   that.rows = data.data;
         let columns = Object.keys(that.tableSchema.ColumnModel).map(function (columnName) {
           var col = that.tableSchema.ColumnModel[columnName];
-          // console.log("Make column ", col);
+          console.log("Make column ", col.ColumnName, col.ColumnType);
 
           if (col.ColumnName === "__type" || that.defaultColumns.indexOf(col.ColumnName) > -1) {
             return null;
