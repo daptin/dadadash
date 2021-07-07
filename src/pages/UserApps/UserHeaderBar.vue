@@ -2,7 +2,7 @@
 
   <q-header reveal class="print-hide" position="top" expand>
     <q-bar style="height: 48px" v-if="decodedAuthToken() !== null">
-      <q-btn  flat @click="$emit('toggle-left-drawer')" icon="menu"></q-btn>
+<!--      <q-btn  flat @click="$emit('toggle-left-drawer')" icon="menu"></q-btn>-->
       <q-btn v-if="onBack !==  false" flat @click="onBack ? onBack() : $router.back()" icon="fas fa-arrow-left"></q-btn>
       <q-btn :key="btn.icon" v-for="btn in buttons.beforeTitle" flat @click="buttonClicked(btn)"
              :icon="btn.icon"></q-btn>
