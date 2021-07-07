@@ -47,6 +47,7 @@ jobs:
         uses: oxr463/setup-cordova@0.0.2
         with:
           exec: |
+            chmod -R 0777 /opt/android-sdk-linux
             npm install -g @quasar/cli
             npm install
             npm run build-android
