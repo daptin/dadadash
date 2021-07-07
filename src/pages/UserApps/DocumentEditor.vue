@@ -96,14 +96,17 @@
     display: none !important;
     visibility: hidden !important;
   }
+
   #page {
     margin-left: -50px;
     margin-top: -50px;
     z-index: 999;
   }
+
   .ql-container.ql-snow {
     border: none !important;
   }
+
   .q-tab-panels {
     padding-top: 0 !important;
   }
@@ -230,7 +233,9 @@ export default {
         let token = that.authToken();
         console.log("Token", token)
         const provider = new WebsocketProvider(
-          (window.location.protocol === "https:" ? "wss:" : "ws:") +  '//' + window.location.host + '/live/document/' + that.baseItem.reference_id + "/document_content",
+          (window.location.protocol === "https:" ? "wss:" : "ws:")
+          + '//' + that.endpoint() + '/live/document/'
+          + that.baseItem.reference_id + "/document_content",
           "yjs?token=" + token,
           ydoc
         );
