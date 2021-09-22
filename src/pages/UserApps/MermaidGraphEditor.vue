@@ -1,15 +1,14 @@
 <template>
 
   <q-page-container style="padding-top: 0">
-    <q-page style="height:calc(100vh  - 75px);">
-      <div class="row">
-        <div style="border-left: 1px solid black" class="col-12">
-          <div class="row">
-            <div class="col-6  col-lg-6 col-xl-6 col-sm-12 col-xs-12 print-hide">
-              <div class="row">
-                <div class="col-12 q-pa-sm">
-                  <q-btn color="dark" label="Insert diagram template">
-
+    <q-page style="min-height:calc(100vh  - 50%);">
+          <q-splitter
+            v-model="splitterModel"
+          >
+            <template v-slot:before>
+              <div class="q-pa-sm" >
+                <div class="col-12">
+                  <q-btn label="Insert diagram template">
                     <q-menu auto-close fit>
                       <q-list style="min-width: 100px">
                         <q-item clickable @click="setDiagramFromTemplate(template)"
@@ -20,20 +19,18 @@
                     </q-menu>
                   </q-btn>
                 </div>
-                <div style="min-height: 60vh;" class="col-12 q-pa-sm">
+                <div class="q-pa-sm">
                   <codemirror style="width: 100%" :options="cmOptions" ref="editor"></codemirror>
                 </div>
               </div>
+            </template>
 
-            </div>
-            <div class="col-6 col-lg-6 col-xl-6 col-sm-12 col-xs-12 q-pa-sm" style="min-height: calc(100vh - 100px);">
-              <div class="mermaid" style="height: calc(100vh - 200px)">
+            <template v-slot:after>
+              <div class="mermaid" style="min-height: 50vh">
               </div>
-            </div>
-          </div>
-        </div>
+            </template>
 
-      </div>
+          </q-splitter>
     </q-page>
   </q-page-container>
 
@@ -46,7 +43,7 @@
 var randomColor = require('randomcolor'); // import the script
 import mermaid from 'mermaid';
 import {mapActions, mapGetters} from "vuex";
-
+import {ref} from 'vue'
 import 'codemirror/lib/codemirror.css'
 import 'codemirror/theme/3024-day.css'
 
@@ -80,11 +77,12 @@ export default {
       editor: null,
       ydoc: null,
       ytext: null,
+      splitterModel: 50,
       cmOptions: {
         theme: '3024-day',
         lineNumbers: true,
         mode: "markdown",
-        height: '600px',
+        height: '400px',
         line: true,
       },
       showSideBar: true,
@@ -294,7 +292,7 @@ export default {
     ...mapActions(['createRow', "loadData", "updateRow"]),
   },
   computed: {
-    ...mapGetters(["authToken", 'decodedAuthToken']),
+    ...mapGetters(["endpoint", "authToken", 'decodedAuthToken']),
   },
 
   watch: {},
@@ -325,9 +323,12 @@ export default {
 
       // console.log("Auth token is ", that.authToken, that.authToken())
 
+      let endpoint = that.endpoint;
+      endpoint = endpoint.substring(endpoint.indexOf("//"))
+
       const ydoc = new Y.Doc()
       const provider = new WebsocketProvider(
-        (window.location.protocol === "https:" ? "wss:" : "ws:") +  '//' + window.location.host + '/live/document/' + this.baseItem.reference_id + "/document_content",
+        (window.location.protocol === "https:" ? "wss:" : "ws:") + '//' + endpoint + '/live/document/' + this.baseItem.reference_id + "/document_content",
         "yjs?token=" + that.authToken,
         ydoc
       )
