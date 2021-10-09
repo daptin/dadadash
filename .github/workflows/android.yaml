@@ -13,7 +13,7 @@ jobs:
 
     strategy:
       matrix:
-        os: [ ubuntu-18.04 ]
+        os: [ ubuntu-latest ]
 
     steps:
       - name: Check out Git repository
@@ -44,6 +44,8 @@ jobs:
 
       - name: Use oxr463/setup-cordova
         uses: oxr463/setup-cordova@0.0.2
+        env:
+          JAVA_HOME: ${{ env.JAVA_HOME_8_X64 }}
         with:
           exec: |
             chmod -R 0777 /opt/android-sdk-linux
