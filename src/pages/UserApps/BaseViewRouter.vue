@@ -83,12 +83,14 @@ export default {
             targetTable: targetTableConfig
           }))
           baseItem.tableName = "document";
+          delete baseItem["user_account_id"];
           promises.push(that.updateRow(baseItem))
         }
       }
 
       return new Promise(function (resolve, reject) {
         Promise.all(promises).then(function () {
+          console.log("All promises completed", updateSchema)
           if (updateSchema.Tables.length > 0) {
             that.$q.loadingBar.start();
 
@@ -101,7 +103,7 @@ export default {
               params: {
                 schema_file: [{
                   contents: "application/json," + btoa(JSON.stringify(updateSchema)),
-                  name: that.baseName + ".json"
+                  name: that.baseConfig.name + ".json"
                 }]
               }
             }).then(function (res) {

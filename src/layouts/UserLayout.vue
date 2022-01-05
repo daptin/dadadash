@@ -78,7 +78,6 @@ export default {
       showOfflineDialog: false,
       showAdminDrawerMini: false,
       showAdminDrawerStick: false,
-      ...mapGetters(['loggedIn', 'drawerLeft', 'authToken', 'decodedAuthToken', 'userGroupTable']),
       essentialLinks: [],
       drawer: false,
       userDrawer: true,
@@ -86,6 +85,7 @@ export default {
       miniState: true,
       isAdmin: false,
       isUser: false,
+      ...mapGetters(['loggedIn', 'drawerLeft', 'authToken', 'decodedAuthToken', 'userGroupTable']),
     }
   },
   mounted() {
@@ -100,11 +100,11 @@ export default {
         });
         that.setDecodedAuthToken(null);
         that.logout();
-        this.$router.push("/login");
+        that.$router.push("/login");
         return
       }
     } else {
-      this.$router.push("/login");
+      that.$router.push("/login");
       return
     }
 
@@ -158,8 +158,8 @@ export default {
           }).catch(function (err) {
             console.log("Failed to become admin", err);
             that.loaded = true;
-            this.$router.push("/login");
-            return
+            // that.$router.push("/login");
+            // return
           })
         }
 

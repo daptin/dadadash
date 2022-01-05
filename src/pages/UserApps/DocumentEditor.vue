@@ -232,9 +232,11 @@ export default {
         const ydoc = new Y.Doc()
         let token = that.authToken();
         console.log("Token", token)
+        let endpoint = that.endpoint();
+        endpoint = endpoint.substring(endpoint.indexOf("//"))
         const provider = new WebsocketProvider(
           (window.location.protocol === "https:" ? "wss:" : "ws:")
-          + '//' + that.endpoint() + '/live/document/'
+          + '//' + endpoint + '/live/document/'
           + that.baseItem.reference_id + "/document_content",
           "yjs?token=" + token,
           ydoc
