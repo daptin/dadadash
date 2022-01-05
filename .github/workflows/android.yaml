@@ -13,7 +13,7 @@ jobs:
 
     strategy:
       matrix:
-        os: [ ubuntu-latest ]
+        os: [ ubuntu-18.04 ]
 
     steps:
       - name: Check out Git repository
@@ -40,11 +40,6 @@ jobs:
             echo "decode passphrase"
             gpg -d --passphrase "$RELEASE_KEYSTORE_PASSPHRASE" --batch keys/quasar-release-key.jks.asc > keys/quasar-release-key.jks
             echo "finishing decoding passphrase"
-
-      - uses: actions/setup-java@v2
-        with:
-          distribution: 'zulu' # See 'Supported distributions' for available options
-          java-version: '8'
 
 
       - name: Use oxr463/setup-cordova
