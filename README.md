@@ -1,6 +1,6 @@
 # Dadadash
 
-## Try it now
+## Try it now.
 
 [![Deploy](https://www.herokucdn.com/deploy/button.svg)](https://dashboard.heroku.com/new?template=https%3A%2F%2Fgithub.com%2Fdaptin%2Fdadadash%2F)
 
