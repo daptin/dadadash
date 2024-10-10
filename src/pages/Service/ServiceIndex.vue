@@ -113,8 +113,6 @@ const {Octokit} = require("@octokit/rest");
 
 import axios from "axios";
 
-var request = require('request');
-var fs = require('fs');
 const octokit = new Octokit();
 
 const DEFAULT_DOWNLOAD_CONFIG = require("./default-download-config.json");

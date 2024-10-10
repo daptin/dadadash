@@ -1,10 +1,17 @@
-FROM daptin/daptin:travis
+# develop stage
+FROM node:14.16 as develop-stage
+WORKDIR /app
+COPY package*.json ./
+RUN npm install -g @quasar/cli@1.4.0
+COPY . .
 
-#RUN mkdir -p /opt/daptin/storage/documents
-#ADD dist/spa /opt/daptin/dashboard
-#ENV DAPTIN_DASHBOARD /opt/daptin/dashboard
-#ENV DAPTIN_PORT_VARIABLE PORT
+# build stage
+FROM develop-stage as build-stage
+RUN npm install
+RUN quasar build -m spa
 
-#RUN chmod +x /opt/daptin/daptin
-#CMD /opt/daptin/daptin -dashboard /opt/daptin/dashboard -port :8080
-#ENTRYPOINT ["/opt/daptin/daptin", "-runtime", "release", "-port", ":8080"]
+# production stage
+FROM nginx:1.17.5-alpine as production-stage
+COPY --from=build-stage /app/dist/spa /usr/share/nginx/html
+EXPOSE 80
+CMD ["nginx", "-g", "daemon off;"]

@@ -34,7 +34,7 @@ Office application suite
 
 #### Install the dependencies
 ```bash
-npm install -g @quasar/cli && npm install && npm run build
+npm install -g @quasar/cli@1.4.0 && npm install && npm run build
 docker build -t dadadash
 docker run -p 8080:8080 dadadash
 ```

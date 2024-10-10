@@ -334,7 +334,7 @@
                   </div>
                   <div class="row q-pa-sm">
                     <div class="col-6">
-                      <span class="text-bold">Allowed rate limit</span>
+                      <span class="text-bold">Rate limit</span>
                     </div>
                     <div class="col-4 text-right" v-if="!editRateLimit" @click="editRateLimit = true"
                          style="text-decoration-line: underline; text-decoration-style: dashed">

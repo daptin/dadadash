@@ -26,7 +26,7 @@ jobs:
       - name: Install Libraries
         shell: bash
         run: |
-          npm install -g @quasar/cli
+          npm install -g @quasar/cli@1.4.0
           npm install -g cordova
           npm install
 

@@ -134,7 +134,7 @@ export default {
       baseItemComponentMap: {
         'view': 'edit-data-table',
         'table': 'edit-data-table',
-        'document': 'document-editor',
+        // 'document': 'document-editor',
         'folder': 'file-browser',
         'spreadsheet': 'spreadsheet-editor',
         'calendar': 'calendar-view',

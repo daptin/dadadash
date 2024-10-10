@@ -91,6 +91,27 @@ module.exports = function (ctx) {
       // https://quasar.dev/quasar-cli/cli-documentation/handling-webpack
       extendWebpack(cfg) {
 
+        // cfg.resolve.fallback = {
+        //   stream: require.resolve('stream-browserify'),
+        //   crypto: require.resolve('crypto-browserify'),
+        //   vm: require.resolve('vm-browserify'),
+        //   http: require.resolve('http-browserify'),
+        //   https: require.resolve('https-browserify'),
+        // }
+
+        cfg.module.rules.push({
+          test: /\.mjs$/, // This will apply to .mjs files like yjs.mjs
+          type: 'javascript/auto',
+          use: {
+            loader: 'babel-loader',
+            options: {
+              presets: [
+                ['@babel/preset-env', { targets: "defaults" }]
+              ]
+            }
+          }
+        });
+
         cfg.plugins.push(
           new webpack.ProvidePlugin({
             'window.Quill': 'quill/dist/quill.js',

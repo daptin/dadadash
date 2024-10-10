@@ -332,11 +332,10 @@ export default {
       baseItemComponentMap: {
         'view': 'edit-data-table',
         'table': 'edit-data-table',
-        'document': 'document-editor',
-        'yjsdocument': 'collaborative-editor',
+        // 'document': 'document-editor',
         'folder': 'file-browser',
         'spreadsheet': 'spreadsheet-editor',
-        'mermaid_graph': 'mermaid-graph-editor',
+        // 'mermaid_graph': 'mermaid-graph-editor',
         'calendar': 'calendar-view',
       },
       targetTable: null,
