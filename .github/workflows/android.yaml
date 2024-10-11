@@ -51,7 +51,7 @@ jobs:
         with:
           exec: |
             chmod -R 0777 /opt/android-sdk-linux
-            npm install -g @quasar/cli
+            npm install -g @quasar/cli@1.4.0
             npm install
             npm run build-android
             find . | grep apk
