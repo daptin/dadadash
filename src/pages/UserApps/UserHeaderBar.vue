@@ -1,6 +1,6 @@
 <template>
 
-  <q-header reveal class="print-hide" position="top" expand>
+  <q-header reveal class="print-hide bg-black" position="top" expand>
     <q-bar style="height: 48px" v-if="decodedAuthToken() !== null">
 <!--      <q-btn  flat @click="$emit('toggle-left-drawer')" icon="menu"></q-btn>-->
       <q-btn v-if="onBack !==  false" flat @click="onBack ? onBack() : $router.back()" icon="fas fa-arrow-left"></q-btn>
@@ -69,35 +69,36 @@
         </q-menu>
 
       </q-btn>
-      <q-btn size="0.8em" class="profile-image" flat :icon="'img:' + decodedAuthToken().picture">
+      <q-btn size="0.8em" class="profile-image" flat icon="person">
         <q-menu>
           <div class="row no-wrap q-pa-md">
 
             <div class="column items-center">
-              <q-avatar>
-                <img :src="decodedAuthToken().picture">
-              </q-avatar>
+<!--              <q-avatar>-->
+<!--                <q-icon name="person"></q-icon>-->
+<!--              </q-avatar>-->
 
-              <div class="text-subtitle1 q-mt-md q-mb-xs">{{ decodedAuthToken().name }}</div>
+              <div class="text-subtitle1 q-mt-md q-mb-md">{{ decodedAuthToken().name }}</div>
 
-              <q-btn-group>
-                <q-btn
-                  label="Dark mode"
-                  push
-                  rounded
-                  :dark-percentage="true"
-                  @click="$q.dark.toggle()"
-                  size="sm"
-                />
+<!--              <q-btn-group>-->
+<!--                <q-btn-->
+<!--                  label="Dark mode"-->
+<!--                  push-->
+<!--                  rounded-->
+<!--                  :dark-percentage="true"-->
+<!--                  @click="$q.dark.toggle()"-->
+<!--                  size="sm"-->
+<!--                />-->
                 <q-btn
                   label="Logout"
                   push
                   rounded
+                  class="bg-black text-white"
                   @click="triggerLogout()"
-                  size="sm"
+                  size="md"
                   v-close-popup
                 />
-              </q-btn-group>
+<!--              </q-btn-group>-->
             </div>
           </div>
         </q-menu>

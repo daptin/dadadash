@@ -6,7 +6,7 @@
       :mini-width="50"
       :width="250"
       :mini="showAdminDrawerStick"
-      :breakpoint="1400"
+      :breakpoint="0"
       content-class=""
       elevated>
       <q-scroll-area class="fit">
@@ -47,23 +47,22 @@ text-align: center;
                   </q-item-label>
                 </q-item-section>
               </q-item>
+              <q-item :inset-level="1" clickable v-ripple @click="$router.push('/integrations/actions')">
+                <q-item-section avatar>
+                  <q-icon name="fas fa-wrench"></q-icon>
+
+                </q-item-section>
+                <q-item-section>
+                  <q-item-label>
+                    Actions
+                  </q-item-label>
+                </q-item-section>
+              </q-item>
 
 
             </q-list>
 
           </q-expansion-item>
-
-          <q-item clickable
-                  @click="$router.push('/workspace')"
-          >
-            <q-item-section avatar>
-              <q-icon name="fas fa-briefcase"></q-icon>
-            </q-item-section>
-            <q-item-section>
-              Workspace
-            </q-item-section>
-
-          </q-item>
 
           <q-expansion-item
             expand-icon-class="text-white"
@@ -169,17 +168,6 @@ text-align: center;
                 <q-item-section>
                   <q-item-label>
                     API Catalogue
-                  </q-item-label>
-                </q-item-section>
-              </q-item>
-              <q-item :inset-level="1" clickable v-ripple @click="$router.push('/integrations/actions')">
-                <q-item-section avatar>
-                  <q-icon name="fas fa-wrench"></q-icon>
-
-                </q-item-section>
-                <q-item-section>
-                  <q-item-label>
-                    Actions
                   </q-item-label>
                 </q-item-section>
               </q-item>

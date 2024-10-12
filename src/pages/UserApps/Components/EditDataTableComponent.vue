@@ -1,17 +1,33 @@
+
 <template>
   <q-page-container style="padding-top: 0;">
     <q-page style="overflow: hidden">
 
-      <div v-if="decodedAuthToken" class="row" style="">
-        <div style="padding-left: 5px; width: 100% ;">
-          <q-input @keypress.enter="filterRows()" v-model="searchQuery" label="filter"></q-input>
-          <span style="font-size: 12px" class="text-bold">Total {{ pagination.total }} records | Showing {{spreadsheet.getDataCount()}}</span>
-          <q-btn size="sm" @click="showEditRow()" icon="fas fa-plus " flat label="New row"></q-btn>
-          <q-btn size="sm" icon="fas fa-lock" @click="showPermissionsDrawer()" color="warning" flat
-                 label="Table Permissions"></q-btn>
-          <q-btn size="sm" icon="fas fa-sync" @click="refreshData()" flat label="Refresh data">
+      <div v-if="decodedAuthToken" class="row" style="height: 70px">
+        <div style="padding-left: 0px; width: 100%;">
+          <div class="row" style="height: 50px">
+            <div class="col-4">
+              <q-input inputClass="search-input" dense hideBottomSpace
+                        clearable="clearable"
+                       standout="standout"
+                       icon="search"
+                       class="search-input-container"
+                       placeholder="Search..."
+                       size="md" @keypress.enter="filterRows()" v-model="searchQuery">
+                <template v-slot:prepend>
+                  <q-icon name="search" />
+                </template>
+              </q-input>
+            </div>
+            <div class="col-4">
+              <q-btn size="md" @click="showEditRow()" icon="fas fa-plus " flat></q-btn>
+              <q-btn size="md" icon="fas fa-lock" @click="showPermissionsDrawer()" flat></q-btn>
+              <q-btn size="md" icon="fas fa-sync" @click="refreshData()" flat></q-btn>
+            </div>
+          </div>
 
-          </q-btn>
+          <span style="font-size: 12px; border-top: 1px solid black; width: 100%; height: 20px"
+                class="text-bold row">Total {{ pagination.total }} records | Showing {{spreadsheet.getDataCount()}}</span>
 
           <q-btn v-if="selectedRows.length > 0" @click="deleteSelectedRows" flat color="red" size="sm">Delete selected
             rows
@@ -38,14 +54,14 @@
       content-class="bg-grey-3"
     >
       <q-scroll-area class="fit">
-        <div class="q-pa-md">
+        <div class="q-pa-sm">
           <span class="text-h6">New {{ $route.params.tableName }}</span>
-          <q-form class="q-gutter-md">
+          <q-form>
 
-            <div class="q-pa-md" v-for="column in newRowData">
+            <div class="q-pa-sm" v-for="column in newRowData">
               <q-input
                 :label="column.meta.ColumnName"
-                v-if="['label', 'measurement', 'value', 'email'].indexOf(column.meta.ColumnType) > -1"
+                v-if="['label', 'measurement', 'value', 'email', ''].indexOf(column.meta.ColumnType) > -1"
                 filled
                 v-model="column.value"
                 :value="column.DefaultValue"
@@ -108,10 +124,12 @@
 
               <span v-if="['content', 'json'].indexOf(column.meta.ColumnType) > -1 ">{{ column.meta.ColumnName }}</span>
               <codemirror
+                style="max-width: 460px;"
                 :options='{
                   theme: "3024-day",
                   lineNumbers: true,
                   mode: "markdown",
+                  width: "400px",
                   height: "600px",
                   line: true,
                 }'
@@ -132,9 +150,9 @@
             </div>
 
 
-            <div>
-              <q-btn label="Save" class="float-right" @click="onNewRow" color="primary"/>
-              <q-btn label="Cancel" @click="onCancelNewRow" color="primary" flat class="q-ml-sm"/>
+            <div class="q-pa-sm">
+              <q-btn label="Cancel" @click="onCancelNewRow" color="negative" flat class="q-ml-sm float-right"/>
+              <q-btn label="Save" class="float-left" @click="onNewRow" color="primary"/>
             </div>
           </q-form>
 
@@ -174,6 +192,19 @@
 <style>
 /*@import "~tabulator-tables/dist/css/tabulator.min.css";*/
 @import "~tabulator-tables/dist/css/tabulator_simple.min.css";
+@import "~codemirror/lib/codemirror.css";
+@import "~codemirror/theme/3024-day.css";
+
+.search-input-container {
+  height: 25px;
+  padding-top: 0px;
+  border-bottom: 0;
+}
+
+
+.search-input {
+  border: 0;
+}
 
 
 .tabulator-menu {
@@ -1295,7 +1326,7 @@ const tableComponent = {
           },
           rowClick: function (e, row) {
             console.log("Row clicked", row, that.newRowData);
-            that.showEditRow(row._row.data);
+            // that.showEditRow(row._row.data);
             // row.toggleSelect();
           },
           cellDblClick: function (e, cell) {
