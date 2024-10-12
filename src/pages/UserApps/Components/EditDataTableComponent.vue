@@ -4,7 +4,7 @@
 
       <div v-if="decodedAuthToken" class="row" style="height: 70px">
         <div style="padding-left: 0px; width: 100%;">
-          <div class="row" style="height: 50px">
+          <div class="row q-pa-xs" style="height: 50px">
             <div class="col-4">
               <q-input v-model="searchQuery" class="search-input-container" clearable="clearable"
                        dense
@@ -18,7 +18,7 @@
                 </template>
               </q-input>
             </div>
-            <div class="col-4 q-pa-xs">
+            <div class="col-4">
               <q-btn flat icon="fas fa-plus" size="md" @click="showEditRow()"></q-btn>
               <q-btn flat icon="fas fa-lock" size="md" @click="showPermissionsDrawer()"></q-btn>
               <q-btn flat icon="fas fa-sync" size="md" @click="refreshData()"></q-btn>
