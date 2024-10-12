@@ -1,4 +1,3 @@
-
 <template>
   <q-page-container style="padding-top: 0;">
     <q-page style="overflow: hidden">
@@ -7,31 +6,31 @@
         <div style="padding-left: 0px; width: 100%;">
           <div class="row" style="height: 50px">
             <div class="col-4">
-              <q-input inputClass="search-input" dense hideBottomSpace
-                        clearable="clearable"
-                       standout="standout"
+              <q-input v-model="searchQuery" class="search-input-container" clearable="clearable"
+                       dense
+                       hideBottomSpace
                        icon="search"
-                       class="search-input-container"
+                       inputClass="search-input"
                        placeholder="Search..."
-                       size="md" @keypress.enter="filterRows()" v-model="searchQuery">
+                       size="md" standout="standout" @keypress.enter="filterRows()">
                 <template v-slot:prepend>
-                  <q-icon name="search" />
+                  <q-icon name="search"/>
                 </template>
               </q-input>
             </div>
-            <div class="col-4">
-              <q-btn size="md" @click="showEditRow()" icon="fas fa-plus " flat></q-btn>
-              <q-btn size="md" icon="fas fa-lock" @click="showPermissionsDrawer()" flat></q-btn>
-              <q-btn size="md" icon="fas fa-sync" @click="refreshData()" flat></q-btn>
+            <div class="col-4 q-pa-xs">
+              <q-btn flat icon="fas fa-plus" size="md" @click="showEditRow()"></q-btn>
+              <q-btn flat icon="fas fa-lock" size="md" @click="showPermissionsDrawer()"></q-btn>
+              <q-btn flat icon="fas fa-sync" size="md" @click="refreshData()"></q-btn>
+              <q-btn :disabled="selectedRows.length === 0" color="red" flat icon="fas fa-trash" @click="deleteSelectedRows"></q-btn>
             </div>
           </div>
 
-          <span style="font-size: 12px; border-top: 1px solid black; width: 100%; height: 20px"
-                class="text-bold row">Total {{ pagination.total }} records | Showing {{spreadsheet.getDataCount()}}</span>
+          <span class="text-bold row"
+                style="font-size: 12px; border-top: 1px solid black; width: 100%; height: 20px">Total {{
+              pagination.total
+            }} records | Showing {{ spreadsheet.getDataCount() }}</span>
 
-          <q-btn v-if="selectedRows.length > 0" @click="deleteSelectedRows" flat color="red" size="sm">Delete selected
-            rows
-          </q-btn>
         </div>
         <q-separator></q-separator>
       </div>
@@ -45,87 +44,107 @@
     </q-page>
 
     <q-drawer
-      side="right"
       v-model="newRowDrawer"
-      bordered
-      overlay
-      :width="500"
       :breakpoint="500"
+      :width="500"
+      bordered
       content-class="bg-grey-3"
+      overlay
+      side="right"
     >
       <q-scroll-area class="fit">
         <div class="q-pa-sm">
-          <span class="text-h6">New {{ $route.params.tableName }}</span>
+
+          <div class="row">
+
+          </div>
           <q-form>
-
-            <div class="q-pa-sm" v-for="column in newRowData">
-              <q-input
-                :label="column.meta.ColumnName"
-                v-if="['label', 'measurement', 'value', 'email', ''].indexOf(column.meta.ColumnType) > -1"
-                filled
-                v-model="column.value"
-                :value="column.DefaultValue"
-              />
-
-
-              <q-select
-                filled
-                v-model="column.value"
-                v-if="['entity'].indexOf(column.meta.ColumnType) > -1 && (column.meta.jsonApi === 'belongsTo' || column.meta.jsonApi === 'hasOne')"
-                :label="column.meta.ColumnName"
-                :options="column.options"
-                :loading="column.loading"
-                use-input
-                @filter="function(x, y, z){onEntitySelectScroll(x, y, z, column)}"
-              />
-
-              <q-btn-dropdown
-                v-if="['enum'].indexOf(column.meta.ColumnType) > -1"
-                :label="column.value || column.meta.ColumnName">
-                <q-list>
-                  <q-item :key="option.value"
-                          v-for="option in column.meta.Options"
-                          clickable v-close-popup @click="column.value = option.Value">
-                    <q-item-section>
-                      <q-item-label>{{ option.Label }}</q-item-label>
-                    </q-item-section>
-                  </q-item>
-
-                </q-list>
-              </q-btn-dropdown>
-
-              <q-file
-                filled bottom-slots v-model="column.value" :label="column.meta.ColumnName"
-                v-if="column.meta.ColumnType.startsWith('file.')"
-                counter>
-                <template v-slot:prepend>
-                  <q-icon name="cloud_upload" @click.stop/>
-                </template>
-                <template v-slot:append>
-                  <q-icon name="close" @click.stop="column.value = null" class="cursor-pointer"/>
-                </template>
-              </q-file>
+            <div class="row">
+              <div class="col-12">
+                <div class="q-card">
+                  <div class="row">
+                    <div class="col-12 q-px-md">
+                      <h4 class="text-h6">{{ $route.params.tableName }}</h4>
+                      <q-btn class="float-right" color="negative" flat label="Cancel" @click="onCancelNewRow"/>
+                      <q-btn class="float-left" color="primary" label="Save" @click="onNewRow"/>
+                    </div>
+                  </div>
+                  <div class="card-body q-py-md p-px-md">
+                    <div class="row">
+                      <div class="col-12">
+                        <div v-for="column in newRowData" class="q-pa-sm q-gutter-sm">
+                          <q-input
+                            v-if="['label', 'measurement', 'value', 'email', ''].indexOf(column.meta.ColumnType) > -1"
+                            v-model="column.value"
+                            :label="column.meta.ColumnName"
+                            :value="column.DefaultValue"
+                            filled
+                          />
 
 
-              <q-input
-                :label="column.meta.ColumnName"
-                type="password"
-                v-if="['password'].indexOf(column.meta.ColumnType) > -1"
-                filled
-                v-model="column.value"
-              />
+                          <q-select
+                            v-if="['entity'].indexOf(column.meta.ColumnType) > -1 && (column.meta.jsonApi === 'belongsTo' || column.meta.jsonApi === 'hasOne')"
+                            v-model="column.value"
+                            :label="column.meta.ColumnName"
+                            :loading="column.loading"
+                            :options="column.options"
+                            filled
+                            use-input
+                            @filter="function(x, y, z){onEntitySelectScroll(x, y, z, column)}"
+                          />
 
-              <q-toggle
-                :label="column.meta.ColumnName"
-                class="text-right"
-                v-if="column.meta.ColumnType === 'truefalse'"
-                v-model="column.value"
-              />
+                          <q-btn-dropdown
+                            v-if="['enum'].indexOf(column.meta.ColumnType) > -1"
+                            :label="column.value || column.meta.ColumnName">
+                            <q-list>
+                              <q-item v-for="option in column.meta.Options"
+                                      :key="option.value"
+                                      v-close-popup clickable @click="column.value = option.Value">
+                                <q-item-section>
+                                  <q-item-label>{{ option.Label }}</q-item-label>
+                                </q-item-section>
+                              </q-item>
 
-              <span v-if="['content', 'json'].indexOf(column.meta.ColumnType) > -1 ">{{ column.meta.ColumnName }}</span>
-              <codemirror
-                style="max-width: 460px;"
-                :options='{
+                            </q-list>
+                          </q-btn-dropdown>
+
+                          <q-file
+                            v-if="column.meta.ColumnType.startsWith('file.')" v-model="column.value"
+                            :label="column.meta.ColumnName" bottom-slots
+                            counter
+                            filled>
+                            <template v-slot:prepend>
+                              <q-icon name="cloud_upload" @click.stop/>
+                            </template>
+                            <template v-slot:append>
+                              <q-icon class="cursor-pointer" name="close" @click.stop="column.value = null"/>
+                            </template>
+                          </q-file>
+
+
+                          <q-input
+                            v-if="['password'].indexOf(column.meta.ColumnType) > -1"
+                            v-model="column.value"
+                            :label="column.meta.ColumnName"
+                            filled
+                            type="password"
+                          />
+
+                          <q-toggle
+                            v-if="column.meta.ColumnType === 'truefalse'"
+                            v-model="column.value"
+                            :label="column.meta.ColumnName"
+                            class="text-right"
+                          />
+
+                          <span v-if="['content', 'json'].indexOf(column.meta.ColumnType) > -1 ">{{
+                              column.meta.ColumnName
+                            }}</span>
+                          <codemirror
+                            v-if="['content', 'json'].indexOf(column.meta.ColumnType) > -1 "
+                            v-model="column.value"
+                            :label="column.meta.ColumnName"
+                            :options='{
                   theme: "3024-day",
                   lineNumbers: true,
                   mode: "markdown",
@@ -133,27 +152,26 @@
                   height: "600px",
                   line: true,
                 }'
-                :toolbar="[
+                            :toolbar="[
                   ['viewsource']
                 ]"
-                :label="column.meta.ColumnName"
-                v-if="['content', 'json'].indexOf(column.meta.ColumnType) > -1 "
-                v-model="column.value"
-              />
+                            style="max-width: 460px;"
+                          />
 
-              <q-date
-                v-if="['datetime'].indexOf(column.meta.ColumnType) > -1 "
-                :subtitle="column.meta.ColumnName"
-                v-model="column.value"
-              />
+                          <q-date
+                            v-if="['datetime'].indexOf(column.meta.ColumnType) > -1 "
+                            v-model="column.value"
+                            :subtitle="column.meta.ColumnName"
+                          />
 
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
             </div>
 
-
-            <div class="q-pa-sm">
-              <q-btn label="Cancel" @click="onCancelNewRow" color="negative" flat class="q-ml-sm float-right"/>
-              <q-btn label="Save" class="float-left" @click="onNewRow" color="primary"/>
-            </div>
           </q-form>
 
         </div>
@@ -161,12 +179,12 @@
       </q-scroll-area>
     </q-drawer>
 
-    <q-drawer overlay side="right" v-model="tablePermissionDrawer" bordered :width="400" :breakpoint="1400"
-              content-class="bg-grey-3">
-      <q-scroll-area class="fit row" v-if="tablePermissionDrawer">
+    <q-drawer v-model="tablePermissionDrawer" :breakpoint="1400" :width="400" bordered content-class="bg-grey-3" overlay
+              side="right">
+      <q-scroll-area v-if="tablePermissionDrawer" class="fit row">
 
-        <table-permissions @close="tablePermissionDrawer = false" v-if="tableData"
-                           v-bind:selectedTable="tableData"/>
+        <table-permissions v-if="tableData" v-bind:selectedTable="tableData"
+                           @close="tablePermissionDrawer = false"/>
 
       </q-scroll-area>
     </q-drawer>
@@ -175,7 +193,7 @@
       <q-card style="background: white; min-width: 400px">
         <q-card-section>
           <q-list>
-            <q-item clickable @click="addNewColumn(item)" v-for="item in columnTypes" :key="item.name">
+            <q-item v-for="item in columnTypes" :key="item.name" clickable @click="addNewColumn(item)">
               <q-item-section avatar>
                 <q-icon :name="item.icon"></q-icon>
               </q-item-section>
@@ -185,7 +203,7 @@
         </q-card-section>
       </q-card>
     </q-dialog>
-    <input type="file" id="fileUpload" style="display: none">
+    <input id="fileUpload" style="display: none" type="file">
 
   </q-page-container>
 </template>
@@ -1158,6 +1176,7 @@ const tableComponent = {
           formatter: "rowSelection",
           cssClass: "row-selection-checkbox",
           titleFormatter: "rowSelection",
+          frozen: true,
           title: "rowSelection",
           hozAlign: "center",
           vertAlign: "middle",
@@ -1165,7 +1184,9 @@ const tableComponent = {
         });
 
         columns.unshift({
-          title: "", hozAlign: "center",
+          title: "",
+          hozAlign: "center",
+          frozen: true,
           formatter: "rownum"
         });
 
@@ -1192,7 +1213,6 @@ const tableComponent = {
           },
           headerSort: false
         });
-
 
 
         let TABULATOR_DEFAULT_OPTIONS = {
@@ -1536,7 +1556,7 @@ const tableComponent = {
   data() {
     return {
       spreadsheet: {
-        getDataCount(){
+        getDataCount() {
           return 0
         }
       },
