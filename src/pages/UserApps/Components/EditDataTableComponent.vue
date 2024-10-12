@@ -27,7 +27,7 @@
           </div>
 
           <span class="text-bold row"
-                style="font-size: 12px; border-top: 1px solid black; width: 100%; height: 20px">Total {{
+                style="font-size: 12px; border-top: 1px solid black; width: 100%; height: 20px; padding: 1px; padding-left: 2px">Total {{
               pagination.total
             }} records | Showing {{ spreadsheet.getDataCount() }}</span>
 

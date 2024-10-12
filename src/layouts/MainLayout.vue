@@ -9,7 +9,7 @@
       :breakpoint="0"
       content-class=""
       elevated>
-      <q-scroll-area class="fit">
+      <q-scroll-area class="fit" style="border-right: 1px solid black">
 
         <q-list class="bg-black">
           <q-item clickable>
