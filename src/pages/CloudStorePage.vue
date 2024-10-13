@@ -2,7 +2,7 @@
   <q-page-container>
     <q-page>
 
-      <div class="row q-gutter-sm q-pa-md">
+      <div class="row">
         <div class="col-4">
           <q-input dense v-model="nameFilter" icon="search" label="search">
             <template v-slot:prepend>
@@ -21,9 +21,9 @@
       </div>
 
 
-      <div class="row q-pa-md q-gutter-sm">
+      <div class="row">
         <div class="col-12">
-          <q-markup-table>
+          <q-markup-table flat>
             <thead>
             <tr style="text-align: left">
               <th>Storage</th>
@@ -39,11 +39,11 @@
               } else {
                 return true;
               }
-            })" style="cursor: pointer" @click="$router.push('/user/' + user.email)">
+            })" style="cursor: pointer" @click="showEditStore(cloudStore)">
               <td>{{ cloudStore.name }}</td>
               <td>{{ cloudStore.store_provider }}</td>
               <td>{{ cloudStore.root_path }}</td>
-              <td>
+              <td class="text-right">
                 <q-btn color="black" flat icon="fas fa-wrench"></q-btn>
               </td>
             </tr>

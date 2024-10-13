@@ -3,17 +3,60 @@
 
     <q-page>
 
-      <div class="row q-pa-md q-gutter-sm">
-        <div class="col-xl-3 col-lg-4 col-6 col-sm-8 col-xs-12 ">
-          <q-input label="Search" v-model="filterWord"></q-input>
-        </div>
-        <div class="col-6 q-pa-md">
-          <q-btn @click="showCreateIntegrationDrawer = true" fab icon="add" color="primary"/>
+
+
+      <div class="row">
+        <div class="col-4">
+          <q-input dense v-model="nameFilter" icon="search" label="search">
+            <template v-slot:prepend>
+              <q-icon name="search"/>
+            </template>
+          </q-input>
         </div>
       </div>
+      <div class="row" style="border-top: 1px solid black; border-bottom: 1px solid black">
+        <div class="col-1">
+          <q-btn-group flat size="sm">
+            <q-btn icon="add" flat @click="showCreateIntegrationDrawer = true"/>
+            <q-btn icon="delete" disable flat @click="$router.push('/tables/create')"/>
+          </q-btn-group>
+        </div>
+      </div>
+
+
+
       <div class="row">
 
-        <div class="col-4 col-xl-3 col-lg-4 col-xs-12 col-sm-6 q-pa-md" v-for="integration in filteredIntegrations">
+        <div class="col">
+          <q-markup-table flat>
+            <thead>
+            <tr style="text-align: left">
+              <th>Integrations</th>
+              <th></th>
+              <th></th>
+              <th></th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr v-for="integration in filteredIntegrations.filter((e) => {
+              if (nameFilter) {
+                return e.name.indexOf(nameFilter) > -1;
+              } else {
+                return true;
+              }
+            })" style="cursor: pointer" @click="showEditIntegration(integration)">
+              <td>{{ integration.name }}</td>
+              <td>{{ integration.specification_format }}</td>
+              <td>{{ integration.specification_format }}</td>
+              <td class="text-right">
+                <q-btn color="black" flat icon="fas fa-wrench"></q-btn>
+              </td>
+            </tr>
+            </tbody>
+          </q-markup-table>
+        </div>
+
+        <div v-for="integration in filteredIntegrations" class="col-4 col-xl-3 col-lg-4 col-xs-12 col-sm-6 q-pa-md">
           <q-card>
             <q-card-section>
             <span class="text-h6"
@@ -25,15 +68,15 @@
               <span>Format</span> <span class="text-bold float-right">{{ integration.specification_format }}</span>
             </q-card-section>
             <q-card-section>
-              <span>Language</span> <span class="text-bold float-right">{{ integration.specification_language }}</span>
+              <span>Language</span> <span class="text-bold float-right">{{ integration.specification_format }}</span>
             </q-card-section>
             <q-card-section>
               <div class="row">
                 <div class="col-12">
                   <!--                <q-btn size="sm" @click="listFiles(integration)" label="Browse files" color="primary"-->
                   <!--                       class="float-right"></q-btn>-->
-                  <q-btn @click="showEditIntegration(integration)" size="sm" label="Edit integration"
-                         class="float-right"></q-btn>
+                  <q-btn class="float-right" label="Edit integration" size="sm"
+                         @click="showEditIntegration(integration)"></q-btn>
                 </div>
               </div>
             </q-card-section>
@@ -42,8 +85,8 @@
 
       </div>
 
-      <q-drawer overlay content-class="bg-grey-3" :width="400" side="right" v-model="showCreateIntegrationDrawer">
-        <q-card flat class="bg-grey-3">
+      <q-drawer v-model="showCreateIntegrationDrawer" :width="400" content-class="bg-grey-3" overlay side="right">
+        <q-card class="bg-grey-3" flat>
           <q-card-section>
             <span class="text-h6">Create integration</span>
           </q-card-section>
@@ -58,21 +101,21 @@
           <q-card-section>
             <q-form class="q-gutter-md q-pa-md">
               <file-upload
-                :multiple="true"
-                style="height: 300px; width: 100%"
-                class="bg-grey-3"
                 ref="upload"
+                v-model="specFile"
                 :drop="true"
                 :drop-directory="false"
-                v-model="specFile"
+                :multiple="true"
+                class="bg-grey-3"
                 post-action="/post.method"
                 put-action="/put.method"
+                style="height: 300px; width: 100%"
                 @input-file="fileAdded"
               >
                 <div class="container ">
-                  <span v-if="specFile.length === 0" style="padding-top: 40%" class="vertical-middle">Drop files or click to select <br/></span>
-                  <div class="row" v-if="specFile.length > 0">
-                    <div class="col-12" v-for="file in specFile">{{ file.name }} - Error: {{ file.error }}, Success:
+                  <span v-if="specFile.length === 0" class="vertical-middle" style="padding-top: 40%">Drop files or click to select <br/></span>
+                  <div v-if="specFile.length > 0" class="row">
+                    <div v-for="file in specFile" class="col-12">{{ file.name }} - Error: {{ file.error }}, Success:
                       {{ file.success }}
                     </div>
                   </div>
@@ -89,7 +132,7 @@
       </q-drawer>
 
 
-      <q-drawer overlay content-class="bg-grey-3" :width="400" side="right" v-model="showEditIntegrationDrawer">
+      <q-drawer v-model="showEditIntegrationDrawer" :width="400" content-class="bg-grey-3" overlay side="right">
         <q-scroll-area class="fit">
           <div class="row q-pa-md">
             <div class="col-12">
@@ -100,12 +143,12 @@
                 <q-item>
                   <q-item-section>
 
-                    <q-input label="Name" v-model="newIntegration.name"></q-input>
+                    <q-input v-model="newIntegration.name" label="Name"></q-input>
                   </q-item-section>
                 </q-item>
                 <q-item>
                   <q-item-section>
-                    <q-checkbox label="Enable" v-model="newIntegration.enable">
+                    <q-checkbox v-model="newIntegration.enable" label="Enable">
                       <q-tooltip>
                         Operations from schema are imported to be used in actions
                       </q-tooltip>
@@ -393,7 +436,7 @@ export default {
     return {
       text: '',
       fileIsBeingLoaded: false,
-      filterWord: null,
+      nameFilter: null,
       selectedIntegration: {},
       showHelp: false,
       specFile: [],

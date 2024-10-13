@@ -2,24 +2,31 @@
   <q-page-container>
 
     <q-page>
-      <div class="row q-pa-md q-gutter-sm">
 
+
+
+      <div class="row">
         <div class="col-4">
-          <q-input clearable  label="search" v-model="actionFilter">
+          <q-input dense v-model="nameFilter" icon="search" label="search">
             <template v-slot:prepend>
-              <q-icon name="search" />
+              <q-icon name="search"/>
             </template>
           </q-input>
         </div>
-        <div class="col-4">
-          <q-btn @click="showCreateAction()" label="New" fab icon="add"/>
+      </div>
+      <div class="row" style="border-top: 1px solid black; border-bottom: 1px solid black">
+        <div class="col-1">
+          <q-btn-group flat size="sm">
+            <q-btn icon="add" flat @click="showCreateAction()"/>
+            <q-btn icon="delete" disable flat @click="$router.push('/tables/create')"/>
+          </q-btn-group>
         </div>
       </div>
 
-      <div class="row q-gutter-sm q-pa-md">
+      <div class="row">
         <div class="col-8 col-xs-12 col-xl-6">
 
-          <q-markup-table>
+          <q-markup-table flat>
             <thead>
             <tr class="text-left">
               <th>Actions</th>
@@ -27,14 +34,13 @@
               <th></th>
             </tr>
             </thead>
-            <tbody >
+            <tbody>
             <tr v-for="action in filteredActions">
               <td style="width: 100px">{{ action.action_name }}</td>
               <td>{{ action.label }}</td>
 
               <td class="text-right">
-                <q-btn icon="edit" @click="showEditAction(action)" size="md" class="float-right"></q-btn>
-
+                <q-btn flat class="float-right" icon="edit" size="md" @click="showEditAction(action)"></q-btn>
               </td>
             </tr>
             </tbody>
@@ -44,7 +50,7 @@
       </div>
 
 
-      <q-drawer overlay :width="400" side="right" v-model="showCreateActionDrawer">
+      <q-drawer v-model="showCreateActionDrawer" :width="400" overlay side="right">
         <q-scroll-area class="fit row">
           <q-card>
             <q-card-section>
@@ -66,7 +72,7 @@
       </q-drawer>
 
 
-      <q-drawer overlay content-class="bg-grey-3" :width="400" side="right" v-model="showEditActionDrawer">
+      <q-drawer v-model="showEditActionDrawer" :width="400" content-class="bg-grey-3" overlay side="right">
         <q-scroll-area class="fit row">
           <div class="q-pa-md">
             <span class="text-h6">Edit action</span>
@@ -225,18 +231,17 @@ OutFields:`)
       'updateRow', 'executeAction', 'setSelectedActionForEditor']),
     refresh() {
       const that = this;
-      that.refreshTables().then(function (){
+      that.refreshTables().then(function () {
         console.log("Loaded tabled")
         that.localTables = that.allTables.sort(function (a, b) {
           return a.table_name > b.table_name;
         });
-      }).catch(function (err){
+      }).catch(function (err) {
         console.log("Failed to refresh tables", err)
       });
       this.refreshActions().then(function () {
         console.log("actions loaded")
       })
-
 
 
     }
@@ -246,7 +251,7 @@ OutFields:`)
       text: '',
       localTables: [],
       actionSchemaEditor: null,
-      actionFilter: null,
+      nameFilter: null,
       selectedAction: {},
       actionProviderOptions: [
         {

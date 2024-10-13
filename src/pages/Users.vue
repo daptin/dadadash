@@ -2,22 +2,28 @@
   <q-page-container>
     <q-page>
 
-      <div class="row q-gutter-sm q-pa-md">
+
+      <div class="row">
         <div class="col-4">
-          <q-input v-model="userFilter" icon="search" label="search">
+          <q-input dense v-model="nameFilter" icon="search" label="search">
             <template v-slot:prepend>
-              <q-icon name="search" />
+              <q-icon name="search"/>
             </template>
           </q-input>
         </div>
-        <div class="col-4">
-          <q-btn fab icon="add" label="New" @click="newUserDrawer = true"/>
+      </div>
+      <div class="row" style="border-top: 1px solid black; border-bottom: 1px solid black">
+        <div class="col-1">
+          <q-btn-group flat size="sm">
+            <q-btn icon="add" flat @click="newUserDrawer = true"/>
+            <q-btn icon="delete" disable flat @click="$router.push('/tables/create')"/>
+          </q-btn-group>
         </div>
       </div>
 
-      <div class="row q-gutter-sm q-pa-md">
+      <div class="row">
         <div class="col-12">
-          <q-markup-table>
+          <q-markup-table flat>
             <thead>
             <tr style="text-align: left">
               <th>Users</th>
@@ -31,7 +37,7 @@
               <td>{{ user.email }}</td>
               <td>{{ user.name }}</td>
               <td>{{ user.created_at.split('.')[0].split('T')[0] }}</td>
-              <td>
+              <td class="text-right">
                 <q-btn color="black" flat icon="fas fa-wrench"></q-btn>
               </td>
             </tr>
@@ -122,7 +128,7 @@ export default {
   data() {
     return {
       text: '',
-      userFilter: null,
+      nameFilter: null,
       user: {},
       showHelp: false,
       newUserDrawer: false,
@@ -157,7 +163,7 @@ export default {
   computed: {
     usersFiltered() {
       const that = this;
-      return this.userFilter == null ? this.users : this.users.filter(function (e) {
+      return this.nameFilter == null ? this.users : this.users.filter(function (e) {
         return e.email.indexOf(that.userFilter) > -1 || e.name.indexOf(that.userFilter) > -1
       })
     },

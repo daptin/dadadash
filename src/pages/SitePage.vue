@@ -3,24 +3,31 @@
 
     <q-page>
 
-      <div class="row q-gutter-sm q-pa-md">
+
+      <div class="row">
         <div class="col-4">
-          <q-input v-model="siteFilter" icon="search" label="search">
+          <q-input dense v-model="nameFilter" icon="search" label="search">
             <template v-slot:prepend>
-              <q-icon name="search" />
+              <q-icon name="search"/>
             </template>
           </q-input>
         </div>
-        <div class="col-4">
-          <q-btn fab icon="add" label="New" @click="showCreateSiteDrawer = true"/>
+      </div>
+      <div class="row" style="border-top: 1px solid black; border-bottom: 1px solid black">
+        <div class="col-1">
+          <q-btn-group flat size="sm">
+            <q-btn icon="add" flat @click="showCreateSiteDrawer = true"/>
+            <q-btn icon="delete" disable flat @click="$router.push('/tables/create')"/>
+          </q-btn-group>
         </div>
       </div>
 
 
-      <div class="row q-pa-md q-gutter-sm">
+
+      <div class="row">
 
         <div class="col-12">
-          <q-markup-table>
+          <q-markup-table flat>
             <thead>
             <tr style="text-align: left">
               <th>Sites</th>
@@ -31,17 +38,24 @@
             </thead>
             <tbody>
             <tr v-for="site in sites.filter((e) => {
-              if (siteFilter) {
-                return e.name.indexOf(siteFilter) > -1;
+              if (nameFilter) {
+                return e.name.indexOf(nameFilter) > -1;
               } else {
                 return true;
               }
-            })" style="cursor: pointer" @click="$router.push('/user/' + user.email)">
+            })" style="cursor: pointer">
               <td>{{ site.name }}</td>
               <td>{{ site.enable_https }}</td>
               <td>{{ site.ftp_enabled }}</td>
-              <td>
-                <q-btn color="black" flat icon="fas fa-wrench"></q-btn>
+              <td class="text-right">
+                <q-btn-group flat>
+                  <q-btn
+                         @click="$router.push('/site/' + site.reference_id + '/browse')"
+                         label="Browse files"
+                         icon="folder"
+                         class="float-right"></q-btn>
+                  <q-btn @click="showEditSite(site)" icon="edit" label="Edit site" class="float-right"></q-btn>
+                </q-btn-group>
               </td>
             </tr>
             </tbody>
@@ -270,7 +284,7 @@
       return {
         text: '',
         showHttpEdit: false,
-        siteFilter: null,
+        nameFilter: null,
         fileList: [],
         currentSite: null,
         showFileBrowser: false,

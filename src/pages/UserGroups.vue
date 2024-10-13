@@ -2,35 +2,47 @@
   <q-page-container>
     <q-page>
 
-      <div class="row q-gutter-sm q-pa-md">
+
+      <div class="row">
         <div class="col-4">
-          <q-input v-model="filter"  label="search">
+          <q-input dense v-model="nameFilter" icon="search" label="search">
             <template v-slot:prepend>
-              <q-icon name="search" />
+              <q-icon name="search"/>
             </template>
           </q-input>
         </div>
-        <div class="col-2">
-          <q-btn fab icon="add" label="New Group" @click="newGroupDrawer = true"/>
+      </div>
+      <div class="row" style="border-top: 1px solid black; border-bottom: 1px solid black">
+        <div class="col-1">
+          <q-btn-group flat size="sm">
+            <q-btn icon="add" flat @click="newGroupDrawer = true"/>
+            <q-btn icon="delete" disable flat @click="$router.push('/tables/create')"/>
+          </q-btn-group>
         </div>
       </div>
-      <div class="row q-gutter-sm q-pa-md">
+
+
+      <div class="row">
         <div class="col-12">
-          <q-markup-table>
+          <q-markup-table flat>
             <thead>
-            <tr>
-              <td>Name</td>
-              <td>Reference Id</td>
-              <td>Created on</td>
+            <tr class="text-left">
+              <th>User groups</th>
+              <th></th>
+              <th></th>
+              <th></th>
             </tr>
             </thead>
             <tbody>
             <tr v-for="group in groups"
-                v-if="!filter || filter === '' || group.name.indexOf(filter) > -1"
+                v-if="!nameFilter || nameFilter === '' || group.name.indexOf(nameFilter) > -1"
                 style="cursor: pointer" @click="$router.push('/groups/' + group.reference_id)">
               <td>{{ group.name }}</td>
               <td>{{ group.reference_id }}</td>
               <td>{{ group.created_at.split("T")[0] }}</td>
+              <td class="text-right">
+                <q-btn color="black" flat icon="fas fa-wrench"></q-btn>
+              </td>
             </tr>
             </tbody>
           </q-markup-table>
@@ -93,14 +105,14 @@ export default {
     refresh() {
       var tableName = "usergroup";
       const that = this;
-      console.log("Filter groups", this.filter)
+      console.log("Filter groups", this.nameFilter)
       this.loadData({
         tableName: tableName,
         params: {
           page: {
             size: 2000
           },
-          filter: this.filter,
+          filter: this.nameFilter,
           sort: "name"
         }
       }).then(function (data) {
@@ -114,7 +126,7 @@ export default {
       text: '',
       showHelp: false,
       group: {},
-      filter: null,
+      nameFilter: null,
       newGroupDrawer: false,
       groups: [],
       columns: [
@@ -138,7 +150,7 @@ export default {
   },
 
   watch: {
-    filter: function () {
+    nameFilter: function () {
       this.refresh()
     }
   }

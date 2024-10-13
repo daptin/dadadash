@@ -2,9 +2,9 @@
   <q-page-container>
     <q-page>
 
-      <div class="row q-gutter-sm q-pa-md">
+      <div class="row">
         <div class="col-4">
-          <q-input dense v-model="tableNameFilter" icon="search" label="search">
+          <q-input dense v-model="nameFilter" icon="search" label="search">
             <template v-slot:prepend>
               <q-icon name="search"/>
             </template>
@@ -22,25 +22,25 @@
 
       <div class="row">
         <div class="col-12">
-          <q-markup-table flat style="text-align: left">
+          <q-markup-table flat style="text-align: right">
             <thead>
-            <tr>
-              <th style="width: 300px">Tables</th>
+            <tr >
+              <th style="text-align: left">Tables</th>
               <th></th>
             </tr>
             </thead>
             <tbody>
             <tr v-for="table in tablesFiltered.filter((e) => {
-                      if (!tableNameFilter) {
+                      if (!nameFilter) {
                         return true
                       } else{
-                        return e.table_name.indexOf(tableNameFilter) > -1;
+                        return e.table_name.indexOf(nameFilter) > -1;
                       }
                     })" style="cursor: pointer"
                 @click="$router.push('/tables/data/' + table.table_name)">
-              <td style="width: 300px">{{ table.table_name }}</td>
-              <td style="text-align: left" class="q-gutter-xs q-pa-xs">
-                <q-btn-group size="sm">
+              <td style="text-align: left">{{ table.table_name }}</td>
+              <td style="text-align: right">
+                <q-btn-group flat size="sm">
                   <q-btn icon="edit" @click.stop="$router.push('/tables/edit/' + table.table_name)"></q-btn>
                   <q-btn icon="search" @click.stop="$router.push('/tables/data/' + table.table_name)"></q-btn>
                 </q-btn-group>
@@ -92,7 +92,7 @@ export default {
     return {
       text: '',
       showHelp: false,
-      tableNameFilter: null,
+      nameFilter: null,
       selectedTable: null
     }
   },
