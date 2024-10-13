@@ -39,13 +39,14 @@
 
       <q-drawer overlay content-class="bg-grey-3" :width="400" side="right" v-model="showCreateCloudStoreDrawer">
       <q-scroll-area class="fit row">
-        <div class="q-pa-md">
+        <div class="q-pa-md bg-white" style="border-left: 1px solid #eee">
           <span class="text-h6">Create store</span>
           <q-form class="q-gutter-md">
             <q-input label="Name" v-model="newStore.name"></q-input>
 
 
             <q-input label="Root path" v-model="newStore.root_path"></q-input>
+            <q-input label="Provider" v-model="newStore.store_provider"></q-input>
 
 
             <q-btn color="primary" @click="createStore()">Create</q-btn>

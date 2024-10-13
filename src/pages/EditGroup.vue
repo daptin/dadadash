@@ -4,35 +4,33 @@
     <q-page v-if="group">
 
       <div class="row">
-        <div class="col-6 col-xs-12 col-sm-12 col-md-6">
+        <div class="col-12">
 
           <div class="row">
             <div class="col-12 q-pa-md">
               <span class="text-h5">{{ group.name }}</span>
-              <q-btn @click="deleteGroup()" label="Delete group" class="float-right" color="negative"></q-btn>
+              <q-btn icon="delete" @click="deleteGroup()" label="Delete group" class="float-right" color="negative"></q-btn>
             </div>
             <div class="col-12 q-pa-md">
               <q-input label="filter relations" v-model="relationFilter"></q-input>
             </div>
           </div>
           <div class="row">
-            <div class="col-12 q-pa-md" style="height: 60vh; overflow: scroll">
-              <div class="row q-gutter-sm q-pa-md"
-                   v-for="table in filteredTables">
+            <div class="col-12 q-pa-md" style="height: calc(100vh - 250px); overflow-y: scroll">
+              <div class="row q-gutter-sm q-pa-md" v-for="table in filteredTables">
                 <div class="col-12">
                   <q-card>
                     <q-card-section>
                       {{ table.table_name }} in the group: {{
                         objectsInTheGroup[table.table_name + '_id'] ? objectsInTheGroup[table.table_name + '_id'].length : 0
                       }}
-                      <q-btn flat icon="fas fa-plus" size="sm" class="float-right"
+                      <q-btn flat icon="fas fa-plus" class="float-right"
                              @click="addObjectType(table.table_name)"
                              :label="'Add new '+table.table_name"></q-btn>
                     </q-card-section>
-                    <q-card-actions>
 
-                    </q-card-actions>
-                    <q-card-section>
+
+                    <q-card-section v-if="objectsInTheGroup[table.table_name + '_id'].length > 0">
                       <q-markup-table flat>
                         <thead>
                         <tr>
@@ -85,7 +83,6 @@
 
 
                 </div>
-
               </div>
             </div>
           </div>

@@ -2,20 +2,35 @@
   <q-page-container>
     <q-page>
 
-      <div class="row q-gutter-sm">
-        <div class="col-8 q-pa-md">
-          <q-btn @click="newGroupDrawer = true" label="Add Group" fab icon="add" color="primary"/>
+      <div class="row q-gutter-sm q-pa-md">
+        <div class="col-4">
+          <q-input v-model="filter"  label="search">
+            <template v-slot:prepend>
+              <q-icon name="search" />
+            </template>
+          </q-input>
         </div>
-        <div class="col-12 q-pa-md">
-          <q-input v-model="filter"></q-input>
+        <div class="col-2">
+          <q-btn fab icon="add" label="New Group" @click="newGroupDrawer = true"/>
         </div>
-        <div class="col-12 q-pa-md">
+      </div>
+      <div class="row q-gutter-sm q-pa-md">
+        <div class="col-12">
           <q-markup-table>
+            <thead>
+            <tr>
+              <td>Name</td>
+              <td>Reference Id</td>
+              <td>Created on</td>
+            </tr>
+            </thead>
             <tbody>
-            <tr style="cursor: pointer"
-                v-if="!filter || filter =='' || group.name.indexOf(filter) > -1"
-                @click="$router.push('/groups/' + group.reference_id)" v-for="group in groups">
+            <tr v-for="group in groups"
+                v-if="!filter || filter === '' || group.name.indexOf(filter) > -1"
+                style="cursor: pointer" @click="$router.push('/groups/' + group.reference_id)">
               <td>{{ group.name }}</td>
+              <td>{{ group.reference_id }}</td>
+              <td>{{ group.created_at.split("T")[0] }}</td>
             </tr>
             </tbody>
           </q-markup-table>
@@ -23,12 +38,12 @@
         </div>
       </div>
 
-      <q-drawer overlay :width="500" content-class="bg-grey-3" side="right" v-model="newGroupDrawer">
+      <q-drawer v-model="newGroupDrawer" :width="500" content-class="bg-grey-3" overlay side="right">
         <q-scroll-area class="fit row">
           <div class="q-pa-md">
             <span class="text-h6">Create group</span>
             <q-form class="q-gutter-md">
-              <q-input label="Name" v-model="group.name"></q-input>
+              <q-input v-model="group.name" label="Name"></q-input>
               <q-btn color="primary" @click="createGroup()">Create</q-btn>
               <q-btn @click="newGroupDrawer = false">Cancel</q-btn>
             </q-form>

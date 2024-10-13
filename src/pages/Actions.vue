@@ -4,31 +4,37 @@
     <q-page>
       <div class="row q-pa-md q-gutter-sm">
 
-        <div class="col-6">
-          <q-input clear-icon="fas fa-times" label="Search" v-model="actionFilter"></q-input>
+        <div class="col-4">
+          <q-input clearable  label="search" v-model="actionFilter">
+            <template v-slot:prepend>
+              <q-icon name="search" />
+            </template>
+          </q-input>
         </div>
         <div class="col-4">
-          <q-btn @click="showCreateAction()" fab icon="add" color="primary"/>
+          <q-btn @click="showCreateAction()" label="New" fab icon="add"/>
         </div>
-        <div class="col-12">
+      </div>
 
-          <q-markup-table flat>
+      <div class="row q-gutter-sm q-pa-md">
+        <div class="col-8 col-xs-12 col-xl-6">
+
+          <q-markup-table>
             <thead>
             <tr class="text-left">
-              <th>Name</th>
-              <th># Input fields</th>
-              <th># Output fields</th>
+              <th>Actions</th>
+              <th></th>
               <th></th>
             </tr>
             </thead>
-            <tbody>
+            <tbody >
             <tr v-for="action in filteredActions">
-              <td>{{ action.ActionSchema.Label }} on {{ action.ActionSchema.OnType }}</td>
-              <td>{{ action.ActionSchema.InFields ? action.ActionSchema.InFields.length : 0 }}</td>
-              <td>{{ action.ActionSchema.OutFields ? action.ActionSchema.OutFields.length : 0 }}</td>
+              <td style="width: 100px">{{ action.action_name }}</td>
+              <td>{{ action.label }}</td>
+
               <td class="text-right">
-                <q-btn @click="showEditAction(action)" size="sm"
-                       label="Edit action" class="float-right"></q-btn>
+                <q-btn icon="edit" @click="showEditAction(action)" size="md"
+                       label="Edit" class="float-right"></q-btn>
 
               </td>
             </tr>

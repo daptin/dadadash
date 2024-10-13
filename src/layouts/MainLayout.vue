@@ -27,210 +27,140 @@ text-align: center;
         </q-list>
 
         <q-list>
-          <q-expansion-item
-            expand-separator
-            label="Database"
-            :value="true"
-            expand-icon-class="text-white"
-            icon="fas fa-database">
-
-            <q-list>
 
 
-              <q-item :inset-level="1" clickable v-ripple @click="$router.push('/tables')">
-                <q-item-section avatar>
-                  <q-icon name="fas fa-table"></q-icon>
-                </q-item-section>
-                <q-item-section>
-                  <q-item-label>
-                    Tables
-                  </q-item-label>
-                </q-item-section>
-              </q-item>
-              <q-item :inset-level="1" clickable v-ripple @click="$router.push('/integrations/actions')">
-                <q-item-section avatar>
-                  <q-icon name="fas fa-wrench"></q-icon>
 
-                </q-item-section>
-                <q-item-section>
-                  <q-item-label>
-                    Actions
-                  </q-item-label>
-                </q-item-section>
-              </q-item>
-
-
-            </q-list>
-
-          </q-expansion-item>
-
-          <q-expansion-item
-            expand-icon-class="text-white"
-            :value="true"
-            expand-separator
-            icon="fas fa-user"
-            label="Users">
-
-            <q-list>
-
-              <q-item :inset-level="1" clickable v-ripple @click="$router.push('/user/profile')">
-                <q-item-section avatar>
-                  <q-icon name="fas fa-id-card"></q-icon>
-
-                </q-item-section>
-                <q-item-section>
-                  <q-item-label>
-                    Profile
-                  </q-item-label>
-                </q-item-section>
-              </q-item>
-
-              <q-item :inset-level="1" clickable v-ripple @click="$router.push('/users')">
-                <q-item-section avatar>
-                  <q-icon name="fas fa-address-book"></q-icon>
-
-                </q-item-section>
-                <q-item-section>
-                  <q-item-label>
-                    Accounts
-                  </q-item-label>
-                </q-item-section>
-              </q-item>
-
-              <q-item :inset-level="1" clickable v-ripple @click="$router.push('/groups')">
-                <q-item-section avatar>
-                  <q-icon name="fas fa-users"></q-icon>
-
-                </q-item-section>
-                <q-item-section>
-                  <q-item-label>
-                    Groups
-                  </q-item-label>
-                </q-item-section>
-              </q-item>
-
-            </q-list>
-
-          </q-expansion-item>
-
-          <q-expansion-item
-            expand-icon-class="text-white"
-            :value="true"
-            expand-separator
-            icon="fas fa-archive"
-            label="Storage">
-
-            <q-list>
-
-              <q-item :inset-level="1" clickable v-ripple @click="$router.push('/cloudstore')">
-                <q-item-section avatar>
-                  <q-icon name="fas fa-bars"></q-icon>
-
-                </q-item-section>
-                <q-item-section>
-                  <q-item-label>
-                    Cloud stores
-                  </q-item-label>
-                </q-item-section>
-              </q-item>
-
-              <q-item :inset-level="1" clickable v-ripple @click="$router.push('/cloudstore/sites')">
-                <q-item-section avatar>
-                  <q-icon name="fas fa-desktop"></q-icon>
-
-                </q-item-section>
-                <q-item-section>
-                  <q-item-label>
-                    Sites
-                  </q-item-label>
-                </q-item-section>
-              </q-item>
-
-            </q-list>
-
-          </q-expansion-item>
-
-
-          <q-expansion-item
-            expand-icon-class="text-white"
-            :value="true"
-            expand-separator
-            icon="fas fa-bolt"
-            label="Integrations">
-
-            <q-list>
-
-              <q-item :inset-level="1" clickable v-ripple @click="$router.push('/integrations/spec')">
-                <q-item-section avatar>
-                  <q-icon name="fas fa-plug"></q-icon>
-
-                </q-item-section>
-                <q-item-section>
-                  <q-item-label>
-                    API Catalogue
-                  </q-item-label>
-                </q-item-section>
-              </q-item>
-
-            </q-list>
-
-          </q-expansion-item>
-
-
-          <q-expansion-item
-            expand-icon-class="text-white"
-            :value="true"
-            expand-separator
-            icon="fas fa-book"
-            label="Documentation">
-
-            <q-list>
-
-
-              <q-item :inset-level="1" clickable v-ripple @click="$router.push('/tables/apidocs')">
-                <q-item-section avatar>
-                  <q-icon name="fas fa-book"></q-icon>
-                </q-item-section>
-                <q-item-section>
-                  <q-item-label>
-                    JSON API docs
-                  </q-item-label>
-                </q-item-section>
-              </q-item>
-
-
-              <q-item :inset-level="1" clickable v-ripple @click="$router.push('/tables/graphql')">
-                <q-item-section avatar>
-                  <q-icon name="fas fa-book"></q-icon>
-                </q-item-section>
-                <q-item-section>
-                  <q-item-label>
-                    GraphQL docs
-                  </q-item-label>
-                </q-item-section>
-              </q-item>
-
-
-            </q-list>
-
-          </q-expansion-item>
-
-        </q-list>
-
-
-        <q-list>
-          <q-item clickable @click="logout()">
+          <q-item  clickable v-ripple @click="$router.push('/tables')">
             <q-item-section avatar>
-              <q-icon color="negative" name="fas fa-power-off"></q-icon>
+              <q-icon name="fas fa-table"></q-icon>
+            </q-item-section>
+            <q-item-section>
+              <q-item-label>
+                Tables
+              </q-item-label>
+            </q-item-section>
+          </q-item>
+          <q-item  clickable v-ripple @click="$router.push('/integrations/actions')">
+            <q-item-section avatar>
+              <q-icon name="fas fa-wrench"></q-icon>
 
             </q-item-section>
             <q-item-section>
               <q-item-label>
-                Logout
+                Actions
               </q-item-label>
             </q-item-section>
           </q-item>
+
+
+
+
+          <q-item  clickable v-ripple @click="$router.push('/user/profile')">
+            <q-item-section avatar>
+              <q-icon name="fas fa-id-card"></q-icon>
+
+            </q-item-section>
+            <q-item-section>
+              <q-item-label>
+                Profile
+              </q-item-label>
+            </q-item-section>
+          </q-item>
+
+          <q-item  clickable v-ripple @click="$router.push('/users')">
+            <q-item-section avatar>
+              <q-icon name="fas fa-address-book"></q-icon>
+
+            </q-item-section>
+            <q-item-section>
+              <q-item-label>
+                Accounts
+              </q-item-label>
+            </q-item-section>
+          </q-item>
+
+          <q-item  clickable v-ripple @click="$router.push('/groups')">
+            <q-item-section avatar>
+              <q-icon name="fas fa-users"></q-icon>
+
+            </q-item-section>
+            <q-item-section>
+              <q-item-label>
+                Groups
+              </q-item-label>
+            </q-item-section>
+          </q-item>
+
+
+
+          <q-item  clickable v-ripple @click="$router.push('/cloudstore')">
+            <q-item-section avatar>
+              <q-icon name="fas fa-bars"></q-icon>
+
+            </q-item-section>
+            <q-item-section>
+              <q-item-label>
+                Cloud stores
+              </q-item-label>
+            </q-item-section>
+          </q-item>
+
+          <q-item  clickable v-ripple @click="$router.push('/cloudstore/sites')">
+            <q-item-section avatar>
+              <q-icon name="fas fa-desktop"></q-icon>
+
+            </q-item-section>
+            <q-item-section>
+              <q-item-label>
+                Sites
+              </q-item-label>
+            </q-item-section>
+          </q-item>
+
+          <q-item  clickable v-ripple @click="$router.push('/integrations/spec')">
+            <q-item-section avatar>
+              <q-icon name="fas fa-plug"></q-icon>
+
+            </q-item-section>
+            <q-item-section>
+              <q-item-label>
+                API Catalogue
+              </q-item-label>
+            </q-item-section>
+          </q-item>
+
+
+
+
+
+          <q-item  clickable v-ripple @click="$router.push('/tables/apidocs')">
+            <q-item-section avatar>
+              <q-icon name="fas fa-book"></q-icon>
+            </q-item-section>
+            <q-item-section>
+              <q-item-label>
+                JSON API docs
+              </q-item-label>
+            </q-item-section>
+          </q-item>
+
+
+          <q-item  clickable v-ripple @click="$router.push('/tables/graphql')">
+            <q-item-section avatar>
+              <q-icon name="fas fa-book"></q-icon>
+            </q-item-section>
+            <q-item-section>
+              <q-item-label>
+                GraphQL docs
+              </q-item-label>
+            </q-item-section>
+          </q-item>
+
+
+
+
         </q-list>
+
 
       </q-scroll-area>
     </q-drawer>

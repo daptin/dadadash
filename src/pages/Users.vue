@@ -2,44 +2,54 @@
   <q-page-container>
     <q-page>
 
-      <q-card flat>
-        <q-card-section>
-          <div class="row q-gutter-sm">
-            <div class="col-4 q-pa-md">
-              <q-input v-model="userFilter" label="search"></q-input>
-            </div>
-            <div class="col-4 q-pa-md">
-              <q-btn @click="newUserDrawer = true" label="Add User" fab icon="add"/>
-            </div>
-          </div>
-        </q-card-section>
-        <q-card-section>
-          <q-markup-table flat>
+      <div class="row q-gutter-sm q-pa-md">
+        <div class="col-4">
+          <q-input v-model="userFilter" icon="search" label="search">
+            <template v-slot:prepend>
+              <q-icon name="search" />
+            </template>
+          </q-input>
+        </div>
+        <div class="col-4">
+          <q-btn fab icon="add" label="New" @click="newUserDrawer = true"/>
+        </div>
+      </div>
+      <div class="row q-gutter-sm q-pa-md">
+        <div class="col-12">
+          <q-markup-table>
+            <thead>
+            <tr style="text-align: left">
+              <th>Users</th>
+              <th></th>
+              <th></th>
+              <th></th>
+            </tr>
+            </thead>
             <tbody>
-            <tr style="cursor: pointer" @click="$router.push('/user/' + user.email)" v-for="user in usersFiltered">
+            <tr v-for="user in usersFiltered" style="cursor: pointer" @click="$router.push('/user/' + user.email)">
               <td>{{ user.email }}</td>
               <td>{{ user.name }}</td>
-              <td>{{ user.created_at.split('.')[0].split('T').join(' ') }}</td>
+              <td>{{ user.created_at.split('.')[0].split('T')[0] }}</td>
               <td>
-                <q-btn flat icon="fas fa-wrench" color="black"></q-btn>
+                <q-btn color="black" flat icon="fas fa-wrench"></q-btn>
               </td>
             </tr>
             </tbody>
           </q-markup-table>
+        </div>
+      </div>
 
-        </q-card-section>
-      </q-card>
 
     </q-page>
 
-    <q-drawer overlay content-class="bg-grey-3" :width="500" side="right" v-model="newUserDrawer">
+    <q-drawer v-model="newUserDrawer" :width="500" content-class="bg-grey-3" overlay side="right">
       <q-scroll-area class="fit row">
         <div class="q-pa-md">
           <span class="text-h6">Create user</span>
           <q-form class="q-gutter-md">
-            <q-input label="Name" v-model="user.name"></q-input>
-            <q-input label="Email" v-model="user.email"></q-input>
-            <q-input label="Password" type="password" v-model="user.password"></q-input>
+            <q-input v-model="user.name" label="Name"></q-input>
+            <q-input v-model="user.email" label="Email"></q-input>
+            <q-input v-model="user.password" label="Password" type="password"></q-input>
             <q-btn color="primary" @click="createUser()">Create</q-btn>
             <q-btn @click="newUserDrawer = false">Cancel</q-btn>
           </q-form>
@@ -47,7 +57,7 @@
       </q-scroll-area>
     </q-drawer>
 
-    <q-drawer overlay :width="400" side="right" v-model="showHelp">
+    <q-drawer v-model="showHelp" :width="400" overlay side="right">
       <q-scroll-area class="fit">
         <help-page @closeHelp="showHelp = false">
           <template v-slot:help-content>

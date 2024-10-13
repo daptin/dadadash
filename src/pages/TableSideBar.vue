@@ -2,19 +2,29 @@
   <q-page-container>
     <q-page>
 
-      <div class="row ">
-        <div class="col-12 q-pa-xs">
-          <q-btn color="primary" label="New table" icon="fas fa-plus" @click="$router.push('/tables/create')"></q-btn>
+      <div class="row q-gutter-sm q-pa-md">
+        <div class="col-4">
+          <q-input v-model="filter" icon="search" label="search">
+            <template v-slot:prepend>
+              <q-icon name="search" />
+            </template>
+          </q-input>
         </div>
-        <div class="col-12">
-          <q-card flat>
+        <div class="col-2">
+          <q-btn fab icon="add" label="New" @click="$router.push('/tables/create')"/>
+        </div>
+      </div>
+
+      <div class="row">
+        <div class="col-12 q-pa-md">
+          <q-card>
             <q-card-section>
               <q-markup-table flat>
                 <thead>
                 <tr style="text-align: left">
-                  <th>Table</th>
-                  <th>Edit Schema</th>
-                  <th>Data</th>
+                  <th>Tables</th>
+                  <th></th>
+                  <th></th>
                 </tr>
                 </thead>
                 <tbody>
