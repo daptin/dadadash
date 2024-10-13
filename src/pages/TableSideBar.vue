@@ -4,54 +4,60 @@
 
       <div class="row q-gutter-sm q-pa-md">
         <div class="col-4">
-          <q-input v-model="filter" icon="search" label="search">
+          <q-input dense v-model="tableNameFilter" icon="search" label="search">
             <template v-slot:prepend>
-              <q-icon name="search" />
+              <q-icon name="search"/>
             </template>
           </q-input>
         </div>
-        <div class="col-2">
-          <q-btn fab icon="add" label="New" @click="$router.push('/tables/create')"/>
+      </div>
+      <div class="row" style="border-top: 1px solid black; border-bottom: 1px solid black">
+        <div class="col-1">
+          <q-btn-group flat size="sm">
+            <q-btn icon="add" flat @click="$router.push('/tables/create')"/>
+            <q-btn icon="delete" disable flat @click="$router.push('/tables/create')"/>
+          </q-btn-group>
         </div>
       </div>
 
       <div class="row">
-        <div class="col-12 q-pa-md">
-          <q-card>
-            <q-card-section>
-              <q-markup-table flat>
-                <thead>
-                <tr style="text-align: left">
-                  <th>Tables</th>
-                  <th></th>
-                  <th></th>
-                </tr>
-                </thead>
-                <tbody>
-                <tr style="cursor: pointer" @click="$router.push('/tables/data/' + table.table_name)"
-                    v-for="table in tablesFiltered">
-                  <td>{{ table.table_name }}</td>
-                  <td style="text-align: left">
-                    <q-btn @click.stop="$router.push('/tables/edit/' + table.table_name)" flat icon="fas fa-wrench"></q-btn>
-                  </td>
-                  <td style="text-align: left">
-                    <q-btn @click.stop="$router.push('/tables/data/' + table.table_name)" flat icon="fas fa-list"></q-btn>
-                  </td>
-                </tr>
-                </tbody>
-              </q-markup-table>
-            </q-card-section>
-          </q-card>
+        <div class="col-12">
+          <q-markup-table flat style="text-align: left">
+            <thead>
+            <tr>
+              <th style="width: 300px">Tables</th>
+              <th></th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr v-for="table in tablesFiltered.filter((e) => {
+                      if (!tableNameFilter) {
+                        return true
+                      } else{
+                        return e.table_name.indexOf(tableNameFilter) > -1;
+                      }
+                    })" style="cursor: pointer"
+                @click="$router.push('/tables/data/' + table.table_name)">
+              <td style="width: 300px">{{ table.table_name }}</td>
+              <td style="text-align: left" class="q-gutter-xs q-pa-xs">
+                <q-btn-group size="sm">
+                  <q-btn icon="edit" @click.stop="$router.push('/tables/edit/' + table.table_name)"></q-btn>
+                  <q-btn icon="search" @click.stop="$router.push('/tables/data/' + table.table_name)"></q-btn>
+                </q-btn-group>
+
+              </td>
+            </tr>
+            </tbody>
+          </q-markup-table>
         </div>
       </div>
-
 
 
       <!--    <q-page-sticky v-if="!showHelp" position="top-right" :offset="[0, 0]">-->
       <!--      <q-btn flat @click="showHelp = true" fab icon="fas fa-question"/>-->
       <!--    </q-page-sticky>-->
 
-      <q-drawer overlay :width="400" side="right" v-model="showHelp">
+      <q-drawer v-model="showHelp" :width="400" overlay side="right">
         <q-scroll-area class="fit">
           <help-page @closeHelp="showHelp = false">
             <template v-slot:help-content>
@@ -71,7 +77,7 @@ Daptin creates **user_account** table automatically. You can create new tables a
 </template>
 
 <script>
-import {mapActions, mapGetters, mapState} from 'vuex';
+import {mapActions, mapGetters} from 'vuex';
 
 export default {
   name: 'TableSideBar',
@@ -86,6 +92,7 @@ export default {
     return {
       text: '',
       showHelp: false,
+      tableNameFilter: null,
       selectedTable: null
     }
   },

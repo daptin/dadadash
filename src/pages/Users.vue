@@ -14,6 +14,7 @@
           <q-btn fab icon="add" label="New" @click="newUserDrawer = true"/>
         </div>
       </div>
+
       <div class="row q-gutter-sm q-pa-md">
         <div class="col-12">
           <q-markup-table>

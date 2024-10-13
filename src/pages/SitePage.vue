@@ -3,91 +3,52 @@
 
     <q-page>
 
-      <div class="row q-pa-md q-gutter-sm">
-        <div class="col-12">
-          <q-btn @click="showCreateSiteDrawer = true" fab icon="add" color="primary"/>
+      <div class="row q-gutter-sm q-pa-md">
+        <div class="col-4">
+          <q-input v-model="siteFilter" icon="search" label="search">
+            <template v-slot:prepend>
+              <q-icon name="search" />
+            </template>
+          </q-input>
+        </div>
+        <div class="col-4">
+          <q-btn fab icon="add" label="New" @click="showCreateSiteDrawer = true"/>
         </div>
       </div>
 
 
       <div class="row q-pa-md q-gutter-sm">
-        <div class="col-4 col-xl-2 col-lg-3 col-xs-12 col-sm-6" v-for="site in sites">
-          <q-card>
-            <q-card-section>
-              <q-item>
-                <q-item-section>
-                  <span class="text-h6">{{ site.name }}</span>
-                </q-item-section>
-              </q-item>
-            </q-card-section>
 
-            <q-card-section>
-              <q-list>
-                <q-item>
-                  <q-item-section>
-                    <span>HTTPS</span>
-                  </q-item-section>
-
-                  <q-item-section avatar v-if="showHttpEdit">
-                    <q-checkbox @input="showHttpEdit = false" size="sm" class="float-right"
-                                v-model="site.enable_https"></q-checkbox>
-                  </q-item-section>
-
-                  <q-item-section avatar>
-                    <q-item-label>
-                      <q-icon color="primary" size="xs"
-                              :name="!!site.enable_https ? 'fas fa-check':'fas fa-times'"></q-icon>
-                    </q-item-label>
-                  </q-item-section>
-                </q-item>
-                <q-item>
-                  <q-item-section>
-                    <span>FTP enabled</span>
-                  </q-item-section>
-
-                  <q-item-section avatar v-if="showHttpEdit">
-                    <q-checkbox @input="showHttpEdit = false" size="sm" class="float-right"
-                                v-model="site.enable_https"></q-checkbox>
-                  </q-item-section>
-
-                  <q-item-section avatar>
-                    <q-item-label>
-                      <q-icon color="primary" size="xs"
-                              :name="!!site.ftp_enabled ? 'fas fa-check':'fas fa-times'"></q-icon>
-                    </q-item-label>
-                  </q-item-section>
-                </q-item>
-
-                <q-item>
-                  <q-item-section>
-                    <span>Site type</span>
-                  </q-item-section>
-
-                  <q-item-section avatar>
-                    <q-item-label>
-                      <span class="text-bold">{{ site.site_type }}</span>
-                    </q-item-label>
-                  </q-item-section>
-                </q-item>
-
-              </q-list>
-            </q-card-section>
-
-            <q-card-section>
-              <div class="row">
-                <div class="col-12">
-                  <q-btn size="sm"
-                         @click="$router.push('/site/' + site.reference_id + '/browse')"
-                         label="Browse files"
-                         text-color="primary"
-                         class="float-right"></q-btn>
-                  <q-btn @click="showEditSite(site)" size="sm"
-                         label="Edit site" class="float-right"></q-btn>
-                </div>
-              </div>
-            </q-card-section>
-          </q-card>
+        <div class="col-12">
+          <q-markup-table>
+            <thead>
+            <tr style="text-align: left">
+              <th>Sites</th>
+              <th></th>
+              <th></th>
+              <th></th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr v-for="site in sites.filter((e) => {
+              if (siteFilter) {
+                return e.name.indexOf(siteFilter) > -1;
+              } else {
+                return true;
+              }
+            })" style="cursor: pointer" @click="$router.push('/user/' + user.email)">
+              <td>{{ site.name }}</td>
+              <td>{{ site.enable_https }}</td>
+              <td>{{ site.ftp_enabled }}</td>
+              <td>
+                <q-btn color="black" flat icon="fas fa-wrench"></q-btn>
+              </td>
+            </tr>
+            </tbody>
+          </q-markup-table>
         </div>
+
+
       </div>
 
 
@@ -309,6 +270,7 @@
       return {
         text: '',
         showHttpEdit: false,
+        siteFilter: null,
         fileList: [],
         currentSite: null,
         showFileBrowser: false,

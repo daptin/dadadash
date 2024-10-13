@@ -2,36 +2,53 @@
   <q-page-container>
     <q-page>
 
-
-      <div class="row q-pa-md q-gutter-sm">
-        <div class="col-4 col-xl-2 col-lg-3 col-xs-12 col-sm-6">
-          <q-btn @click="showCreateCloudStoreDrawer = true" fab icon="add" color="primary"/>
+      <div class="row q-gutter-sm q-pa-md">
+        <div class="col-4">
+          <q-input dense v-model="nameFilter" icon="search" label="search">
+            <template v-slot:prepend>
+              <q-icon name="search"/>
+            </template>
+          </q-input>
+        </div>
+      </div>
+      <div class="row" style="border-top: 1px solid black; border-bottom: 1px solid black">
+        <div class="col-1">
+          <q-btn-group flat size="sm">
+            <q-btn icon="add" flat @click="showCreateCloudStoreDrawer = true"/>
+            <q-btn icon="delete" disable flat @click="$router.push('/tables/create')"/>
+          </q-btn-group>
         </div>
       </div>
 
+
       <div class="row q-pa-md q-gutter-sm">
-        <div class="col-4 col-xl-2 col-lg-3 col-xs-12 col-sm-6 " v-for="store in cloudStores">
-          <q-card>
-            <q-card-section>
-              <span class="text-h6">{{ store.name }}</span>
-            </q-card-section>
-            <q-card-section>
-              <span>Provider</span> <span class="text-bold float-right">{{ store.store_provider }}</span>
-            </q-card-section>
-            <q-card-section>
-              <span>Root path</span> <span class="text-bold float-right">{{ store.root_path }}</span>
-            </q-card-section>
-            <q-card-section>
-              <div class="row">
-                <div class="col-12">
-                  <!--                <q-btn size="sm" @click="listFiles(store)" label="Browse files" color="primary"-->
-                  <!--                       class="float-right"></q-btn>-->
-                  <q-btn @click="showEditStore(store)" size="sm"
-                         label="Edit store" class="float-right"></q-btn>
-                </div>
-              </div>
-            </q-card-section>
-          </q-card>
+        <div class="col-12">
+          <q-markup-table>
+            <thead>
+            <tr style="text-align: left">
+              <th>Storage</th>
+              <th></th>
+              <th></th>
+              <th></th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr v-for="cloudStore in cloudStores.filter((e) => {
+              if (nameFilter) {
+                return e.name.indexOf(nameFilter) > -1;
+              } else {
+                return true;
+              }
+            })" style="cursor: pointer" @click="$router.push('/user/' + user.email)">
+              <td>{{ cloudStore.name }}</td>
+              <td>{{ cloudStore.store_provider }}</td>
+              <td>{{ cloudStore.root_path }}</td>
+              <td>
+                <q-btn color="black" flat icon="fas fa-wrench"></q-btn>
+              </td>
+            </tr>
+            </tbody>
+          </q-markup-table>
         </div>
 
       </div>
@@ -187,6 +204,7 @@
       return {
         text: '',
         selectedStore: {},
+        nameFilter: null,
         showHelp: false,
         storeProviderOptions: [
           {
@@ -225,7 +243,6 @@
             description: 'The local filesystem'
           },
         ],
-        showHelp: false,
         newStore: {
           name: null,
           store_provider: 'local',

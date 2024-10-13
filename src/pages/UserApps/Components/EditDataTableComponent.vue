@@ -654,7 +654,11 @@ const tableComponent = {
             return fileUploaderCell(cell, formatterParams);
           }
           var field = row.data[column.field][0];
-          return "<a href='" + that.endpoint + "/asset/" + row.data.__type + "/" + row.data.reference_id + "/" + column.field + ".'" + field.type.split("/")[1] + "></a>";
+          let fileTypeExtension = field.type ? field.type.split("/")[1] : field.name.split(".")[1];
+          if (fileTypeExtension === "png") {
+            return "<img alt='preview of contents' style='width: 100%; height: 100%' src='" + that.endpoint + "/asset/" + row.data.__type + "/" + row.data.reference_id + "/" + column.field + "." + fileTypeExtension + "'></img>";
+          }
+          return "<a target='_blank' href='" + that.endpoint + "/asset/" + row.data.__type + "/" + row.data.reference_id + "/" + column.field + "." + fileTypeExtension + "'>Download</a>";
         },
       });
 

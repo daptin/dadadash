@@ -33,8 +33,7 @@
               <td>{{ action.label }}</td>
 
               <td class="text-right">
-                <q-btn icon="edit" @click="showEditAction(action)" size="md"
-                       label="Edit" class="float-right"></q-btn>
+                <q-btn icon="edit" @click="showEditAction(action)" size="md" class="float-right"></q-btn>
 
               </td>
             </tr>
@@ -318,9 +317,7 @@ OutFields:`)
       const that = this;
       return that.actions.filter(function (e) {
         return !that.actionFilter || (
-          e.action_name.indexOf(that.actionFilter) > -1 ||
-          e.ActionSchema.OnType.indexOf(that.actionFilter) > -1 ||
-          e.ActionSchema.Label.indexOf(that.actionFilter) > -1
+          e.action_name.indexOf(that.actionFilter) > -1
         )
       })
     },
