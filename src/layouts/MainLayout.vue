@@ -30,9 +30,9 @@ text-align: center;
 
 
 
-          <q-item  clickable v-ripple @click="$router.push('/tables')">
+          <q-item dense  clickable v-ripple @click="$router.push('/tables')">
             <q-item-section avatar>
-              <q-icon name="fas fa-table"></q-icon>
+              <q-icon size="xs" name="fas fa-table"></q-icon>
             </q-item-section>
             <q-item-section>
               <q-item-label>
@@ -40,9 +40,9 @@ text-align: center;
               </q-item-label>
             </q-item-section>
           </q-item>
-          <q-item  clickable v-ripple @click="$router.push('/integrations/actions')">
+          <q-item dense  clickable v-ripple @click="$router.push('/integrations/actions')">
             <q-item-section avatar>
-              <q-icon name="fas fa-wrench"></q-icon>
+              <q-icon size="xs" name="fas fa-wrench"></q-icon>
 
             </q-item-section>
             <q-item-section>
@@ -53,49 +53,35 @@ text-align: center;
           </q-item>
 
 
-
-
-          <q-item  clickable v-ripple @click="$router.push('/user/profile')">
+          <q-item dense clickable v-ripple @click="$router.push('/users')">
             <q-item-section avatar>
-              <q-icon name="fas fa-id-card"></q-icon>
+              <q-icon size="xs" name="fas fa-address-book"></q-icon>
 
             </q-item-section>
             <q-item-section>
               <q-item-label>
-                Profile
+                User Accounts
               </q-item-label>
             </q-item-section>
           </q-item>
 
-          <q-item  clickable v-ripple @click="$router.push('/users')">
+          <q-item dense clickable v-ripple @click="$router.push('/groups')">
             <q-item-section avatar>
-              <q-icon name="fas fa-address-book"></q-icon>
+              <q-icon size="xs" name="fas fa-users"></q-icon>
 
             </q-item-section>
             <q-item-section>
               <q-item-label>
-                Accounts
-              </q-item-label>
-            </q-item-section>
-          </q-item>
-
-          <q-item  clickable v-ripple @click="$router.push('/groups')">
-            <q-item-section avatar>
-              <q-icon name="fas fa-users"></q-icon>
-
-            </q-item-section>
-            <q-item-section>
-              <q-item-label>
-                Groups
+                User Groups
               </q-item-label>
             </q-item-section>
           </q-item>
 
 
 
-          <q-item  clickable v-ripple @click="$router.push('/cloudstore')">
+          <q-item dense clickable v-ripple @click="$router.push('/cloudstore')">
             <q-item-section avatar>
-              <q-icon name="fas fa-bars"></q-icon>
+              <q-icon size="xs" name="fas fa-bars"></q-icon>
 
             </q-item-section>
             <q-item-section>
@@ -105,9 +91,9 @@ text-align: center;
             </q-item-section>
           </q-item>
 
-          <q-item  clickable v-ripple @click="$router.push('/cloudstore/sites')">
+          <q-item dense clickable v-ripple @click="$router.push('/cloudstore/sites')">
             <q-item-section avatar>
-              <q-icon name="fas fa-desktop"></q-icon>
+              <q-icon size="xs" name="fas fa-desktop"></q-icon>
 
             </q-item-section>
             <q-item-section>
@@ -117,9 +103,9 @@ text-align: center;
             </q-item-section>
           </q-item>
 
-          <q-item  clickable v-ripple @click="$router.push('/integrations/spec')">
+          <q-item dense clickable v-ripple @click="$router.push('/integrations/spec')">
             <q-item-section avatar>
-              <q-icon name="fas fa-plug"></q-icon>
+              <q-icon size="xs" name="fas fa-plug"></q-icon>
 
             </q-item-section>
             <q-item-section>
@@ -133,9 +119,9 @@ text-align: center;
 
 
 
-          <q-item  clickable v-ripple @click="$router.push('/tables/apidocs')">
+          <q-item dense clickable v-ripple @click="$router.push('/tables/apidocs')">
             <q-item-section avatar>
-              <q-icon name="fas fa-book"></q-icon>
+              <q-icon size="xs" name="fas fa-book"></q-icon>
             </q-item-section>
             <q-item-section>
               <q-item-label>
@@ -145,9 +131,9 @@ text-align: center;
           </q-item>
 
 
-          <q-item  clickable v-ripple @click="$router.push('/tables/graphql')">
+          <q-item dense clickable v-ripple @click="$router.push('/tables/graphql')">
             <q-item-section avatar>
-              <q-icon name="fas fa-book"></q-icon>
+              <q-icon size="xs" name="fas fa-book"></q-icon>
             </q-item-section>
             <q-item-section>
               <q-item-label>
