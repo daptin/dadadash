@@ -1,15 +1,29 @@
 <template>
   <q-page-container>
     <q-page>
-      <div class="row q-pa-md q-gutter-sm">
+      <div class="row q-pa-sm q-gutter-sm">
         <div class="col-6">
-          <span class="text-h4">
-              User
+          <span class="text-h5">
+              User account
             </span>
         </div>
       </div>
-      <div class="row q-pa-md q-gutter-sm" v-if="user">
-        <div class="col-6">
+      <div class="row q-pa-sm">
+        <q-markup-table flat>
+          <tbody>
+          <tr>
+            <td>Reference Id</td>
+            <td><pre>{{user.reference_id}}</pre></td>
+          </tr>
+          <tr>
+            <td>Created at</td>
+            <td><pre>{{user.created_at.split("T").join(" ")}}</pre></td>
+          </tr>
+          </tbody>
+        </q-markup-table>
+      </div>
+      <div class="row q-pa-sm" v-if="user">
+        <div class="col-5 col-lg-4 col-xl-3">
           <q-form class="q-pa-md q-gutter-sm">
             <q-input label="Name" v-model="userView.name"></q-input>
             <q-input label="Email" v-model="userView.email"></q-input>

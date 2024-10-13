@@ -19,14 +19,15 @@
             <div class="col-12 q-pa-md" style="height: calc(100vh - 250px); overflow-y: scroll">
               <div class="row q-gutter-sm q-pa-md" v-for="table in filteredTables">
                 <div class="col-12">
-                  <q-card>
+                  <q-card flat style="border-bottom: 1px solid black">
                     <q-card-section>
-                      {{ table.table_name }} in the group: {{
-                        objectsInTheGroup[table.table_name + '_id'] ? objectsInTheGroup[table.table_name + '_id'].length : 0
-                      }}
-                      <q-btn flat icon="fas fa-plus" class="float-right"
+                      <h6>{{ table.table_name }}</h6>
+                      <span>{{
+                          objectsInTheGroup[table.table_name + '_id'] ? objectsInTheGroup[table.table_name + '_id'].length : 0
+                        }}</span>
+                      <q-btn flat icon="add" class="float-right"
                              @click="addObjectType(table.table_name)"
-                             :label="'Add new '+table.table_name"></q-btn>
+                             :label="'Add '+table.table_name"></q-btn>
                     </q-card-section>
 
 
