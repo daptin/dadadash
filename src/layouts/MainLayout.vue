@@ -20,9 +20,6 @@ text-align: center;
 " class="text-white">
               DASHBOARD
             </q-item-section>
-            <q-item-section avatar>
-              <q-btn flat size="xs" @click="showAdminDrawerStick = !showAdminDrawerStick" color="white" icon="menu"/>
-            </q-item-section>
           </q-item>
         </q-list>
 
@@ -151,16 +148,14 @@ text-align: center;
       </q-scroll-area>
     </q-drawer>
 
-    <router-view v-if="isAdmin || isUser"/>
     <user-header-bar @toggle-left-drawer="toggleAdminDrawer()" v-if="loaded" :buttons="{before: [], after: []}" :on-back="false"></user-header-bar>
+    <router-view v-if="isAdmin || isUser"/>
 
   </q-layout>
 </template>
 
 <script>
 import {mapGetters, mapActions} from 'vuex';
-
-var jwt = require('jsonwebtoken');
 
 export default {
   name: 'MainLayout',

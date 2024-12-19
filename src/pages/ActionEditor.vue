@@ -23,8 +23,6 @@
 <script>
 import {mapActions, mapGetters, mapState} from 'vuex';
 
-const yaml = require('js-yaml');
-
 export default {
   name: 'ActionPage',
   methods: {
@@ -81,6 +79,7 @@ export default {
   data() {
     return {
       action: null,
+      actionFilter: "",
       ...mapState([])
     }
   },

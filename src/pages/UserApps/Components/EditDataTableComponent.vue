@@ -74,11 +74,12 @@
                       <div class="col-12">
                         <div v-for="column in newRowData" class="q-pa-sm q-gutter-sm">
                           <q-input
-                            v-if="['label', 'measurement', 'value', 'email', ''].indexOf(column.meta.ColumnType) > -1"
+                            v-if="['label', 'measurement', 'value', 'email', '', 'encrypted', 'url'].indexOf(column.meta.ColumnType) > -1"
                             v-model="column.value"
                             :label="column.meta.ColumnName"
                             :value="column.DefaultValue"
                             filled
+                            style="max-width: 400px"
                           />
 
 

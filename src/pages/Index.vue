@@ -1,4 +1,4 @@
-<template xmlns:v-slot="http://www.w3.org/1999/XSL/Transform">
+<template>
   <q-page-container>
     <q-page>
 
@@ -8,30 +8,8 @@
           <div class="row">
             <div class="col-6 col-md-6 col-lg-4 col-xl-4 col-xs-12 col-sm-12 q-pa-sm q-gutter-sm">
               <q-card>
-
-
                 <q-card-section>
-                  <q-item>
-                    <q-item-section avatar>
-                      <q-avatar>
-                        <q-icon size="lg" name="fas fa-user"></q-icon>
-                      </q-avatar>
-                    </q-item-section>
-                    <q-item-section>
-                      <span class="text-h5" v-if="!showHostnameEdit">Users</span>
-                      <span class="text-bold" v-if="!showHostnameEdit">@ {{ serverConfig.hostname }}</span>
-                      <q-input @keypress.enter="saveHostname()" v-if="showHostnameEdit" :value="serverConfig.hostname"
-                               v-model="serverConfig.hostname"
-                               label="Hostname"></q-input>
-                    </q-item-section>
-                    <q-item-section avatar>
-                      <q-icon v-if="!showHostnameEdit" @click="changeHostname()" style="cursor: pointer"
-                              name="fas fa-edit"
-                              size="xs"></q-icon>
-                      <q-icon v-if="showHostnameEdit" @click="saveHostname()" style="cursor: pointer" name="fas fa-save"
-                              size="xs"></q-icon>
-                    </q-item-section>
-                  </q-item>
+                  <span v-if="!showHostnameEdit" class="text-bold">{{ serverConfig.hostname }}</span>
                 </q-card-section>
 
 
@@ -49,13 +27,13 @@
                       <span class="text-bold">User registrations</span>
                     </div>
                     <div class="col-6 text-right">
-                      <q-btn-toggle @click="updateSignupActionPermission()" size="sm" flat color="white"
-                                    toggle-color="primary" toggle-text-color="black"
-                                    text-color="black"
-                                    :options="[
+                      <q-btn-toggle v-model="signUpPublicAvailable" :options="[
           {label: signUpPublicAvailable == '2097057' ? 'Enabled' : 'Enable', value: '2097057', disable: signUpPublicAvailable == '2097057'},
           {label: signUpPublicAvailable != '2097057' ? 'Disabled' : 'Disable', value: '2097025', disable: !(signUpPublicAvailable == '2097057')},
-        ]" v-model="signUpPublicAvailable"></q-btn-toggle>
+        ]" color="white" flat
+                                    size="sm" text-color="black"
+                                    toggle-color="primary"
+                                    toggle-text-color="black" @click="updateSignupActionPermission()"></q-btn-toggle>
                     </div>
                   </div>
                   <div class="row q-pa-sm">
@@ -85,7 +63,7 @@
                   <q-item>
                     <q-item-section avatar>
                       <q-avatar>
-                        <q-icon size="lg" name="fas fa-database"></q-icon>
+                        <q-icon name="fas fa-database" size="lg"></q-icon>
                       </q-avatar>
                     </q-item-section>
                     <q-item-section>
@@ -109,8 +87,8 @@
                 <q-card-section>
                   <div class="row ">
                     <div class="col-12 q-pa-sm q-gutter-sm">
-                      <q-btn class="float-right" @click="$router.push('/tables')" icon="list" round></q-btn>
-                      <q-btn class="float-right" @click="$router.push('/tables/create')" round icon="add"></q-btn>
+                      <q-btn class="float-right" icon="list" round @click="$router.push('/tables')"></q-btn>
+                      <q-btn class="float-right" icon="add" round @click="$router.push('/tables/create')"></q-btn>
                     </div>
                   </div>
                 </q-card-section>
@@ -125,7 +103,7 @@
                   <q-item>
                     <q-item-section avatar>
                       <q-avatar>
-                        <q-icon size="lg" name="fas fa-film"></q-icon>
+                        <q-icon name="fas fa-film" size="lg"></q-icon>
                       </q-avatar>
                     </q-item-section>
                     <q-item-section>
@@ -168,7 +146,7 @@
                 <q-card-section>
                   <div class="row ">
                     <div class="col-12 q-pa-sm q-gutter-sm">
-                      <q-btn @click="$router.push('/cloudstore/sites')" class="float-right" round icon="list"></q-btn>
+                      <q-btn class="float-right" icon="list" round @click="$router.push('/cloudstore/sites')"></q-btn>
                     </div>
                   </div>
                 </q-card-section>
@@ -182,7 +160,7 @@
                   <q-item>
                     <q-item-section avatar>
                       <q-avatar>
-                        <q-icon size="lg" name="fas fa-bolt"></q-icon>
+                        <q-icon name="fas fa-bolt" size="lg"></q-icon>
                       </q-avatar>
                     </q-item-section>
                     <q-item-section>
@@ -233,7 +211,7 @@
                   <q-item>
                     <q-item-section avatar>
                       <q-avatar>
-                        <q-icon size="lg" name="fas fa-plug"></q-icon>
+                        <q-icon name="fas fa-plug" size="lg"></q-icon>
                       </q-avatar>
                     </q-item-section>
                     <q-item-section>
@@ -263,7 +241,7 @@
                     </span>
                     </div>
                     <div class="col-4 text-right">
-                      <q-btn rounded color="primary" @click="reloadServer()" flat size="md" icon="fas fa-sync"></q-btn>
+                      <q-btn color="primary" flat icon="fas fa-sync" rounded size="md" @click="reloadServer()"></q-btn>
                     </div>
                   </div>
 
@@ -272,7 +250,7 @@
                       <span class="text-bold">JSON API endpoint</span>
                     </div>
                     <div class="col-4 text-right">
-                      <q-icon name="fas fa-check" color="green"></q-icon>
+                      <q-icon color="green" name="fas fa-check"></q-icon>
                     </div>
                   </div>
 
@@ -284,12 +262,12 @@
                     <div class="col-4 text-right">
 
                       <!--       {{serverConfig['ftp.enable']}}         <q-checkbox v-model="serverConfig['ftp.enable']"/>-->
-                      <q-btn-toggle size="sm" flat color="white" toggle-color="black" toggle-text-color="black"
-                                    text-color="primary" @click="updateFtpEndpoint()"
-                                    :options="[
+                      <q-btn-toggle v-model="serverConfig['ftp.enable']" :options="[
           {label: serverConfig['ftp.enable'] ? 'Enabled' : 'Enable', value: true, disable: serverConfig['ftp.enable']},
           {label: !serverConfig['ftp.enable'] ? 'Disabled' : 'Disable', value: false, disable: !serverConfig['ftp.enable']},
-        ]" v-model="serverConfig['ftp.enable']"></q-btn-toggle>
+        ]" color="white" flat size="sm"
+                                    text-color="primary" toggle-color="black"
+                                    toggle-text-color="black" @click="updateFtpEndpoint()"></q-btn-toggle>
                     </div>
                   </div>
                   <div class="row q-pa-sm">
@@ -297,12 +275,12 @@
                       <span class="text-bold">GraphQL endpoint</span>
                     </div>
                     <div class="col-4 text-right">
-                      <q-btn-toggle size="sm" flat color="white" toggle-color="black" toggle-text-color="black"
-                                    text-color="primary" @click="updateGraphqlEndpoint()"
-                                    :options="[
+                      <q-btn-toggle v-model="serverConfig['graphql.enable']" :options="[
           {label: serverConfig['graphql.enable'] ? 'Enabled' : 'Enable', value: true, disable: serverConfig['graphql.enable']},
           {label: !serverConfig['graphql.enable'] ? 'Disabled' : 'Disable', value: false, disable: !serverConfig['graphql.enable']},
-        ]" v-model="serverConfig['graphql.enable']"></q-btn-toggle>
+        ]" color="white" flat size="sm"
+                                    text-color="primary" toggle-color="black"
+                                    toggle-text-color="black" @click="updateGraphqlEndpoint()"></q-btn-toggle>
 
                     </div>
                   </div>
@@ -311,8 +289,8 @@
                       <span class="text-bold">IMAP endpoint</span>
                     </div>
                     <div class="col-4 text-right">
-                      <q-icon v-if="serverConfig['imap.enabled']" name="fas fa-check" color="green"></q-icon>
-                      <q-icon v-if="!serverConfig['imap.enabled']" name="fas fa-times" color="red"></q-icon>
+                      <q-icon v-if="serverConfig['imap.enabled']" color="green" name="fas fa-check"></q-icon>
+                      <q-icon v-if="!serverConfig['imap.enabled']" color="red" name="fas fa-times"></q-icon>
 
                     </div>
                   </div>
@@ -320,13 +298,13 @@
                     <div class="col-6">
                       <span class="text-bold">Connection limit / IP</span>
                     </div>
-                    <div @click="editMaxConnections = true" class="col-4 text-right" v-if="!editMaxConnections"
-                         style="text-decoration-line: underline; text-decoration-style: dashed">
+                    <div v-if="!editMaxConnections" class="col-4 text-right" style="text-decoration-line: underline; text-decoration-style: dashed"
+                         @click="editMaxConnections = true">
                       {{ serverConfig['limit.max_connections'] }}
                     </div>
-                    <div class="col-4 text-right" v-if="editMaxConnections">
-                      <input type="number" @keypress.enter="saveMaxConnections()" style="width: 100px" size="sm"
-                             v-model="serverConfig['limit.max_connections']">
+                    <div v-if="editMaxConnections" class="col-4 text-right">
+                      <input v-model="serverConfig['limit.max_connections']" size="sm" style="width: 100px" type="number"
+                             @keypress.enter="saveMaxConnections()">
                       <q-tooltip>Press enter to save</q-tooltip>
                       <i class="fas fa-times" style="color: grey; cursor: pointer; padding-left: 5px"
                          @click="editMaxConnections = false"></i>
@@ -336,13 +314,13 @@
                     <div class="col-6">
                       <span class="text-bold">Rate limit</span>
                     </div>
-                    <div class="col-4 text-right" v-if="!editRateLimit" @click="editRateLimit = true"
-                         style="text-decoration-line: underline; text-decoration-style: dashed">
+                    <div v-if="!editRateLimit" class="col-4 text-right" style="text-decoration-line: underline; text-decoration-style: dashed"
+                         @click="editRateLimit = true">
                       {{ serverConfig['limit.rate'] }}
                     </div>
-                    <div class="col-4 text-right" v-if="editRateLimit">
-                      <input @keypress.enter="saveRateLimit()" type="number" style="width: 100px" size="sm"
-                             v-model="serverConfig['limit.rate']">
+                    <div v-if="editRateLimit" class="col-4 text-right">
+                      <input v-model="serverConfig['limit.rate']" size="sm" style="width: 100px" type="number"
+                             @keypress.enter="saveRateLimit()">
                       <q-tooltip>Press enter to save</q-tooltip>
                       <i class="fas fa-times" style="color: grey; cursor: pointer; padding-left: 5px"
                          @click="editRateLimit = false"></i>
@@ -361,8 +339,8 @@
       </div>
 
 
-      <q-drawer overlay :width="400" side="right" v-model="showHelp">
-        <q-scroll-area class="fit" v-if="showHelp">
+      <q-drawer v-model="showHelp" :width="400" overlay side="right">
+        <q-scroll-area v-if="showHelp" class="fit">
           <help-page @closeHelp="showHelp = false">
           </help-page>
         </q-scroll-area>

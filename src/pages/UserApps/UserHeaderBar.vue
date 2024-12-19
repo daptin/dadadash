@@ -2,52 +2,19 @@
 
   <q-header reveal class="print-hide bg-black" position="top" expand>
     <q-bar style="height: 48px" v-if="decodedAuthToken() !== null">
-<!--      <q-btn  flat @click="$emit('toggle-left-drawer')" icon="menu"></q-btn>-->
+      <q-btn  flat @click="$emit('toggle-left-drawer')" icon="menu"></q-btn>
       <q-btn v-if="onBack !==  false" flat @click="onBack ? onBack() : $router.back()" icon="fas fa-arrow-left"></q-btn>
       <q-btn :key="btn.icon" v-for="btn in buttons.beforeTitle" flat @click="buttonClicked(btn)"
              :icon="btn.icon"></q-btn>
       <q-toolbar-title v-if="title && $q.screen.gt.md" style="text-transform: capitalize" v-html="title">
       </q-toolbar-title>
 
-      <!--      <form v-if="$q.screen.gt.xs" @submit="emitSearch" class="col-2 col-xs-0">-->
-      <!--        <input id="searchInput"-->
-      <!--               placeholder="Search"-->
-      <!--               style=" height:32px; font-size: 15px; border: 1px solid black; border-radius: 4px; padding-left: 10px; width: 100%"-->
-      <!--               type="text" v-model="searchQuery"/>-->
-      <!--      </form>-->
       <q-btn :key="btn.icon" v-for="btn in buttons.before" flat @click="buttonClicked(btn)" :icon="btn.icon"></q-btn>
       <q-btn :key="btn.icon" v-for="btn in buttons.after" flat @click="buttonClicked(btn)" :label="btn.label"
              :icon="btn.icon">
         <q-tooltip v-if="btn.tooltip">{{ btn.tooltip }}</q-tooltip>
       </q-btn>
       <q-space/>
-      <q-btn flat :icon="basePermission.read === 'public' ? 'fas fa-eye':  'fas fa-eye-slash'"
-             v-if="documentTableLocal !== null"
-             label="View permissions">
-        <q-menu>
-
-          <q-card>
-            <q-card-section>
-              <span class="text-bold">Site guest read access</span> <br/>
-              <span class="text-secondary" style="font-size: 0.8em">
-                This is a site wide control. <br/>
-                You will also need to enable access for each item separately.
-              </span>
-
-            </q-card-section>
-            <q-card-section>
-              <q-btn label="Public" :class="{'btn-primary': basePermission.read === 'public'}"
-                     @click="updateBasePermission('public')"/>
-
-              <q-btn label="Private" :class="{'btn-primary': basePermission.read === 'private'}"
-                     @click="updateBasePermission('private')"/>
-
-            </q-card-section>
-          </q-card>
-
-
-        </q-menu>
-      </q-btn>
       <q-btn flat icon="fas fa-th">
         <q-menu>
           <div class="row no-wrap q-pa-md">

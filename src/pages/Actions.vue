@@ -321,8 +321,8 @@ OutFields:`)
     filteredActions() {
       const that = this;
       return that.actions.filter(function (e) {
-        return !that.actionFilter || (
-          e.action_name.indexOf(that.actionFilter) > -1
+        return !that.nameFilter || (
+          e.action_name.indexOf(that.nameFilter) > -1
         )
       })
     },
